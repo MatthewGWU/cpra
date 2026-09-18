@@ -1,0 +1,7 @@
+# Upstream data repo (cloned at runtime by export_dataset.py)
+C3PA_Dataset/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
