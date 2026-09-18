@@ -65,4 +65,5 @@ python export_dataset.py   # expects the C3PA_Dataset clone in ./C3PA_Dataset
 
 Numbering: the balance-targeted splits shown on the site were not yet run through
 training in the notebook, so the model metrics reported there are from the earlier
-30%-scale run.
+30%-scale run (a separate random subsample of 119 docs / 7,167 spans, trained before
+the balancing step was added).
