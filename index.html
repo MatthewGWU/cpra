@@ -36,6 +36,7 @@
     <div class="collapse navbar-collapse" id="nav">
       <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
         <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="#methodology">Methodology</a></li>
         <li class="nav-item"><a class="nav-link" href="#labels">Labels</a></li>
         <li class="nav-item"><a class="nav-link" href="#models">Models</a></li>
         <li class="nav-item"><a class="nav-link" href="#explainability">Explainability</a></li>
@@ -174,6 +175,57 @@
           This page is a static export (JSON) of the exact splits reproduced by <code class="font-mono">export_dataset.py</code>
           from <code class="font-mono">CPRA_C3PA_Primary_30pct (5).ipynb</code>.
         </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="methodology" class="mb-5">
+    <div class="card">
+      <div class="card-body p-4">
+        <h2 class="h4 mb-2">Methodology &amp; leakage controls</h2>
+        <p class="text-muted small mb-3">
+          The setup behind the splits on this page, in case the methodology gets probed.
+          Every step below is pinned to seed&nbsp;42 and reproduced byte-for-byte by
+          <code class="font-mono">export_dataset.py</code> from the notebook's BLOCK&nbsp;5 / cells&nbsp;9–12.
+        </p>
+
+        <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">Pipeline, in order</h3>
+        <ol class="mb-0">
+          <li class="mb-2"><strong>Group.</strong> Raw expert annotations (45,121 rows) are grouped into <code class="font-mono">(doc_id, text)</code> spans, and each span's labels are collapsed into a set → 26,740 unique mapped spans.</li>
+          <li class="mb-2"><strong>Map.</strong> Eight C3PA categories map onto the six-label CPRA schema; <em>Right_to_Access</em> and <em>Risk_Assessment</em> are dropped because no C3PA category maps to them.</li>
+          <li class="mb-2"><strong>Deduplicate.</strong> 992 spans with identical text (shared boilerplate across companies) are removed → 25,748 unique spans across 399 documents.</li>
+          <li class="mb-2"><strong>Balance.</strong> Documents are selected greedily, scarcest label first, until scarce labels reach a ~500-sample floor (a floor, not a cap) → 218 documents / 15,750 spans.</li>
+          <li><strong>Split.</strong> The 218 selected documents are split 70 / 15 / 15 by document.</li>
+        </ol>
+
+        <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">The split, by the numbers</h3>
+        <div class="table-responsive mb-2">
+          <table class="table table-sm table-bordered mb-0">
+            <thead class="table-light">
+              <tr><th>Split</th><th>Documents</th><th>Spans</th><th>Anything shared with the other splits?</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Train</td><td>152</td><td>11,098</td><td class="text-success">No</td></tr>
+              <tr><td>Validation</td><td>32</td><td>2,134</td><td class="text-success">No</td></tr>
+              <tr><td>Test</td><td>34</td><td>2,518</td><td class="text-success">No</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small text-muted mb-3">
+          The test split is a partition of the balanced selection (34 of the 218 documents), not a
+          freshly sampled set — that is why the per-label counts in each split tab are far below the
+          ~500 selection target.
+        </p>
+
+        <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">Why there is no leakage</h3>
+        <ul class="mb-0">
+          <li class="mb-2"><strong>Whole-document split.</strong> Documents are the atom: every span of a document lands in exactly one split, so a span cannot drift between train, validation, and test.</li>
+          <li class="mb-2"><strong>Two independent disjointness checks.</strong> After splitting, the script asserts (i) the three document-ID sets are pairwise disjoint, and (ii) the three span-text sets are pairwise disjoint — catching any surviving boilerplate. Both hold on the exported JSONs: 0 overlapping documents and 0 overlapping texts across every split pair.</li>
+          <li class="mb-2"><strong>Deduplication before splitting.</strong> The 992 identical-text spans are removed in step&nbsp;3, before any split exists, so template text cannot recur in multiple splits.</li>
+          <li class="mb-2"><strong>Seed-pinned randomness.</strong> Both the balance selection and the split shuffle use seed&nbsp;42, so the exact partitions can be regenerated from the same inputs.</li>
+          <li class="mb-2"><strong>Validation-only tuning.</strong> Per-class thresholds and hyperparameters are selected on the validation split; the test set is evaluated exactly once, with those choices frozen (the training run even includes a candidate-selection block that re-derives its hyperparameter choice on validation only).</li>
+          <li class="mb-2"><strong>Imbalance is handled, not sampled away.</strong> The ~500 floor, per-class <code class="font-mono">pos_weight</code> on the BCE term, and focal loss (γ&nbsp;=&nbsp;2) all counteract the long-tailed label distribution without touching the test split.</li>
+        </ul>
       </div>
     </div>
   </section>
