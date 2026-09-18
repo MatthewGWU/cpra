@@ -133,6 +133,42 @@ function renderChart(name) {
     });
 }
 
+const MODEL_BAR = {
+    labels: ['RoBERTa-large', 'Flan-T5-base', 'LegalBERT', 'Vanilla BERT-base'],
+    values: [0.8565, 0.8557, 0.8243, 0.7956],
+};
+
+function renderModelChart() {
+    const canvas = el('model-chart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: MODEL_BAR.labels,
+            datasets: [{
+                label: 'Macro F1 (test split)',
+                data: MODEL_BAR.values,
+                backgroundColor: ['#0d6efd', '#0d6efd', '#1b4d89', '#adb5bd'],
+                borderRadius: 4,
+                maxBarThickness: 42,
+            }],
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: (ctx) => ` Macro F1: ${ctx.parsed.x.toFixed(4)}` } },
+            },
+            scales: {
+                x: { min: 0.5, max: 0.9, grid: { color: '#e9edf2' } },
+                y: { grid: { display: false } },
+            },
+        },
+    });
+}
+
 function renderTable(name) {
     const rows = filteredRows(name);
     const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
@@ -402,4 +438,5 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => showSplit(btn.dataset.split));
     });
     if (el('shap-cards') && el('lime-cards')) loadExplainability();
+    renderModelChart();
 });
