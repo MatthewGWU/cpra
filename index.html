@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CPRA · C3PA — 30% Scale Pipeline Explorer</title>
+  <title>CPRA · C3PA — Balance-Targeted Pipeline Explorer</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
@@ -55,25 +55,26 @@
         <p class="text-uppercase small letter-spacing mb-1" style="letter-spacing: .12em; color: #9dc3e6;">
           Privacy-policy compliance classification
         </p>
-        <h1 class="fw-bold mb-3">CPRA failure-classification at 30% scale</h1>
+        <h1 class="fw-bold mb-3">CPRA failure-classification, balance-targeted</h1>
         <p class="lead mb-0" style="color: #d7e4f3;">
           A multi-label multi-class extraction pipeline that scores real company privacy policies
           against the California Privacy Rights Act (CPRA), rebuilt on the
           <a href="https://github.com/MaazBinMusa/C3PA_Dataset" class="link-warning" target="_blank" rel="noopener">C3PA dataset</a>
-          (Bin Musa et al., EMNLP 2024) — 399 companies, expert-annotated policy spans.
+          (Bin Musa et al., EMNLP 2024) — 399 companies, expert-annotated policy spans. Documents
+          are selected greedily (scarcity-first) to reach ~500 samples per label.
         </p>
       </div>
       <div class="col-lg-4">
         <div class="card bg-white border-0 shadow-sm">
           <div class="card-body p-4">
-            <h6 class="text-muted text-uppercase small mb-3">The 30% run in numbers</h6>
+            <h6 class="text-muted text-uppercase small mb-3">The balanced run in numbers</h6>
             <div class="row text-center">
-              <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">119</div><div class="small text-muted">Docs</div></div>
-              <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">7,167</div><div class="small text-muted">Spans</div></div>
+              <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">218</div><div class="small text-muted">Docs</div></div>
+              <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">15,750</div><div class="small text-muted">Spans</div></div>
               <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">6</div><div class="small text-muted">Labels</div></div>
             </div>
             <hr class="my-3">
-            <div class="small text-muted d-flex justify-content-between"><span>Best macro F1</span><span class="fw-semibold" style="color:#1b4d89;">0.8565 (RoBERTa-large)</span></div>
+            <div class="small text-muted d-flex justify-content-between"><span>Best macro F1 <span class="badge bg-light text-muted" style="font-weight:400;">30% run</span></span><span class="fw-semibold" style="color:#1b4d89;">0.8565 (RoBERTa-large)</span></div>
             <div class="small text-muted d-flex justify-content-between mt-1"><span>LegalBERT</span><span class="fw-semibold">0.8243</span></div>
             <div class="small text-muted d-flex justify-content-between mt-1"><span>Flan-T5-base</span><span class="fw-semibold">0.8557</span></div>
           </div>
@@ -89,7 +90,7 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
       <div>
         <h2 class="h4 mb-1">Browse the splits</h2>
-        <p class="text-muted mb-0">Document-level 70 / 15 / 15 split (seed&nbsp;42) of a 30% document subsample — no leakage across splits. Text spans are shown with their ground-truth CPRA labels.</p>
+        <p class="text-muted mb-0">Document-level 70 / 15 / 15 split (seed&nbsp;42) of the 218-document target-balanced selection — no leakage across splits. Text spans are shown with their ground-truth CPRA labels.</p>
       </div>
       <div class="btn-group" role="group">
         <button class="btn btn-outline-primary tab-split" data-split="train">Train</button>
@@ -101,17 +102,17 @@
     <div class="row g-3 mb-3">
       <div class="col-md-4">
         <div class="card">
-          <div class="card-body text-center py-3"><div class="fs-4 fw-bold" style="color:#1b4d89;">83</div><div class="text-muted small">Train documents</div></div>
+          <div class="card-body text-center py-3"><div class="fs-4 fw-bold" style="color:#1b4d89;">152</div><div class="text-muted small">Train documents</div></div>
         </div>
       </div>
       <div class="col-md-4">
         <div class="card">
-          <div class="card-body text-center py-3"><div class="fs-4 fw-bold" style="color:#1b4d89;">17</div><div class="text-muted small">Validation documents</div></div>
+          <div class="card-body text-center py-3"><div class="fs-4 fw-bold" style="color:#1b4d89;">32</div><div class="text-muted small">Validation documents</div></div>
         </div>
       </div>
       <div class="col-md-4">
         <div class="card">
-          <div class="card-body text-center py-3"><div class="fs-4 fw-bold" style="color:#1b4d89;">19</div><div class="text-muted small">Test documents</div></div>
+          <div class="card-body text-center py-3"><div class="fs-4 fw-bold" style="color:#1b4d89;">34</div><div class="text-muted small">Test documents</div></div>
         </div>
       </div>
     </div>
@@ -137,7 +138,7 @@
         <ol class="mb-2">
           <li><strong>Group</strong> raw expert annotations into <code class="font-mono">(doc, text)</code> spans and collapse labels into a set per span.</li>
           <li><strong>Deduplicate</strong> shared boilerplate text across companies (992 duplicate spans removed).</li>
-          <li><strong>Subsample</strong> 30% of the 399 documents (seed 42) → 119 documents.</li>
+          <li><strong>Balance</strong> by document: greedily keep documents, scarcest label first (seed 42), until each label reaches ~500 samples → 218 documents / 15,750 spans.</li>
           <li><strong>Split</strong> by document 70 / 15 / 15 (seed 42), no label leakage across splits.</li>
         </ol>
         <div class="table-responsive">
@@ -146,15 +147,16 @@
               <tr><th>Split</th><th>Documents</th><th>Spans</th><th>Label decisions</th></tr>
             </thead>
             <tbody>
-              <tr><td>Train</td><td>83</td><td>4,952</td><td>5,070</td></tr>
-              <tr><td>Validation</td><td>17</td><td>1,094</td><td>1,123</td></tr>
-              <tr><td>Test</td><td>19</td><td>1,121</td><td>1,147</td></tr>
+              <tr><td>Train</td><td>152</td><td>11,098</td><td>11,456</td></tr>
+              <tr><td>Validation</td><td>32</td><td>2,134</td><td>2,188</td></tr>
+              <tr><td>Test</td><td>34</td><td>2,518</td><td>2,650</td></tr>
             </tbody>
           </table>
         </div>
         <p class="small text-muted mt-3 mb-0">
           Source data: <a href="https://github.com/MaazBinMusa/C3PA_Dataset" target="_blank" rel="noopener">MaazBinMusa/C3PA_Dataset</a>.
-          This page is a static export (JSON) of the exact splits reproduced by <code class="font-mono">export_dataset.py</code>.
+          This page is a static export (JSON) of the exact splits reproduced by <code class="font-mono">export_dataset.py</code>
+          from <code class="font-mono">CPRA_C3PA_Primary_30pct (5).ipynb</code>.
         </p>
       </div>
     </div>
@@ -197,7 +199,7 @@
   <section id="models" class="mb-5">
     <div class="card">
       <div class="card-body p-4">
-        <h2 class="h4 mb-3">Model comparison on the test split</h2>
+        <h2 class="h4 mb-3">Model comparison on the test split <span class="badge bg-light text-muted align-middle" style="font-weight:400;">from the 30%-scale run</span></h2>
         <div class="table-responsive">
           <table class="table table-sm table-bordered mb-1">
             <thead class="table-light">
@@ -215,6 +217,9 @@
           Thresholds tuned on the validation split; macro-averaged metrics reported on the test split.
           LegalBERT was compared against vanilla BERT-base as a controlled domain-pretraining check;
           RoBERTa-large and Flan-T5-base were the general-purpose candidates.
+          These numbers come from the earlier 30%-scale split (the same calibration the notebook
+          shipped before the balance change); the balance-targeted split shown on this page was not
+          yet run through training.
         </p>
       </div>
     </div>
@@ -224,8 +229,8 @@
 
 <footer class="bg-dark text-light py-4 mt-4">
   <div class="container small text-muted">
-    CPRA / C3PA · 30% scale pipeline explorer · generated from
-    <code class="font-mono">CPRA_C3PA_Primary_30pct_4.ipynb</code> via <code class="font-mono">export_dataset.py</code>.
+    CPRA / C3PA · balance-targeted pipeline explorer · generated from
+    <code class="font-mono">CPRA_C3PA_Primary_30pct (5).ipynb</code> via <code class="font-mono">export_dataset.py</code>.
     Data mirrored from the <a href="https://github.com/MaazBinMusa/C3PA_Dataset" class="link-light" target="_blank" rel="noopener">C3PA dataset</a>.
   </div>
 </footer>

@@ -1,10 +1,11 @@
 """Export the CPRA/C3PA train / validation / test splits to JSON.
 
-Mirrors the pipeline in CPRA_C3PA_Primary_30pct_4.ipynb exactly:
+Mirrors the pipeline in CPRA_C3PA_Primary_30pct (5).ipynb exactly:
   1. Load raw C3PA annotations from C3PA_Dataset/Annotations/{DB,WS}
   2. Map C3PA categories onto the 6-label CPRA schema
   3. Group rows into (doc_id, text) spans and deduplicate shared boilerplate text
-  4. Subsample 30% of documents (seed 42)
+  4. Target-balanced document selection: greedily keep documents (scarcity-first,
+     seed 42) until each label reaches ~500 samples
   5. Split by document 70 / 15 / 15 (seed 42), asserting no leakage
 
 Writes data/train.json, data/val.json, data/test.json for the showcase SPA.
@@ -48,9 +49,18 @@ LABEL_DEFINITIONS = {
         "including what categories of data are collected, shared, or sold.",
 }
 
-# NumPy/Random state shared with the notebook (Python 3.11):
-# random.seed(42) is applied; numpy.seed(42) / torch seeds are irrelevant to the split.
+# Random state shared with the notebook (Python 3.11): both the targeted sample
+# and the split re-seed to 42, exactly as the notebook does.
 random.seed(42)
+TARGET_SAMPLES_PER_LABEL = 500
+SCARCITY_ORDER = [
+    "Right_to_Limit_Sensitive",
+    "Right_to_Correct",
+    "Right_to_Delete",
+    "Right_to_Opt_Out",
+    "Right_to_Know",
+    "Notice_Requirement",
+]
 
 C3PA_LABEL_MAP = {
     "Description of Right to Correct Information": "Right_to_Correct",
@@ -113,12 +123,45 @@ def main():
     print(f"Unique source documents: {df_master['doc_id'].nunique()}")
     print(f"Multi-label spans (2+ labels): {(df_master['labels'].apply(len) > 1).sum()}")
 
-    # Step 4: subsample 30% of documents (seed 42)
-    _all_docs_full = sorted(df_master["doc_id"].unique())
-    _n_docs_keep = int(len(_all_docs_full) * 0.30)
-    _docs_keep = set(random.sample(_all_docs_full, _n_docs_keep))
-    df_master = df_master[df_master["doc_id"].isin(_docs_keep)].reset_index(drop=True)
-    print(f"Subsampled to {len(_docs_keep)} documents ({len(df_master)} rows) - 30% scale experiment.")
+    # Step 4: Target-balanced document selection (notebook cell 10).
+    # Greedily add documents until each label reaches ~TARGET_SAMPLES_PER_LABEL,
+    # visiting labels scarcest-first. Bill-of-credits selection is seed 42 and
+    # iterates documents in sorted doc_id order (groupby default), byte-for-byte
+    # the same algorithm as the notebook.
+    df_master_full = df_master.copy()
+    doc_to_rows = df_master_full.groupby("doc_id")
+
+    current_counts = {label: 0 for label in ALL_LABELS}
+    selected_docs = set()
+
+    random.seed(42)
+    for target_label in SCARCITY_ORDER:
+        eligible_docs = []
+        for doc_id, group in doc_to_rows:
+            if doc_id in selected_docs:
+                continue
+            has_label = group["labels"].apply(lambda x: target_label in x).any()
+            if has_label:
+                eligible_docs.append(doc_id)
+
+        random.shuffle(eligible_docs)
+
+        for doc_id in eligible_docs:
+            if current_counts[target_label] >= TARGET_SAMPLES_PER_LABEL:
+                break
+            selected_docs.add(doc_id)
+            group = doc_to_rows.get_group(doc_id)
+            for labels in group["labels"]:
+                for label in labels:
+                    if label in current_counts:
+                        current_counts[label] += 1
+
+    df_master = df_master_full[df_master_full["doc_id"].isin(selected_docs)].reset_index(drop=True)
+    print(f"Selected {len(selected_docs)} unique documents yielding {len(df_master)} total rows.")
+    print("Target-balanced counts per label:")
+    for label in ALL_LABELS:
+        flag = "" if current_counts[label] >= TARGET_SAMPLES_PER_LABEL else " (shortfall: target not reachable)"
+        print(f"  {label:<28} : {current_counts[label]}{flag}")
 
     # Step 5: document-level 70 / 15 / 15 split (seed 42)
     # The notebook re-seeds immediately before shuffling (BLOCK 5), independent of
