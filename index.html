@@ -67,8 +67,7 @@
           A multi-label multi-class extraction pipeline that scores real company privacy policies
           against the California Privacy Rights Act (CPRA), rebuilt on the
           <a href="https://github.com/MaazBinMusa/C3PA_Dataset" class="link-warning" target="_blank" rel="noopener">C3PA dataset</a>
-          (Bin Musa et al., EMNLP 2024) — 399 companies, expert-annotated policy spans. Documents
-          are selected greedily (scarcity-first) to reach ~500 samples per label.
+          (Bin Musa et al., EMNLP 2024) — 399 companies, expert-annotated policy spans.
         </p>
       </div>
       <div class="col-lg-4">
@@ -145,7 +144,7 @@
         <ol class="mb-2">
           <li><strong>Group</strong> raw expert annotations into <code class="font-mono">(doc, text)</code> spans and collapse labels into a set per span.</li>
           <li><strong>Deduplicate</strong> shared boilerplate text across companies (992 duplicate spans removed).</li>
-          <li><strong>Balance</strong> by document: greedily keep documents, scarcest label first (seed 42), until each label reaches ~500 samples → 218 documents / 15,750 spans.</li>
+          <li><strong>Balance</strong> by document: greedily keep whole documents, scarcest label first (seed 42), until the scarcest labels reach ~500 samples (a floor, not a cap) → 218 documents / 15,750 spans.</li>
           <li><strong>Split</strong> by document 70 / 15 / 15 (seed 42), no label leakage across splits.</li>
         </ol>
         <div class="table-responsive">
@@ -159,6 +158,14 @@
               <tr><td>Test</td><td>34</td><td>2,518</td><td>2,650</td></tr>
             </tbody>
           </table>
+        </div>
+        <div class="alert alert-light border small mb-3">
+          <strong>Why the Notice Requirement isn't ~500.</strong> ~500 is a <em>floor</em> for the
+          scarcest labels, not a cap. Documents are selected whole, and the Notice Requirement appears
+          in nearly every policy, so its count accumulates naturally — 12,295 spans in the 218-document
+          selection, of which 1,857 land in the test split. Fixing every label at exactly 500 would be
+          artificial: it would mean discarding thousands of valid expert annotations for an abundant
+          label, so the surplus is kept.
         </div>
         <p class="small text-muted mt-3 mb-0">
           Source data: <a href="https://github.com/MaazBinMusa/C3PA_Dataset" target="_blank" rel="noopener">MaazBinMusa/C3PA_Dataset</a>.

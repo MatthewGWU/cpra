@@ -15,7 +15,7 @@ those annotations. Six of its labels map cleanly to CPRA, so we:
 
 1. **Group** raw annotations into `(document, text)` spans.
 2. **Deduplicate** boilerplate text shared across companies (~992 spans).
-3. **Balance** by document — scarcity-first, ~500 samples per label (218 documents / 15,750 spans).
+3. **Balance** by document — scarcity-first, a ~500-sample *floor* for the scarcest labels, not a cap (218 documents / 15,750 spans; abundant labels like the Notice Requirement keep surplus annotations).
 4. **Split** by document 70 / 15 / 15 (152 / 32 / 34 docs).
 
 The site lets you browse each split, explore the label distribution, compare
