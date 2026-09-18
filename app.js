@@ -169,6 +169,11 @@ async function showSplit(name) {
 
     el('split-loading').classList.remove('d-none');
     el('split-ready').innerHTML = `
+      <div class="mb-3">
+        <h5 class="mb-1" id="split-title"></h5>
+        <p class="text-muted mb-0" id="split-copy"></p>
+      </div>
+
       <div class="row g-3 mb-3">
         <div class="col-4">
           <div class="card text-center h-100">
