@@ -27,6 +27,16 @@ const state = {
     cache: {},
     pages: { train: 1, val: 1, test: 1 },
     filters: { train: '', val: '', test: '' },
+    charts: {},
+};
+
+const LABEL_COLOR = {
+    Notice_Requirement: '#0d6efd',
+    Right_to_Correct: '#198754',
+    Right_to_Delete: '#dc3545',
+    Right_to_Know: '#ffc107',
+    Right_to_Limit_Sensitive: '#0dcaf0',
+    Right_to_Opt_Out: '#6c757d',
 };
 
 function el(id) {
@@ -89,6 +99,38 @@ function renderLabelDist(name) {
           </div>
         </div>`;
     }).join('');
+}
+
+function renderChart(name) {
+    const canvas = el('dist-chart');
+    const emptyEl = el('dist-chart-empty');
+    if (typeof Chart === 'undefined') {
+        if (emptyEl) emptyEl.classList.remove('d-none');
+        return;
+    }
+    if (state.charts[name]) state.charts[name].destroy();
+    const counts = labelCounts(filteredRows(name));
+    const values = LABELS.map((l) => counts[l]);
+    state.charts[name] = new Chart(canvas.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: LABELS.map((l) => `${l} (${counts[l].toLocaleString()})`),
+            datasets: [{
+                data: values,
+                backgroundColor: LABELS.map((l) => LABEL_COLOR[l]),
+                borderColor: '#fff',
+                borderWidth: 1,
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } },
+                tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.parsed.toLocaleString()}` } },
+            },
+        },
+    });
 }
 
 function renderTable(name) {
@@ -203,7 +245,17 @@ async function showSplit(name) {
 
       <div class="card mb-3">
         <div class="card-header">Label distribution <span class="text-muted fw-normal">(matching current filter)</span></div>
-        <div class="card-body py-3" id="dist-body"></div>
+        <div class="card-body py-3 row g-4 align-items-center">
+          <div class="col-md-5">
+            <div class="position-relative" style="height: 260px;">
+              <canvas id="dist-chart"></canvas>
+              <div id="dist-chart-empty" class="d-none position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center text-muted small">
+                Chart.js not loaded — showing bar list only.
+              </div>
+            </div>
+          </div>
+          <div class="col-md-7" id="dist-body"></div>
+        </div>
       </div>
 
       <div class="card">
@@ -242,12 +294,14 @@ async function showSplit(name) {
 
     renderSplitHeader(name);
     renderLabelDist(name);
+    renderChart(name);
     renderTable(name);
 
     el('filter-input').addEventListener('input', (e) => {
         state.filters[name] = e.target.value;
         state.pages[name] = 1;
         renderLabelDist(name);
+        renderChart(name);
         renderTable(name);
     });
     el('prev-btn').addEventListener('click', () => {
@@ -274,8 +328,78 @@ async function showSplit(name) {
     });
 }
 
+async function loadExplainability() {
+    const shapPlots = [
+        {
+            file: 'explainability/shap_legalbert.html',
+            title: 'LegalBERT — SHAP word importance · Right_to_Delete',
+            badge: 'Test sample 1',
+            note: 'True label <em>Right_to_Delete</em> not present in the sample (model still scores the words).',
+        },
+        {
+            file: 'explainability/shap_roberta.html',
+            title: 'RoBERTa-large — SHAP word importance · Right_to_Opt_Out',
+            badge: 'Test sample 2',
+            note: 'Tabs (\\t) in the source span render as join points in the attribution view.',
+        },
+    ];
+
+    el('shap-cards').innerHTML = shapPlots.map((p, i) => `
+        <div class="col-lg-6">
+          <div class="card h-100">
+            <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
+              <span class="small fw-semibold">${esc(p.title)}</span>
+              <span class="badge bg-light text-muted">${esc(p.badge)}</span>
+            </div>
+            <div class="card-body p-3">
+              <div id="shap-plot-${i}" class="shap-plot rounded p-2 mb-2" style="overflow:auto; max-height:320px; background:#fff; border:1px solid #dee2e6;">
+                <div class="text-muted small d-flex align-items-center gap-2"><div class="spinner-border spinner-border-sm"></div> Loading SHAP plot…</div>
+              </div>
+              <div class="small text-muted">${p.note}</div>
+            </div>
+          </div>
+        </div>`).join('');
+
+    for (let i = 0; i < shapPlots.length; i++) {
+        try {
+            const res = await fetch(shapPlots[i].file);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            el(`shap-plot-${i}`).innerHTML = await res.text();
+        } catch (err) {
+            el(`shap-plot-${i}`).innerHTML = `<span class="text-muted small">Could not load ${esc(shapPlots[i].file)} — ${esc(err.message)}</span>`;
+        }
+    }
+
+    try {
+        const res = await fetch('explainability/lime_samples.json');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const samples = await res.json();
+        el('lime-cards').innerHTML = samples.map((s) => `
+            <div class="col-md-4">
+              <div class="card h-100">
+                <div class="card-header py-2 d-flex justify-content-between align-items-center gap-2">
+                  <span class="small fw-semibold">LIME sample ${esc(String(s.index))}</span>
+                  <span class="text-muted small">${esc(s.doc_id)}</span>
+                </div>
+                <div class="card-body">
+                  <p class="small text-muted mb-2">${esc(s.text)}</p>
+                  <div class="mb-2">${s.labels.map(badgeHtml).join(' ')}</div>
+                  <div class="small text-muted mb-2">True labels per the test split.</div>
+                  <div class="small text-muted border-top pt-2">
+                    LIME perturbs the span, fits a sparse linear surrogate, and returns the top words per label with signed importance.
+                    The notebook cell (BLOCK 26) produces this list per label; its saved output is not included in the exported run.
+                  </div>
+                </div>
+              </div>
+            </div>`).join('');
+    } catch (err) {
+        el('lime-cards').innerHTML = `<div class="col-12 text-muted small">Could not load LIME samples — ${esc(err.message)}</div>`;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.tab-split').forEach((btn) => {
         btn.addEventListener('click', () => showSplit(btn.dataset.split));
     });
+    if (el('shap-cards') && el('lime-cards')) loadExplainability();
 });

@@ -34,6 +34,7 @@
         <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
         <li class="nav-item"><a class="nav-link" href="#labels">Labels</a></li>
         <li class="nav-item"><a class="nav-link" href="#models">Models</a></li>
+        <li class="nav-item"><a class="nav-link" href="#explainability">Explainability</a></li>
         <li class="nav-item">
           <button class="btn btn-sm btn-outline-light tab-split me-lg-1" data-split="train">Train</button>
         </li>
@@ -225,17 +226,49 @@
     </div>
   </section>
 
+  <section id="explainability" class="mb-5">
+    <div class="card">
+      <div class="card-body p-4">
+        <h2 class="h4 mb-1">Model explainability</h2>
+        <p class="text-muted mb-0">
+          Two complementary word-level analyzers, as run in the notebook:
+          <strong>SHAP</strong> (PartitionExplainer with a text masker) for the encoder models LegalBERT and RoBERTa-large,
+          and <strong>LIME</strong> (local sparse-surrogate sampling) for the encoder-decoder Flan-T5-base,
+          which SHAP's local method does not support.
+        </p>
+      </div>
+    </div>
+
+    <h3 class="h5 mt-4 mb-2">SHAP — word attributions on test samples</h3>
+    <p class="text-muted small mb-3">
+      Red words push the prediction <em>up</em> for a label; blue words push it <em>down</em>. Plots below are the
+      notebook's saved output (BLOCK 25), run on the test split. Click a word to see its signed contribution.
+    </p>
+    <div class="row g-3 mb-4" id="shap-cards">
+      <div class="col-12 text-muted small">Loading SHAP plots…</div>
+    </div>
+
+    <h3 class="h5 mt-4 mb-2">LIME — local surrogate explanations for Flan-T5-base</h3>
+    <p class="text-muted small mb-3">
+      The first three test-span samples the notebook's BLOCK 26 would explain, with their ground-truth labels.
+    </p>
+    <div class="row g-3" id="lime-cards">
+      <div class="col-12 text-muted small">Loading LIME samples…</div>
+    </div>
+  </section>
+
 </main>
 
 <footer class="bg-dark text-light py-4 mt-4">
   <div class="container small text-muted">
     CPRA / C3PA · balance-targeted pipeline explorer · generated from
-    <code class="font-mono">CPRA_C3PA_Primary_30pct (5).ipynb</code> via <code class="font-mono">export_dataset.py</code>.
+    <code class="font-mono">CPRA_C3PA_Primary_30pct (6).ipynb</code> via <code class="font-mono">export_dataset.py</code>.
     Data mirrored from the <a href="https://github.com/MaazBinMusa/C3PA_Dataset" class="link-light" target="_blank" rel="noopener">C3PA dataset</a>.
   </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="app.js" defer></script>
 </body>
 </html>
