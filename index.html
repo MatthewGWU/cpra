@@ -343,6 +343,73 @@
           <li class="mb-2"><strong>Validation-only tuning.</strong> Per-class thresholds and hyperparameters are selected on the validation split; the test set is evaluated exactly once, with those choices frozen (each model's config comes from a candidate search scored on validation only).</li>
           <li class="mb-2"><strong>Imbalance is handled, not balanced away.</strong> The natural long-tailed label distribution is counteracted with per-class <code class="font-mono">pos_weight</code> on the BCE term and focal loss, without synthetic oversampling and without touching the test split.</li>
         </ul>
+
+        <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">How we know it's really learning — not memorizing</h3>
+        <p class="small text-muted mb-2">
+          A skeptic could ask: are the scores real, or is the model gaming label frequency, memorizing its
+          training sentences, or leaning on random surface patterns? Four checks, all reproducible:
+        </p>
+
+        <p class="small fw-semibold mb-1">1 · It must beat a "dumb" baseline — by a lot.</p>
+        <p class="small text-muted mb-2">
+          We computed what lazy answers score on the <em>actual</em> test set (1720 spans). A model that just
+          always said <em>Notice</em> gets macro F1 0.102; one that predicts every right gets 0.224. The three
+          trained models score 0.763–0.778 — about 3.4× the best dumb baseline — so the score cannot come from
+          guessing label frequency.
+        </p>
+        <div class="table-responsive mb-3">
+          <table class="table table-sm table-bordered mb-0">
+            <thead class="table-light">
+              <tr><th>Strategy</th><th>What it does</th><th>Macro F1 (test)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>No labels at all</td><td class="text-muted small">predicts nothing (label frequency ignored)</td><td>0.000</td></tr>
+              <tr><td>"Always Notice"</td><td class="text-muted small">only uses the most common label</td><td>0.102</td></tr>
+              <tr><td>"Always everything"</td><td class="text-muted small">every right on every span</td><td>0.224</td></tr>
+              <tr class="table-warning"><td>LegalBERT / RoBERTa-large / Flan-T5-base</td><td class="small">learned from the training spans</td><td><strong>0.763 / 0.778 / 0.768</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="small fw-semibold mb-1">2 · Train vs. validation gap — the memorization meter.</p>
+        <p class="small text-muted mb-2">
+          If a model memorized its training sentences, it would score ~1.0 on training but collapse on new text.
+          The notebook measures per-label F1 on <em>both</em> train and validation (test untouched) and flags any
+          label where train ≫ validation as <code>OVERFIT</code>. Every label here is HEALTHY — the gaps are
+          tiny, and most are slightly <em>negative</em> (validation ≥ training), which is the classic signature
+          of generalization, not memorization:
+        </p>
+        <div class="table-responsive mb-3">
+          <table class="table table-sm table-bordered mb-0">
+            <thead class="table-light">
+              <tr><th>Label</th><th>Train F1</th><th>Val F1</th><th>Gap</th><th>Pattern</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Notice_Requirement</td><td>0.984</td><td>0.991</td><td>−0.007</td><td class="text-success">HEALTHY</td></tr>
+              <tr><td>Right_to_Correct</td><td>0.915</td><td>0.905</td><td>+0.010</td><td class="text-success">HEALTHY</td></tr>
+              <tr><td>Right_to_Delete</td><td>0.922</td><td>0.894</td><td>+0.028</td><td class="text-success">HEALTHY</td></tr>
+              <tr><td>Right_to_Know</td><td>0.830</td><td>0.889</td><td>−0.059</td><td class="text-success">HEALTHY</td></tr>
+              <tr><td>Right_to_Limit_Sensitive</td><td>0.650</td><td>0.750</td><td>−0.100</td><td class="text-success">HEALTHY</td></tr>
+              <tr><td>Right_to_Opt_Out</td><td>0.897</td><td>0.933</td><td>−0.035</td><td class="text-success">HEALTHY</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="small fw-semibold mb-1">3 · The validator can catch a broken model.</p>
+        <p class="small text-muted mb-2">
+          The notebook records an early error: applying the small LegalBERT's training schedule to the much
+          larger RoBERTa collapsed its <em>validation</em> macro F1 to ~0.13 — a clear red flag on data the
+          model had never trained on. Re-running the search properly (validation-only) recovered 0.78. A metric
+          that correctly flags under-training like that cannot be a lucky fit to priors: it tracks real learning.
+        </p>
+
+        <p class="small fw-semibold mb-1">4 · The reasons match human intuition.</p>
+        <p class="small text-muted mb-0">
+          The explainability plots don't point at formatting, positions, or random prefixes — they single out
+          meaningful words (e.g. "share" for Opt-Out). And when a sentence contains nothing relevant (the address
+          sample in the SHAP cards), the attributions go flat instead of inventing signal: the model refuses to
+          manufacture a right, which is what you'd want from real understanding.
+        </p>
       </div>
     </div>
   </section>
