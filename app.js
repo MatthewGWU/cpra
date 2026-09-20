@@ -443,28 +443,42 @@ async function showSplit(name) {
 
 function limeWordsHtml(lime) {
     if (!lime) return '';
-    const rows = Object.entries(lime).flatMap(([label, words]) =>
-        words.filter((w) => w.weight !== 0).slice(0, 4).map((w) => ({
-            label,
-            word: w.word,
-            weight: w.weight,
-        }))
-    );
-    if (!rows.length) {
+    const max = Math.max(0.01, ...Object.values(lime).flat().map((w) => Math.abs(w.weight)));
+    const groups = Object.entries(lime).map(([label, words]) => [
+        label,
+        words.filter((w) => w.weight !== 0).slice(0, 4),
+    ]).filter(([, ws]) => ws.length);
+    if (!groups.length) {
         return `
           <div class="small text-muted border-top pt-2">
-            Under perturbation, Flan-T5-base predicts the same label every time
-            (predicted Notice_Requirement probability 1.0), so LIME's local sparse
-            surrogate has no variation to explain and returns all-zero importance.
+            The model was already certain here — it kept predicting <em>Notice_Requirement</em> at
+            probability&nbsp;1.0 no matter which words it was shown. With no uncertainty, LIME's
+            numeric strength list collapses to all-zero, so there is nothing for the word bars to show.
+            That's the model being confident, not an error.
           </div>`;
     }
     return `
       <div class="small border-top pt-2">
-        <div class="fw-semibold mb-1">Top words per label (signed importance):</div>
-        ${rows.slice(0, 12).map((r) => `
-          <div class="d-flex justify-content-between small">
-            <span class="text-truncate me-2"><span class="badge bg-light text-muted me-1">${esc(r.label)}</span>${esc(r.word)}</span>
-            <span class="${r.weight >= 0 ? 'text-success' : 'text-danger'}">${r.weight >= 0 ? '+' : ''}${r.weight.toFixed(4)}</span>
+        <div class="fw-semibold mb-1">Words that mattered for each right:</div>
+        <div class="d-flex align-items-center gap-2 text-muted mb-2">
+          <span class="d-inline-block" style="width:14px;height:8px;border-radius:2px;background:#198754;"></span> word
+          pushes <b class="text-success">&nbsp;toward&nbsp;</b> the right &nbsp;·&nbsp;
+          <span class="d-inline-block" style="width:14px;height:8px;border-radius:2px;background:#dc3545;"></span> pushes <b class="text-danger">&nbsp;away&nbsp;</b>
+          &nbsp;·&nbsp; longer bar = bigger effect
+        </div>
+        ${groups.map(([label, ws]) => `
+          <div class="mb-2">
+            <div class="badge bg-light text-muted mb-1">${esc(label)}</div>
+            ${ws.map((w) => `
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="text-truncate small" style="width:120px;">${esc(w.word)}</span>
+                <div class="flex-grow-1 bg-light rounded" style="height:10px;">
+                  <div class="rounded ${w.weight >= 0 ? 'bg-success' : 'bg-danger'}"
+                       title="${esc(w.word)} ${w.weight >= 0 ? '+' : ''}${w.weight.toFixed(4)}"
+                       style="height:10px; width:${Math.round((Math.abs(w.weight) / max) * 100)}%;"></div>
+                </div>
+                <span class="${w.weight >= 0 ? 'text-success' : 'text-danger'} small" style="width:56px; text-align:right;">${w.weight >= 0 ? '+' : ''}${w.weight.toFixed(3)}</span>
+              </div>`).join('')}
           </div>`).join('')}
       </div>`;
 }
@@ -473,15 +487,15 @@ async function loadExplainability() {
     const shapPlots = [
         {
             file: 'explainability/shap_legalbert.html',
-            title: 'LegalBERT — SHAP word importance · Right_to_Delete',
+            title: 'LegalBERT — asked about Right_to_Delete',
             badge: 'Test sample 1',
-            note: 'True label <em>Right_to_Delete</em> not present in the sample (model still scores the words).',
+            note: 'The sample is an address block, and Right_to_Delete never appears in it. Every word votes slightly <em>against</em> the label — the model is correctly staying quiet rather than inventing a right.',
         },
         {
             file: 'explainability/shap_roberta.html',
-            title: 'RoBERTa-large — SHAP word importance · Right_to_Opt_Out',
+            title: 'RoBERTa-large — asked about Right_to_Opt_Out',
             badge: 'Test sample 2',
-            note: 'Span separators in the source text render as join points in the attribution view.',
+            note: 'Same test sentence, different question. Here a few words tilt the vote; most stay near zero. The joined span separators render as line breaks in the source text.',
         },
     ];
 
@@ -525,7 +539,7 @@ async function loadExplainability() {
                 <div class="card-body">
                   <p class="small text-muted mb-2">${esc(s.text)}</p>
                   <div class="mb-2">${s.labels.map(badgeHtml).join(' ')}</div>
-                  <div class="small text-muted mb-2">True labels; LIME ran on the same three test spans (BLOCK 26, Flan-T5-base).</div>
+                  <div class="small text-muted mb-2">What the human annotators marked as true for this span. LIME asked Flan-T5-base about these same three test spans (notebook BLOCK 26).</div>
                   ${limeWordsHtml(s.lime)}
                 </div>
               </div>
