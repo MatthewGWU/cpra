@@ -138,6 +138,20 @@ const MODEL_BAR = {
     values: [0.7627, 0.7777, 0.7677],
 };
 
+const SPLIT_DECISIONS = {
+    train: [5016, 167, 248, 555, 96, 408],
+    val: [1321, 41, 62, 110, 11, 88],
+    test: [1362, 45, 76, 187, 16, 101],
+};
+
+const SPLIT_TOTALS = { train: 6490, val: 1633, test: 1787 };
+
+const PRF = [
+    { model: 'LegalBERT', p: 0.7779, r: 0.7596, f1: 0.7627 },
+    { model: 'RoBERTa-large', p: 0.8220, r: 0.7542, f1: 0.7777 },
+    { model: 'Flan-T5-base', p: 0.8479, r: 0.7248, f1: 0.7677 },
+];
+
 function renderModelChart() {
     const canvas = el('model-chart');
     if (!canvas || typeof Chart === 'undefined') return;
@@ -164,6 +178,69 @@ function renderModelChart() {
             scales: {
                 x: { min: 0.6, max: 0.8, grid: { color: '#e9edf2' } },
                 y: { grid: { display: false } },
+            },
+        },
+    });
+}
+
+function renderSplitShareChart() {
+    const canvas = el('split-share-chart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    const shares = LABELS.map((label, i) => {
+        const row = {};
+        for (const k of ['train', 'val', 'test']) row[k] = +((SPLIT_DECISIONS[k][i] / SPLIT_TOTALS[k]) * 100).toFixed(1);
+        return row;
+    });
+    new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: LABELS,
+            datasets: ['train', 'val', 'test'].map((k, di) => ({
+                label: SPLIT_NAMES[k],
+                data: shares.map((row) => row[k]),
+                backgroundColor: di === 0 ? '#1b4d89' : di === 1 ? '#9aa7b8' : '#198754',
+                borderRadius: 3,
+                maxBarThickness: 16,
+            })),
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
+                tooltip: { callbacks: { label: (ctx) => ` ${SPLIT_NAMES[ctx.dataset.label]} share: ${ctx.parsed.y.toFixed(1)}%` } },
+            },
+            scales: {
+                x: { ticks: { maxRotation: 45, minRotation: 0, font: { size: 9 } }, grid: { display: false } },
+                y: { title: { display: true, text: '% of label decisions', font: { size: 11 } }, min: 0, grid: { color: '#e9edf2' } },
+            },
+        },
+    });
+}
+
+function renderPRFChart() {
+    const canvas = el('prf-chart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: PRF.map((m) => m.model),
+            datasets: [
+                { label: 'Precision', data: PRF.map((m) => m.p), backgroundColor: '#1b4d89', borderRadius: 3, maxBarThickness: 18 },
+                { label: 'Recall', data: PRF.map((m) => m.r), backgroundColor: '#0d6efd', borderRadius: 3, maxBarThickness: 18 },
+                { label: 'F1', data: PRF.map((m) => m.f1), backgroundColor: '#198754', borderRadius: 3, maxBarThickness: 18 },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
+                tooltip: { callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(4)}` } },
+            },
+            scales: {
+                y: { min: 0.6, max: 0.9, title: { display: true, text: 'macro score', font: { size: 11 } }, grid: { color: '#e9edf2' } },
+                x: { grid: { display: false } },
             },
         },
     });
@@ -364,7 +441,7 @@ async function showSplit(name) {
     });
 }
 
-async function limeWordsHtml(lime) {
+function limeWordsHtml(lime) {
     if (!lime) return '';
     const rows = Object.entries(lime).flatMap(([label, words]) =>
         words.filter((w) => w.weight !== 0).slice(0, 4).map((w) => ({
@@ -392,7 +469,7 @@ async function limeWordsHtml(lime) {
       </div>`;
 }
 
-function loadExplainability() {
+async function loadExplainability() {
     const shapPlots = [
         {
             file: 'explainability/shap_legalbert.html',
@@ -464,4 +541,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     if (el('shap-cards') && el('lime-cards')) loadExplainability();
     renderModelChart();
+    renderSplitShareChart();
+    renderPRFChart();
 });
