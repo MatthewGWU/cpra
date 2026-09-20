@@ -415,7 +415,8 @@
                   <strong>LegalBERT</strong> <small class="text-muted">2020</small>
                 </div>
                 <p class="small text-muted mb-2">BERT encoder pre-trained on legal corpora (contracts, legislation, court cases) instead of general web text.</p>
-                <p class="small mb-2">The domain-specific baseline: the question is whether legal pretraining helps for CPRA clause classification.</p>
+                <p class="small mb-2"><span class="fw-semibold">Why picked:</span> the domain baseline — the reference point every candidate is compared against. Same classification head and recipe, pretrained on legal text instead of general web text.</p>
+                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7627 says:</span> it trails both general-purpose candidates, so at this data scale legal-domain pretraining alone is not the winning factor — precisely the question this model exists to answer.</p>
                 <a class="small link-primary" href="https://huggingface.co/nlpaueb/legal-bert-base-uncased" target="_blank" rel="noopener">nlpaueb/legal-bert-base-uncased ↗</a>
               </div>
             </div>
@@ -428,7 +429,8 @@
                   <strong>RoBERTa-large</strong> <small class="text-muted">2019</small>
                 </div>
                 <p class="small text-muted mb-2">A large BERT variant trained with more data and longer training for stronger general transfer.</p>
-                <p class="small mb-2">General-purpose candidate; achieved the highest macro F1 (0.7777) of the three on the test split.</p>
+                <p class="small mb-2"><span class="fw-semibold">Why picked:</span> the strongest general-purpose off-the-shelf encoder — much larger than the LegalBERT baseline and with no legal pretraining. It is a deliberate capacity test.</p>
+                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7777 says:</span> it beats LegalBERT outright and earns the best F1 of the three. Under this methodology a general large model outperforms the legal-domain baseline, so general capacity matters more than domain pretraining at this scale.</p>
                 <a class="small link-primary" href="https://huggingface.co/roberta-large" target="_blank" rel="noopener">roberta-large ↗</a>
               </div>
             </div>
@@ -441,11 +443,19 @@
                   <strong>Flan-T5-base</strong> <small class="text-muted">2023</small>
                 </div>
                 <p class="small text-muted mb-2">A text-to-text (encoder-decoder) model instruction-tuned across many tasks.</p>
-                <p class="small mb-2">General-purpose candidate; closer to a generative labeling setup and the model LIME can explain.</p>
+                <p class="small mb-2"><span class="fw-semibold">Why picked:</span> a different architecture on purpose. If the same pipeline works on BERT-style encoders <em>and</em> a generative encoder-decoder, the findings are not architecture-dependent — and Flan-T5 is the one LIME can explain.</p>
+                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7677 says:</span> the highest precision (0.85) but the lowest recall — a precision-leaning profile. It still matches the LegalBERT baseline, so a general instruction-tuned model is a viable stand-in for LegalBERT when precision and explainability matter.</p>
                 <a class="small link-primary" href="https://huggingface.co/google/flan-t5-base" target="_blank" rel="noopener">google/flan-t5-base ↗</a>
               </div>
             </div>
           </div>
+        </div>
+        <div class="alert alert-light border small mb-0">
+          <strong>Bottom line for a comparison against LegalBERT.</strong> This setup does three useful things:
+          it isolates the value of legal-domain pretraining (LegalBERT vs. a general large model),
+          tests whether the pipeline survives a fundamentally different architecture (Flan-T5),
+          and keeps every model on the same splits, recipe, and thresholds so the comparison is apples-to-apples.
+          The verdict at 40% scale: legal pretraining is not the deciding factor — general models match or beat it.
         </div>
       </div>
     </div>
