@@ -134,8 +134,8 @@ function renderChart(name) {
 }
 
 const MODEL_BAR = {
-    labels: ['RoBERTa-large', 'Flan-T5-base', 'LegalBERT', 'Vanilla BERT-base'],
-    values: [0.8565, 0.8557, 0.8243, 0.7956],
+    labels: ['LegalBERT', 'RoBERTa-large', 'Flan-T5-base'],
+    values: [0.7627, 0.7777, 0.7677],
 };
 
 function renderModelChart() {
@@ -148,7 +148,7 @@ function renderModelChart() {
             datasets: [{
                 label: 'Macro F1 (test split)',
                 data: MODEL_BAR.values,
-                backgroundColor: ['#0d6efd', '#0d6efd', '#1b4d89', '#adb5bd'],
+                backgroundColor: ['#1b4d89', '#198754', '#0d6efd'],
                 borderRadius: 4,
                 maxBarThickness: 42,
             }],
@@ -162,7 +162,7 @@ function renderModelChart() {
                 tooltip: { callbacks: { label: (ctx) => ` Macro F1: ${ctx.parsed.x.toFixed(4)}` } },
             },
             scales: {
-                x: { min: 0.5, max: 0.9, grid: { color: '#e9edf2' } },
+                x: { min: 0.6, max: 0.8, grid: { color: '#e9edf2' } },
                 y: { grid: { display: false } },
             },
         },
@@ -364,7 +364,35 @@ async function showSplit(name) {
     });
 }
 
-async function loadExplainability() {
+async function limeWordsHtml(lime) {
+    if (!lime) return '';
+    const rows = Object.entries(lime).flatMap(([label, words]) =>
+        words.filter((w) => w.weight !== 0).slice(0, 4).map((w) => ({
+            label,
+            word: w.word,
+            weight: w.weight,
+        }))
+    );
+    if (!rows.length) {
+        return `
+          <div class="small text-muted border-top pt-2">
+            Under perturbation, Flan-T5-base predicts the same label every time
+            (predicted Notice_Requirement probability 1.0), so LIME's local sparse
+            surrogate has no variation to explain and returns all-zero importance.
+          </div>`;
+    }
+    return `
+      <div class="small border-top pt-2">
+        <div class="fw-semibold mb-1">Top words per label (signed importance):</div>
+        ${rows.slice(0, 12).map((r) => `
+          <div class="d-flex justify-content-between small">
+            <span class="text-truncate me-2"><span class="badge bg-light text-muted me-1">${esc(r.label)}</span>${esc(r.word)}</span>
+            <span class="${r.weight >= 0 ? 'text-success' : 'text-danger'}">${r.weight >= 0 ? '+' : ''}${r.weight.toFixed(4)}</span>
+          </div>`).join('')}
+      </div>`;
+}
+
+function loadExplainability() {
     const shapPlots = [
         {
             file: 'explainability/shap_legalbert.html',
@@ -376,7 +404,7 @@ async function loadExplainability() {
             file: 'explainability/shap_roberta.html',
             title: 'RoBERTa-large — SHAP word importance · Right_to_Opt_Out',
             badge: 'Test sample 2',
-            note: 'Tabs (\\t) in the source span render as join points in the attribution view.',
+            note: 'Span separators in the source text render as join points in the attribution view.',
         },
     ];
 
@@ -420,11 +448,8 @@ async function loadExplainability() {
                 <div class="card-body">
                   <p class="small text-muted mb-2">${esc(s.text)}</p>
                   <div class="mb-2">${s.labels.map(badgeHtml).join(' ')}</div>
-                  <div class="small text-muted mb-2">True labels per the test split.</div>
-                  <div class="small text-muted border-top pt-2">
-                    LIME perturbs the span, fits a sparse linear surrogate, and returns the top words per label with signed importance.
-                    The notebook cell (BLOCK 26) produces this list per label; its saved output is not included in the exported run.
-                  </div>
+                  <div class="small text-muted mb-2">True labels; LIME ran on the same three test spans (BLOCK 26, Flan-T5-base).</div>
+                  ${limeWordsHtml(s.lime)}
                 </div>
               </div>
             </div>`).join('');
