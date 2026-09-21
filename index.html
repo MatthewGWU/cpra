@@ -76,7 +76,7 @@
           A multi-label multi-class extraction pipeline that scores real company privacy policies
           against the California Privacy Rights Act (CPRA), rebuilt on the
           <a href="https://github.com/MaazBinMusa/C3PA_Dataset" class="link-warning" target="_blank" rel="noopener">C3PA dataset</a>
-          (Bin Musa et al., EMNLP 2024) — 399 companies, expert-annotated policy spans, subsampled
+          (Bin Musa et al., EMNLP 2024): 399 companies, expert-annotated policy spans, subsampled
           to 40% of documents (seed 42) to train three models at a lower-resource scale point.
         </p>
       </div>
@@ -108,7 +108,7 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
       <div>
         <h2 class="h4 mb-1">Browse the splits</h2>
-        <p class="text-muted mb-0">Document-level 70 / 15 / 15 split (seed&nbsp;42) of the 40% document subsample (159 documents) — no leakage across splits. Text spans are shown with their ground-truth CPRA labels.</p>
+        <p class="text-muted mb-0">Document-level 70 / 15 / 15 split (seed&nbsp;42) of the 40% document subsample (159 documents); no leakage across splits. Text spans are shown with their ground-truth CPRA labels.</p>
       </div>
       <div class="btn-group" role="group">
         <button class="btn btn-outline-primary tab-split" data-split="train">Train</button>
@@ -149,13 +149,13 @@
               <div style="width:15%; background:#198754;">15%</div>
             </div>
             <div class="d-flex flex-wrap small text-muted gap-3 mb-1">
-              <span><span class="d-inline-block me-1 align-middle" style="width:10px;height:10px;border-radius:2px;background:#1b4d89;"></span>Train · 111 docs — the model learns here</span>
-              <span><span class="d-inline-block me-1 align-middle" style="width:10px;height:10px;border-radius:2px;background:#6c757d;"></span>Validation · 23 docs — settings are tuned here</span>
-              <span><span class="d-inline-block me-1 align-middle" style="width:10px;height:10px;border-radius:2px;background:#198754;"></span>Test · 25 docs — final grade, seen once</span>
+              <span><span class="d-inline-block me-1 align-middle" style="width:10px;height:10px;border-radius:2px;background:#1b4d89;"></span>Train · 111 docs (the model learns here)</span>
+              <span><span class="d-inline-block me-1 align-middle" style="width:10px;height:10px;border-radius:2px;background:#6c757d;"></span>Validation · 23 docs (settings are tuned here)</span>
+              <span><span class="d-inline-block me-1 align-middle" style="width:10px;height:10px;border-radius:2px;background:#198754;"></span>Test · 25 docs (final grade, seen once)</span>
             </div>
             <p class="small text-muted mb-0">
               We split by <em>whole documents</em>, never by individual sentences. So a policy the model practiced on
-              is never the same policy it gets graded on — that is the "no leakage" claim, in one picture.
+              is never the same policy it gets graded on; that is the "no leakage" claim, in one picture.
             </p>
           </div>
         </div>
@@ -163,13 +163,13 @@
       <div class="col-md-5">
         <div class="card h-100">
           <div class="card-body">
-            <div class="small fw-semibold mb-2">Same shape in every split <span class="text-muted fw-normal">— how common each right is (%)</span></div>
+            <div class="small fw-semibold mb-2">Same shape in every split <span class="text-muted fw-normal">(how common each right is, %)</span></div>
             <div class="position-relative" style="height: 200px;">
               <canvas id="split-share-chart" aria-label="Grouped bar chart of the label share in each split"></canvas>
             </div>
             <p class="small text-muted mb-0">
               Each group of bars is one right: Train (navy), Validation (grey), Test (green). The three bars in a
-              group are nearly equal because we never re-balanced the data — every split is the same world, just
+              group are nearly equal because we never re-balanced the data; every split is the same world, just
               smaller. That sameness is what makes tuning fair: we pick the model's "how sure must it be?" setting
               on validation, and test describes the same kinds of policies, so the setting transfers.
             </p>
@@ -194,23 +194,23 @@
             </div>
             <div class="alert alert-light border small mt-3 mb-0">
               The labels were hand-added by six annotators (RA1–RA6). Where several annotators independently
-              flagged the same label, it's high-confidence. Spans with none of the six rights — null-label
-              sentences — show as "—" in the browser below.
+              flagged the same label, it's high-confidence. Spans with none of the six rights (null-label
+              sentences) show as "(none)" in the browser below.
             </div>
           </div>
           <div class="col-lg-7">
             <div class="small">
               <div class="fw-semibold text-uppercase text-muted mb-2">Why "Notice" is the biggest slice</div>
               <ul class="mb-2 ps-3">
-                <li class="mb-1">Nearly every policy has notice-type sections — what we collect, why, cookies, contact details — scattered across the whole document, not one single clause.</li>
+                <li class="mb-1">Nearly every policy has notice-type sections (what we collect, why, cookies, contact details) scattered across the whole document, not one single clause.</li>
                 <li class="mb-1">So annotators tagged many different spans per policy as Notice, and Notice is also often the <em>second</em> label on a span that already states another right (span can carry several labels).</li>
-                <li class="mb-1">The result: roughly 9× more Notice decisions than the next most common right (Know). You can verify this below — pick a split and filter by <code class="font-mono">Notice_Requirement</code>; you'll see it come from many different documents.</li>
+                <li class="mb-1">The result: roughly 9× more Notice decisions than the next most common right (Know). You can verify this below: pick a split and filter by <code class="font-mono">Notice_Requirement</code>; you'll see it come from many different documents.</li>
               </ul>
-              <div class="fw-semibold text-uppercase text-muted mb-2">Could we "fix" the imbalance? Yes — we chose not to</div>
+              <div class="fw-semibold text-uppercase text-muted mb-2">Could we "fix" the imbalance? Yes, we chose not to</div>
               <ul class="mb-0 ps-3">
                 <li class="mb-1"><b>Down-sampling Notice / repeating rare rows</b> would throw away real policy text and make the dataset look unlike real policies.</li>
-                <li class="mb-1"><b>Synthetic examples</b> (SMOTE-style) would fabricate legal wording — a made-up clause isn't evidence.</li>
-                <li class="mb-1"><span class="fw-semibold">What we do instead:</span> keep the real, uneven data (it mirrors reality), give the rare rights extra weight during training so they still get learned, and score with macro F1 so every right counts equally — while flagging each label whose test count is tiny as "read with care."</li>
+                <li class="mb-1"><b>Synthetic examples</b> (SMOTE-style) would fabricate legal wording; a made-up clause isn't evidence.</li>
+                <li class="mb-1"><span class="fw-semibold">What we do instead:</span> keep the real, uneven data (it mirrors reality), give the rare rights extra weight during training so they still get learned, and score with macro F1 so every right counts equally, while flagging each label whose test count is tiny as "read with care."</li>
               </ul>
             </div>
           </div>
@@ -233,15 +233,15 @@
           The target is a set of six CPRA rights/failure labels that map from the eight-label schema in the
           <a href="https://aclanthology.org/2024.emnlp-main.217/" target="_blank" rel="noopener">C3PA paper</a>.
           The dataset (Bin Musa et al., <strong>built and released in 2024</strong>, published at EMNLP 2024) was created
-          under the regulatory framework that is still in force — CPRA took effect <strong>January 1, 2023</strong>
-          and remains California law today — so this is a <em>current</em> corpus, not a historical one.
+          under the regulatory framework that is still in force (CPRA took effect <strong>January 1, 2023</strong>
+          and remains California law today), so this is a <em>current</em> corpus, not a historical one.
           The raw CSVs record who annotated each span (six annotators, <code class="font-mono">RA1</code>–<code class="font-mono">RA6</code>),
-          and spans can carry one label, several labels, or none. Two original labels — <em>Right_to_Access</em>
-          and <em>Risk_Assessment</em> — are dropped because they lack a C3PA taxonomy mapping. Pipeline steps,
+          and spans can carry one label, several labels, or none. Two original labels (<em>Right_to_Access</em>
+          and <em>Risk_Assessment</em>) are dropped because they lack a C3PA taxonomy mapping. Pipeline steps,
           exactly as run in <code class="font-mono">CPRA_40pct_CLEAN (1).ipynb</code>:
         </p>
         <ol class="mb-2">
-          <li><strong>Group</strong> raw expert annotations into <code class="font-mono">(doc, text)</code> spans and collapse labels into a set per span (45,121 rows → 26,740 unique spans). Rows from multiple annotators landing on the same span and label are merged — agreement is a confidence signal.</li>
+          <li><strong>Group</strong> raw expert annotations into <code class="font-mono">(doc, text)</code> spans and collapse labels into a set per span (45,121 rows → 26,740 unique spans). Rows from multiple annotators landing on the same span and label are merged; agreement is a confidence signal.</li>
           <li><strong>Deduplicate</strong> so each sentence appears once: identical text shared across policies (992 boilerplate spans) is removed → 25,748 unique spans across 399 documents.</li>
           <li><strong>Subsample to 40%</strong> of documents at random (seed 42) → 159 documents / 9,640 spans.</li>
           <li><strong>Split</strong> by document 70 / 15 / 15 (seed 42), no label leakage across splits.</li>
@@ -259,7 +259,7 @@
           </table>
         </div>
         <div class="alert alert-light border small mb-3">
-          <strong>How to read the label counts.</strong> No synthetic balancing is applied — the splits
+          <strong>How to read the label counts.</strong> No synthetic balancing is applied; the splits
           keep the natural label distribution of the 40% subsample. The imbalance is inherent to the source:
           these are real policies, quoted close to verbatim, and the test data reflects the real world.
           <em>Notice_Requirement</em> dominates (5,016 train spans); rare labels such as
@@ -268,7 +268,7 @@
         </div>
         <p class="small text-muted mt-3 mb-0">
           Source data: <a href="https://github.com/MaazBinMusa/C3PA_Dataset" target="_blank" rel="noopener">MaazBinMusa/C3PA_Dataset</a>
-          (released 2024; each row records the annotator — <code class="font-mono">RANumb</code> —
+          (released 2024; each row records the annotator (<code class="font-mono">RANumb</code>),
           the annotated <code class="font-mono">Text</code> span, and its <code class="font-mono">Label</code>).
           This page is a static export (JSON) of the exact splits reproduced by <code class="font-mono">export_dataset.py</code>
           from <code class="font-mono">CPRA_40pct_CLEAN (1).ipynb</code>.
@@ -285,7 +285,7 @@
           The setup behind the splits on this page, in case the methodology gets probed.
           Every step below is pinned to seed&nbsp;42 and reproduced byte-for-byte by
           <code class="font-mono">export_dataset.py</code> from the notebook's cells&nbsp;9–11.
-          The corpus is C3PA (bin&nbsp;Musa et&nbsp;al., <strong>2024</strong> — built under the CPRA/CCPA regime that
+          The corpus is C3PA (bin&nbsp;Musa et&nbsp;al., <strong>2024</strong>, built under the CPRA/CCPA regime that
           has been in effect since <strong>January 1, 2023</strong>), so the annotations reflect the law as it stands today.
         </p>
 
@@ -293,13 +293,13 @@
         <p class="small text-muted mb-2">
           The evidence is right in the GitHub CSVs (<code class="font-mono">Annotations/DB</code> and
           <code class="font-mono">Annotations/WS</code>): every row records <code class="font-mono">RANumb</code> (which annotator),
-          the <code class="font-mono">Text</code> span, and its <code class="font-mono">Label</code>. Six people — RA1 through RA6 —
+          the <code class="font-mono">Text</code> span, and its <code class="font-mono">Label</code>. Six people (RA1 through RA6)
           added the labels by hand. Looking at the raw rows directly:
         </p>
         <ul class="small mb-2 ps-3">
           <li class="mb-1"><strong>Single-label sentences</strong> carry exactly one CPRA right.</li>
           <li class="mb-1"><strong>Multi-label sentences</strong> carry several at once (a sentence can both require notice and state an opt-out right).</li>
-          <li class="mb-1"><strong>Null-label sentences</strong> are policy text with no annotation at all — these appear in the browser below as spans with "—".</li>
+          <li class="mb-1"><strong>Null-label sentences</strong> are policy text with no annotation at all; these appear in the browser below as spans with "(none)".</li>
           <li class="mb-1"><strong>Agreement is confidence:</strong> when multiple annotators independently flagged the same span and label (e.g., three of them), the label is treated as high-confidence.</li>
         </ul>
 
@@ -341,18 +341,18 @@
             <p class="pipe-desc">70 / 15 / 15 (seed 42) → Train · Validation · Test. Documents are atomic, so no span can cross splits.</p>
           </div>
         </div>
-        <p class="small text-muted mb-3">Every random draw uses seed&nbsp;42 — rerun the notebook from the same inputs and you get the exact same partitions.</p>
+        <p class="small text-muted mb-3">Every random draw uses seed&nbsp;42; rerun the notebook from the same inputs and you get the exact same partitions.</p>
 
-        <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">Class imbalance — why it exists, and why we keep it</h3>
+        <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">Class imbalance (why it exists, and why we keep it)</h3>
         <p class="small text-muted mb-2">
           Imbalance is heavy in this corpus, and it is inherent to the <em>source material</em>, not an artifact
-          of how we sampled. These are companies' actual privacy policies, quoted close to verbatim — you can't
+          of how we sampled. These are companies' actual privacy policies, quoted close to verbatim; you can't
           change what the real documents say.
         </p>
         <ul class="small mb-2 ps-3">
           <li class="mb-1"><strong>High-confidence labels come from annotator agreement.</strong> Six annotators (RA1–RA6) worked in parallel; when multiple of them independently flagged the same span and label (e.g., three), that label is high-confidence.</li>
           <li class="mb-1"><strong>If the imbalance shows up consistently across many policies, it's the real world, not a sampling artifact.</strong> Policies genuinely say "notice" far more often than they say "limit the use of my sensitive data."</li>
-          <li class="mb-1"><strong>The test data reflects the real world.</strong> We deliberately did not pull out majority-class examples to make the distribution look even — re-balancing to fit what the data "should" look like would mean changing the data to match an expectation instead of reflecting reality.</li>
+          <li class="mb-1"><strong>The test data reflects the real world.</strong> We deliberately did not pull out majority-class examples to make the distribution look even; re-balancing to fit what the data "should" look like would mean changing the data to match an expectation instead of reflecting reality.</li>
         </ul>
         <p class="small text-muted mb-0">
           In a perfect world the six labels would be evenly distributed; in the real world they are not. So the
@@ -375,48 +375,48 @@
         </div>
         <p class="small text-muted mb-3">
           The test split is a partition of the 40% subsample (25 of the 159 documents), not a freshly
-          sampled set. Rare labels keep their natural (small) support in it — e.g.
-          <em>Right_to_Limit_Sensitive</em> has 16 test spans — so test F1 for those labels reads as noisy,
+          sampled set. Rare labels keep their natural (small) support in it; for example,
+          <em>Right_to_Limit_Sensitive</em> has 16 test spans, so test F1 for those labels reads as noisy,
           which the notebook explicitly flags.
         </p>
         <p class="small fw-semibold mb-1">Why 70 / 15 / 15?</p>
         <p class="small text-muted mb-3">
-          Training gets the largest share because a model learns from examples — more clean examples means a
+          Training gets the largest share because a model learns from examples; more clean examples means a
           better-trained model. Some data still has to stay out of training so we can (a) tune the settings
           on a set the model has never seen (validation) and (b) grade it exactly once at the very end (test).
           70/15/15 is standard machine-learning practice; because documents are grouped randomly with a pinned
-          seed (42), the exact partitioning is reproducible. (Ratios like 60/20/20 or 80/10/10 are also common —
+          seed (42), the exact partitioning is reproducible. (Ratios like 60/20/20 or 80/10/10 are also common;
           the point of any ratio is that the test set is never part of training or tuning.)
         </p>
 
         <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">Why there is no leakage</h3>
         <ul class="mb-0">
           <li class="mb-2"><strong>Whole-document split.</strong> Documents are the atom: every span of a document lands in exactly one split, so a span cannot drift between train, validation, and test.</li>
-          <li class="mb-2"><strong>Two independent disjointness checks.</strong> After splitting, the script asserts (i) the three document-ID sets are pairwise disjoint, and (ii) the three span-text sets are pairwise disjoint — catching any surviving boilerplate. Both hold on the exported JSONs: 0 overlapping documents and 0 overlapping texts across every split pair.</li>
+          <li class="mb-2"><strong>Two independent disjointness checks.</strong> After splitting, the script asserts (i) the three document-ID sets are pairwise disjoint, and (ii) the three span-text sets are pairwise disjoint, catching any surviving boilerplate. Both hold on the exported JSONs: 0 overlapping documents and 0 overlapping texts across every split pair.</li>
           <li class="mb-2"><strong>Deduplication before splitting.</strong> The 992 identical-text spans are removed in step&nbsp;3, before any split exists, so template text cannot recur in multiple splits.</li>
           <li class="mb-2"><strong>Seed-pinned randomness.</strong> Both the 40% subsample and the split shuffle use seed&nbsp;42, so the exact partitions can be regenerated from the same inputs.</li>
           <li class="mb-2"><strong>Validation-only tuning.</strong> Per-class thresholds and hyperparameters are selected on the validation split; the test set is evaluated exactly once, with those choices frozen (each model's config comes from a candidate search scored on validation only).</li>
           <li class="mb-2"><strong>Imbalance is handled, not balanced away.</strong> Per-class <code class="font-mono">pos_weight</code> and focal loss counteract the natural long-tailed distribution at training time (see "Class imbalance" above); the test split is never down-sampled or otherwise edited.</li>
         </ul>
 
-        <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">Hyperparameters — the knobs, tuned on validation</h3>
+        <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">Hyperparameters (the knobs, tuned on validation)</h3>
         <p class="small text-muted mb-2">
-          Each model has its own configuration values — knobs that change how it analyzes the data: how fast it
+          Each model has its own configuration values (knobs that change how it analyzes the data: how fast it
           learns (learning rate), how many full passes over the training set (epochs), how hard it tries to pin
           everything down vs. staying general (dropout, weight decay), and the sharpness of the focal loss
           (gamma). There is no single magic configuration; every model gets its own tuned set.
         </p>
         <p class="small text-muted mb-3">
           What validation is <em>for</em>: try a few candidate knob settings on the validation split, see which
-          one performs best there — on sentences the model never trained on — and lock in the winner. Only then
+          one performs best there (on sentences the model never trained on) and lock in the winner. Only then
           does the model move to test, for a single, final grade. (The notebook records what happens without this
-          guardrail: forcing the smaller model's settings onto RoBERTa collapsed its validation score to ~0.13 —
+          guardrail: forcing the smaller model's settings onto RoBERTa collapsed its validation score to ~0.13,
           exactly the failure validation exists to catch.)
         </p>
 
-        <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">Scoring — why macro F1</h3>
+        <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">Scoring (why macro F1)</h3>
         <p class="small text-muted mb-2">
-          We deliberately give <strong>little credit for getting the easy, common labels right</strong> — a model
+          We deliberately give <strong>little credit for getting the easy, common labels right</strong>: a model
           that just predicts "Notice" on most spans should not get a high grade for it. Getting the <strong>harder,
           rarer labels</strong> right is what moves the score. Macro-averaged F1 enforces exactly this: it averages the
           F1 of each of the six rights <em>equally</em>, regardless of how common that right is in the data.
@@ -424,21 +424,21 @@
         <p class="small text-muted mb-3">
           A micro- or weight-averaged score would be the wrong tool here: it would be dominated by the frequent
           Notice class, letting a lazy model coast while rare rights (e.g. <em>Right_to_Limit_Sensitive</em>, 16
-          test spans) counted for almost nothing. Macro F1 flips that — every label counts equally, which is also
+          test spans) counted for almost nothing. Macro F1 flips that: every label counts equally, which is also
           why we report each label's F1 separately in the model cards.
         </p>
 
-        <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">How we know it's really learning — not memorizing</h3>
+        <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">How we know it's really learning (not memorizing)</h3>
         <p class="small text-muted mb-2">
           A skeptic could ask: are the scores real, or is the model gaming label frequency, memorizing its
           training sentences, or leaning on random surface patterns? Four checks, all reproducible:
         </p>
 
-        <p class="small fw-semibold mb-1">1 · It must beat a "dumb" baseline — by a lot.</p>
+        <p class="small fw-semibold mb-1">1 · It must beat a "dumb" baseline by a lot.</p>
         <p class="small text-muted mb-2">
           We computed what lazy answers score on the <em>actual</em> test set (1720 spans). A model that just
           always said <em>Notice</em> gets macro F1 0.102; one that predicts every right gets 0.224. The three
-          trained models score 0.763–0.778 — about 3.4× the best dumb baseline — so the score cannot come from
+          trained models score 0.763–0.778, about 3.4× the best dumb baseline, so the score cannot come from
           guessing label frequency.
         </p>
         <div class="table-responsive mb-3">
@@ -455,11 +455,11 @@
           </table>
         </div>
 
-        <p class="small fw-semibold mb-1">2 · Train vs. validation gap — the memorization meter.</p>
+        <p class="small fw-semibold mb-1">2 · Train vs. validation gap (the memorization meter).</p>
         <p class="small text-muted mb-2">
           If a model memorized its training sentences, it would score ~1.0 on training but collapse on new text.
           The notebook measures per-label F1 on <em>both</em> train and validation (test untouched) and flags any
-          label where train ≫ validation as <code>OVERFIT</code>. Every label here is HEALTHY — the gaps are
+          label where train ≫ validation as <code>OVERFIT</code>. Every label here is HEALTHY; the gaps are
           tiny, and most are slightly <em>negative</em> (validation ≥ training), which is the classic signature
           of generalization, not memorization:
         </p>
@@ -482,14 +482,14 @@
         <p class="small fw-semibold mb-1">3 · The validator can catch a broken model.</p>
         <p class="small text-muted mb-2">
           The notebook records an early error: applying the small LegalBERT's training schedule to the much
-          larger RoBERTa collapsed its <em>validation</em> macro F1 to ~0.13 — a clear red flag on data the
+          larger RoBERTa collapsed its <em>validation</em> macro F1 to ~0.13, a clear red flag on data the
           model had never trained on. Re-running the search properly (validation-only) recovered 0.78. A metric
           that correctly flags under-training like that cannot be a lucky fit to priors: it tracks real learning.
         </p>
 
         <p class="small fw-semibold mb-1">4 · The reasons match human intuition.</p>
         <p class="small text-muted mb-0">
-          The explainability plots don't point at formatting, positions, or random prefixes — they single out
+          The explainability plots don't point at formatting, positions, or random prefixes; they single out
           meaningful words (e.g. "share" for Opt-Out). And when a sentence contains nothing relevant (the address
           sample in the SHAP cards), the attributions go flat instead of inventing signal: the model refuses to
           manufacture a right, which is what you'd want from real understanding.
@@ -505,7 +505,7 @@
         <div class="row g-3">
           <div class="col-md-6 d-flex gap-2">
             <span class="badge bg-warning text-dark h-100">Right_to_Know</span>
-            <span class="small">General right to be informed about data practices and usage in a non-procedural way — transparency, awareness, and informational rights about what data is collected and how it is used.</span>
+            <span class="small">General right to be informed about data practices and usage in a non-procedural way: transparency, awareness, and informational rights about what data is collected and how it is used.</span>
           </div>
           <div class="col-md-6 d-flex gap-2">
             <span class="badge bg-danger h-100">Right_to_Delete</span>
@@ -525,7 +525,7 @@
           </div>
           <div class="col-md-6 d-flex gap-2">
             <span class="badge bg-primary h-100">Notice_Requirement</span>
-            <span class="small">Legal obligation to actively inform or notify users before or during data collection or processing — disclosures, privacy notices, and required transparency procedures.</span>
+            <span class="small">Legal obligation to actively inform or notify users before or during data collection or processing: disclosures, privacy notices, and required transparency procedures.</span>
           </div>
         </div>
       </div>
@@ -566,19 +566,19 @@
           <div class="col-md-6">
             <div class="small">
               <div class="mb-2">
-                <strong>Precision — "when the tool says it, is it true?"</strong>
+                <strong>Precision ("when the tool says it, is it true?")</strong>
                 When the model flags a clause as, say, <em>Right to Delete</em>, how often is that correct?
-                <span class="text-muted">Flan-T5-base is the pickiest (0.85) — fewest false alarms.</span>
+                <span class="text-muted">Flan-T5-base is the pickiest (0.85), with the fewest false alarms.</span>
               </div>
               <div class="mb-2">
-                <strong>Recall — "did it catch everything relevant?"</strong>
+                <strong>Recall ("did it catch everything relevant?")</strong>
                 Of the clauses that really do state a right, how many were found?
-                <span class="text-muted">RoBERTa-large finds the most (0.75) — fewest missed obligations.</span>
+                <span class="text-muted">RoBERTa-large finds the most (0.75), with the fewest missed obligations.</span>
               </div>
               <div>
-                <strong>F1 — the single combined grade.</strong> A 0–1 balance of the two, so you can't win by
+                <strong>F1 (the single combined grade).</strong> A 0–1 balance of the two, so you can't win by
                 being lazy on one side. The six rights are rare and unequal, so we average the grade per right
-                (<em>macro F1</em>) — the small rights count exactly as much as the big ones.
+                (<em>macro F1</em>); the small rights count exactly as much as the big ones.
               </div>
             </div>
           </div>
@@ -603,8 +603,8 @@
                   <strong>LegalBERT</strong> <small class="text-muted">2020</small>
                 </div>
                 <p class="small text-muted mb-2">BERT encoder pre-trained on legal corpora (contracts, legislation, court cases) instead of general web text.</p>
-                <p class="small mb-2"><span class="fw-semibold">Why picked:</span> the domain baseline — the reference point every candidate is compared against. Same classification head and recipe, pretrained on legal text instead of general web text.</p>
-                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7627 says:</span> it trails both general-purpose candidates, so at this data scale legal-domain pretraining alone is not the winning factor — precisely the question this model exists to answer.</p>
+                <p class="small mb-2"><span class="fw-semibold">Why picked:</span> the domain baseline (the reference point every candidate is compared against. Same classification head and recipe, pretrained on legal text instead of general web text.</p>
+                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7627 says:</span> it trails both general-purpose candidates, so at this data scale legal-domain pretraining alone is not the winning factor; precisely the question this model exists to answer.</p>
                 <a class="small link-primary" href="https://huggingface.co/nlpaueb/legal-bert-base-uncased" target="_blank" rel="noopener">nlpaueb/legal-bert-base-uncased ↗</a>
               </div>
             </div>
@@ -617,7 +617,7 @@
                   <strong>RoBERTa-large</strong> <small class="text-muted">2019</small>
                 </div>
                 <p class="small text-muted mb-2">A large BERT variant trained with more data and longer training for stronger general transfer.</p>
-                <p class="small mb-2"><span class="fw-semibold">Why picked:</span> the strongest general-purpose off-the-shelf encoder — much larger than the LegalBERT baseline and with no legal pretraining. It is a deliberate capacity test.</p>
+                <p class="small mb-2"><span class="fw-semibold">Why picked:</span> the strongest general-purpose off-the-shelf encoder, much larger than the LegalBERT baseline and with no legal pretraining. It is a deliberate capacity test.</p>
                 <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7777 says:</span> it beats LegalBERT outright and earns the best F1 of the three. Under this methodology a general large model outperforms the legal-domain baseline, so general capacity matters more than domain pretraining at this scale.</p>
                 <a class="small link-primary" href="https://huggingface.co/roberta-large" target="_blank" rel="noopener">roberta-large ↗</a>
               </div>
@@ -631,8 +631,8 @@
                   <strong>Flan-T5-base</strong> <small class="text-muted">2023</small>
                 </div>
                 <p class="small text-muted mb-2">A text-to-text (encoder-decoder) model instruction-tuned across many tasks.</p>
-                <p class="small mb-2"><span class="fw-semibold">Why picked:</span> a different architecture on purpose. If the same pipeline works on BERT-style encoders <em>and</em> a generative encoder-decoder, the findings are not architecture-dependent — and Flan-T5 is the one LIME can explain.</p>
-                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7677 says:</span> the highest precision (0.85) but the lowest recall — a precision-leaning profile. It still matches the LegalBERT baseline, so a general instruction-tuned model is a viable stand-in for LegalBERT when precision and explainability matter.</p>
+                <p class="small mb-2"><span class="fw-semibold">Why picked:</span> a different architecture on purpose. If the same pipeline works on BERT-style encoders <em>and</em> a generative encoder-decoder, the findings are not architecture-dependent, and Flan-T5 is the one LIME can explain.</p>
+                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7677 says:</span> the highest precision (0.85) but the lowest recall (a precision-leaning profile). It still matches the LegalBERT baseline, so a general instruction-tuned model is a viable stand-in for LegalBERT when precision and explainability matter.</p>
                 <a class="small link-primary" href="https://huggingface.co/google/flan-t5-base" target="_blank" rel="noopener">google/flan-t5-base ↗</a>
               </div>
             </div>
@@ -643,7 +643,7 @@
           it isolates the value of legal-domain pretraining (LegalBERT vs. a general large model),
           tests whether the pipeline survives a fundamentally different architecture (Flan-T5),
           and keeps every model on the same splits, recipe, and thresholds so the comparison is apples-to-apples.
-          The verdict at 40% scale: legal pretraining is not the deciding factor — general models match or beat it.
+          The verdict at 40% scale: legal pretraining is not the deciding factor; general models match or beat it.
         </div>
       </div>
     </div>
@@ -666,7 +666,7 @@
       <div class="col-md-6">
         <div class="card h-100 border-0 shadow-sm">
           <div class="card-body p-3">
-            <div class="fw-semibold mb-1">SHAP — "which words does the verdict lean on?"</div>
+            <div class="fw-semibold mb-1">SHAP: "which words does the verdict lean on?"</div>
             <p class="small text-muted mb-0">
               SHAP re-runs the model over and over, testing each word's contribution by hiding and restoring
               pieces of a sentence. Red words pushed the prediction <em>for</em> a label, blue pushed
@@ -678,10 +678,10 @@
       <div class="col-md-6">
         <div class="card h-100 border-0 shadow-sm">
           <div class="card-body p-3">
-            <div class="fw-semibold mb-1">LIME — "which words would tip a human review?"</div>
+            <div class="fw-semibold mb-1">LIME: "which words would tip a human review?"</div>
             <p class="small text-muted mb-0">
               LIME generates tiny variations of the sentence, asks the model to order them, and fits a small
-              linear score — a mini audit checklist. Each row below lists the words that mattered most for one
+              linear score (a mini audit checklist). Each row below lists the words that mattered most for one
               CPRA right and how strongly they pushed for (+) or against (−) it.
             </p>
           </div>
@@ -689,14 +689,14 @@
       </div>
     </div>
 
-    <h3 class="h5 mt-4 mb-2">SHAP — which words drive the verdict?</h3>
+    <h3 class="h5 mt-4 mb-2">SHAP: which words drive the verdict?</h3>
     <div class="card border-0 shadow-sm mb-3">
       <div class="card-body p-3">
         <div class="fw-semibold mb-2">How to read a SHAP plot · 30 seconds</div>
         <div class="row g-3 small mb-2">
           <div class="col-md-4">
             <div class="fw-semibold mb-1">1 · One question per plot</div>
-            <p class="text-muted mb-0">Each plot is one real test sentence, and the model is asked one question about it —
+            <p class="text-muted mb-0">Each plot is one real test sentence, and the model is asked one question about it:
             the CPRA right named in the card title (e.g. "asked about Right_to_Delete").</p>
           </div>
           <div class="col-md-4">
@@ -724,7 +724,7 @@
       <div class="col-12 text-muted small">Loading SHAP plots…</div>
     </div>
 
-    <h3 class="h5 mt-4 mb-2">LIME — the words that tip a close call</h3>
+    <h3 class="h5 mt-4 mb-2">LIME: the words that tip a close call</h3>
     <p class="text-muted small mb-3">
       LIME asks Flan-T5-base "which right is this?" again and again on tiny variations of a sentence, then
       reports which words the answer depends on. Each card covers one of the first three test sentences.
@@ -744,10 +744,10 @@
             <h6 class="text-uppercase small fw-bold mb-2">Data &amp; legal sources</h6>
             <ul class="small mb-0 ps-3">
               <li class="mb-2"><a href="https://github.com/MaazBinMusa/C3PA_Dataset" target="_blank" rel="noopener">C3PA dataset</a> (Bin Musa et&nbsp;al., released 2024; EMNLP 2024)</li>
-              <li class="mb-2"><a href="https://aclanthology.org/2024.emnlp-main.217/" target="_blank" rel="noopener">C3PA paper — EMNLP 2024</a></li>
+              <li class="mb-2"><a href="https://aclanthology.org/2024.emnlp-main.217/" target="_blank" rel="noopener">C3PA paper (EMNLP 2024)</a></li>
               <li class="mb-2"><a href="https://arxiv.org/abs/2410.03925" target="_blank" rel="noopener">C3PA paper (arXiv)</a></li>
-              <li class="mb-2"><a href="https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?division=3.&amp;lawCode=CIV&amp;part=4.&amp;title=1.81.5" target="_blank" rel="noopener">CCPA / CPRA — California Civil Code, Div. 3, Pt. 4, Title 1.81.5</a></li>
-              <li><a href="https://vig.cdn.sos.ca.gov/2020/general/pdf/topl-prop24.pdf" target="_blank" rel="noopener">Proposition 24 (2020) — CPRA text</a></li>
+              <li class="mb-2"><a href="https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?division=3.&amp;lawCode=CIV&amp;part=4.&amp;title=1.81.5" target="_blank" rel="noopener">CCPA / CPRA (California Civil Code, Div. 3, Pt. 4, Title 1.81.5)</a></li>
+              <li><a href="https://vig.cdn.sos.ca.gov/2020/general/pdf/topl-prop24.pdf" target="_blank" rel="noopener">Proposition 24 (2020): CPRA text</a></li>
             </ul>
           </div>
         </div>
@@ -757,9 +757,9 @@
           <div class="card-body p-3">
             <h6 class="text-uppercase small fw-bold mb-2">Models</h6>
             <ul class="small mb-0 ps-3">
-              <li class="mb-2"><a href="https://huggingface.co/nlpaueb/legal-bert-base-uncased" target="_blank" rel="noopener">LegalBERT</a> — nlpaueb</li>
-              <li class="mb-2"><a href="https://huggingface.co/roberta-large" target="_blank" rel="noopener">RoBERTa-large</a> — Meta AI</li>
-              <li><a href="https://huggingface.co/google/flan-t5-base" target="_blank" rel="noopener">Flan-T5-base</a> — Google Research</li>
+              <li class="mb-2"><a href="https://huggingface.co/nlpaueb/legal-bert-base-uncased" target="_blank" rel="noopener">LegalBERT</a> (nlpaueb)</li>
+              <li class="mb-2"><a href="https://huggingface.co/roberta-large" target="_blank" rel="noopener">RoBERTa-large</a> (Meta AI)</li>
+              <li><a href="https://huggingface.co/google/flan-t5-base" target="_blank" rel="noopener">Flan-T5-base</a> (Google Research)</li>
             </ul>
           </div>
         </div>
@@ -769,10 +769,10 @@
           <div class="card-body p-3">
             <h6 class="text-uppercase small fw-bold mb-2">Tools</h6>
             <ul class="small mb-0 ps-3">
-              <li class="mb-2"><a href="https://shap.readthedocs.io/" target="_blank" rel="noopener">SHAP</a> — PartitionExplainer + text masker</li>
-              <li class="mb-2"><a href="https://github.com/marcotcr/lime" target="_blank" rel="noopener">LIME</a> — local sparse-surrogate explanations</li>
-              <li class="mb-2"><a href="https://huggingface.co/docs/transformers" target="_blank" rel="noopener">Hugging Face Transformers</a> — training &amp; tokenizers</li>
-              <li><a href="https://www.chartjs.org/" target="_blank" rel="noopener">Chart.js</a> · <a href="https://getbootstrap.com/" target="_blank" rel="noopener">Bootstrap 5</a> — this page</li>
+              <li class="mb-2"><a href="https://shap.readthedocs.io/" target="_blank" rel="noopener">SHAP</a> (PartitionExplainer + text masker)</li>
+              <li class="mb-2"><a href="https://github.com/marcotcr/lime" target="_blank" rel="noopener">LIME</a> (local sparse-surrogate explanations)</li>
+              <li class="mb-2"><a href="https://huggingface.co/docs/transformers" target="_blank" rel="noopener">Hugging Face Transformers</a> (training &amp; tokenizers)</li>
+              <li><a href="https://www.chartjs.org/" target="_blank" rel="noopener">Chart.js</a> · <a href="https://getbootstrap.com/" target="_blank" rel="noopener">Bootstrap 5</a> (this page)</li>
             </ul>
           </div>
         </div>
@@ -788,15 +788,15 @@
         <div class="accordion" id="glossary-accordion">
           <div class="accordion-item">
             <h3 class="accordion-header" id="gloss-cpra"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#gloss-cpra-p" aria-expanded="false">CPRA</button></h3>
-            <div id="gloss-cpra-p" class="accordion-collapse collapse" data-bs-parent="#glossary-accordion"><div class="accordion-body fs-6">The California Privacy Rights Act, approved as Proposition 24 in 2020. It amends the CCPA and grants consumers additional rights — like correcting personal information and limiting the use of sensitive personal information.</div></div>
+            <div id="gloss-cpra-p" class="accordion-collapse collapse" data-bs-parent="#glossary-accordion"><div class="accordion-body fs-6">The California Privacy Rights Act, approved as Proposition 24 in 2020. It amends the CCPA and grants consumers additional rights, such as correcting personal information and limiting the use of sensitive personal information.</div></div>
           </div>
           <div class="accordion-item">
             <h3 class="accordion-header" id="gloss-c3pa"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#gloss-c3pa-p" aria-expanded="false">C3PA</button></h3>
-            <div id="gloss-c3pa-p" class="accordion-collapse collapse" data-bs-parent="#glossary-accordion"><div class="accordion-body fs-6">"Compliance Control Point Approximation" — the dataset (Bin Musa et al., EMNLP 2024) of expert-annotated spans from real company privacy policies, used to compare policies against legal requirements.</div></div>
+            <div id="gloss-c3pa-p" class="accordion-collapse collapse" data-bs-parent="#glossary-accordion"><div class="accordion-body fs-6">"Compliance Control Point Approximation": the dataset (Bin Musa et al., EMNLP 2024) of expert-annotated spans from real company privacy policies, used to compare policies against legal requirements.</div></div>
           </div>
           <div class="accordion-item">
             <h3 class="accordion-header" id="gloss-span"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#gloss-span-p" aria-expanded="false">Span</button></h3>
-            <div id="gloss-span-p" class="accordion-collapse collapse" data-bs-parent="#glossary-accordion"><div class="accordion-body fs-6">A contiguous chunk of text in a privacy policy — a sentence or clause — that the annotators tagged with one or more CPRA labels.</div></div>
+            <div id="gloss-span-p" class="accordion-collapse collapse" data-bs-parent="#glossary-accordion"><div class="accordion-body fs-6">A contiguous chunk of text in a privacy policy (a sentence or clause) that the annotators tagged with one or more CPRA labels.</div></div>
           </div>
           <div class="accordion-item">
             <h3 class="accordion-header" id="gloss-train"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#gloss-train-p" aria-expanded="false">Training set</button></h3>

@@ -256,7 +256,7 @@ function renderTable(name) {
 
     el('table-body').innerHTML = pageRows.map((r, i) => {
         const badges = r.labels.length ? r.labels.map(badgeHtml).join('') :
-            '<span class="text-muted small">—</span>';
+            '<span class="text-muted small">(none)</span>';
         return `
         <tr>
           <td class="text-muted align-top">${start + i + 1}</td>
@@ -363,7 +363,7 @@ async function showSplit(name) {
             <div class="position-relative" style="height: 260px;">
               <canvas id="dist-chart"></canvas>
               <div id="dist-chart-empty" class="d-none position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center text-muted small">
-                Chart.js not loaded — showing bar list only.
+                Chart.js not loaded; showing bar list only.
               </div>
             </div>
           </div>
@@ -451,7 +451,7 @@ function limeWordsHtml(lime) {
     if (!groups.length) {
         return `
           <div class="small text-muted border-top pt-2">
-            The model was already certain here — it kept predicting <em>Notice_Requirement</em> at
+            The model was already certain here; it kept predicting <em>Notice_Requirement</em> at
             probability&nbsp;1.0 no matter which words it was shown. With no uncertainty, LIME's
             numeric strength list collapses to all-zero, so there is nothing for the word bars to show.
             That's the model being confident, not an error.
@@ -487,13 +487,13 @@ async function loadExplainability() {
     const shapPlots = [
         {
             file: 'explainability/shap_legalbert.html',
-            title: 'LegalBERT — asked about Right_to_Delete',
+            title: 'LegalBERT, asked about Right_to_Delete',
             badge: 'Test sample 1',
-            note: 'The sample is an address block, and Right_to_Delete never appears in it. Every word votes slightly <em>against</em> the label — the model is correctly staying quiet rather than inventing a right.',
+            note: 'The sample is an address block, and Right_to_Delete never appears in it. Every word votes slightly <em>against</em> the label; the model is correctly staying quiet rather than inventing a right.',
         },
         {
             file: 'explainability/shap_roberta.html',
-            title: 'RoBERTa-large — asked about Right_to_Opt_Out',
+            title: 'RoBERTa-large, asked about Right_to_Opt_Out',
             badge: 'Test sample 2',
             note: 'Same test sentence, different question. Here a few words tilt the vote; most stay near zero. The joined span separators render as line breaks in the source text.',
         },
@@ -521,7 +521,7 @@ async function loadExplainability() {
             if (!res.ok) throw new Error('HTTP ' + res.status);
             el(`shap-plot-${i}`).innerHTML = await res.text();
         } catch (err) {
-            el(`shap-plot-${i}`).innerHTML = `<span class="text-muted small">Could not load ${esc(shapPlots[i].file)} — ${esc(err.message)}</span>`;
+            el(`shap-plot-${i}`).innerHTML = `<span class="text-muted small">Could not load ${esc(shapPlots[i].file)}: ${esc(err.message)}</span>`;
         }
     }
 
@@ -545,7 +545,7 @@ async function loadExplainability() {
               </div>
             </div>`).join('');
     } catch (err) {
-        el('lime-cards').innerHTML = `<div class="col-12 text-muted small">Could not load LIME samples — ${esc(err.message)}</div>`;
+        el('lime-cards').innerHTML = `<div class="col-12 text-muted small">Could not load LIME samples: ${esc(err.message)}</div>`;
     }
 }
 
