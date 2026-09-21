@@ -125,14 +125,18 @@
               <li class="mb-2"><strong>The best model gets the right answer most of the time.</strong>
               RoBERTa-large matches the human experts on roughly 78% of what it scores (0.78 on the headline
               metric, counting all six rights equally). The other two models trail by about one point.</li>
-              <li class="mb-2"><strong>The models learn, they don't just guess.</strong> A model that lazily
-              answered "Notice" to everything would score 0.10. A model that answered every right to
-              everything would score 0.22. The trained models more than triple the best of those, and they
-              stay equally solid on text they never trained on.</li>
-              <li class="mb-2"><strong>Common rights are common for a reason.</strong> Real policies talk
-              about "Notice" far more than about limits on sensitive data. We keep that imbalance and handle
-              it in how the models are trained and graded, so the numbers reflect the real world rather than
-              a reshaped one.</li>
+              <li class="mb-2"><strong>The models learn, they don't just guess.</strong> To prove it, we also
+              score lazy strategies. One that just answers "Notice" to every sentence scores 0.10. One that
+              answers every right on every sentence scores 0.22. The real trained models score 0.76 or better,
+              more than triple the best lazy strategy, and they stay just as solid on policies they never saw
+              during training. A model that had memorized its lessons instead of learning them would fall apart
+              there; these don't.</li>
+              <li class="mb-2"><strong>Common rights are common for a reason.</strong> Real policies talk about
+              "Notice" constantly and about limits on sensitive data almost never. That is what the real world
+              looks like, not a flaw in our numbers. So we grade in a way that penalizes the easy answer: all
+              six rights are scored equally, which means spamming "Notice" earns nothing extra and rare rights
+              matter just as much. Strip "Notice" out just to make the counts look even, and the scores stay
+              neat but they stop being a true read on real policies. We'd rather measure the world as it is.</li>
             </ul>
           </div>
           <div class="col-lg-4">
