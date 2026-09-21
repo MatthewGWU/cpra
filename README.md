@@ -58,7 +58,7 @@ disjointness are asserted).
 | `app.js` | Client-side logic: split browser, charts, explainability. |
 | `data/train.json`, `data/val.json`, `data/test.json` | The 40%-scale JSON splits (browser-facing). |
 | `export_dataset.py` | Reproduces those JSON splits from the raw dataset. |
-| `explainability/` | SHAP plot exports + LIME sample cards with real per-label weights. |
+| `explainability/` | SHAP / LIME sample cards as bar lists with the real per-word weights (JSON), plus the original SHAP force-plot exports for provenance. |
 | `CPRA_40pct_CLEAN (1).ipynb` | The current notebook: subsampling, split, training, explainability. |
 
 ## Run locally

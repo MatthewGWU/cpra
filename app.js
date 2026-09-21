@@ -451,10 +451,10 @@ function limeWordsHtml(lime) {
     if (!groups.length) {
         return `
           <div class="small text-muted border-top pt-2">
-            The model was already certain here; it kept predicting <em>Notice_Requirement</em> at
-            probability&nbsp;1.0 no matter which words it was shown. With no uncertainty, LIME's
-            numeric strength list collapses to all-zero, so there is nothing for the word bars to show.
-            That's the model being confident, not an error.
+            The model was already sure here. No matter which words it was shown, it kept predicting
+            <em>Notice_Requirement</em> and no other right. When a model is completely certain, there is no
+            uncertainty left for the word bars to explain, so they collapse to all-zero. That is confidence,
+            not an error.
           </div>`;
     }
     return `
@@ -483,46 +483,103 @@ function limeWordsHtml(lime) {
       </div>`;
 }
 
+function shapWordsHtml(words) {
+    if (!Array.isArray(words) || !words.length) return '';
+    const max = Math.max(0.0001, ...words.map((w) => Math.abs(w.value)));
+    return `
+      <div class="small border-top pt-2">
+        <div class="fw-semibold mb-1">Word by word, largest effect first:</div>
+        ${words.map((w) => {
+            const pct = w.value * 100;
+            const positive = w.value >= 0;
+            return `
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="text-truncate small" style="width:120px;">${esc(w.word)}</span>
+                <div class="flex-grow-1 bg-light rounded" style="height:10px;">
+                  <div class="rounded ${positive ? 'bg-success' : 'bg-danger'}"
+                       title="${esc(w.word)} ${positive ? '+' : ''}${pct.toFixed(2)}%"
+                       style="height:10px; width:${Math.round((Math.abs(w.value) / max) * 100)}%;"></div>
+                </div>
+                <span class="${positive ? 'text-success' : 'text-danger'} small" style="width:64px; text-align:right;">${positive ? '+' : ''}${pct.toFixed(1)}%</span>
+              </div>`;
+        }).join('')}
+      </div>`;
+}
+
+var LT_MAX = 160;
+
+function clipLongText(t) {
+    return t.length > LT_MAX ? t.slice(0, LT_MAX - 1).trimEnd() + '…' : t;
+}
+
+function longTextHtml(text) {
+    const t = (text || '').trim();
+    if (!t) return '';
+    if (t.length <= LT_MAX) {
+        return `<p class="small text-muted mb-2">${esc(t)}</p>`;
+    }
+    return `
+      <div class="small text-muted mb-2">
+        <span class="lt-full" style="display:none;">${esc(t)}</span>
+        <span class="lt-preview">${esc(t)}</span>
+        <button type="button" class="btn btn-link btn-sm p-0 align-baseline lt-toggle" aria-expanded="false">show full text</button>
+      </div>`;
+}
+
+function setupLongText(root) {
+    root.querySelectorAll('.lt-preview').forEach((el) => {
+        const full = el.parentElement.querySelector('.lt-full');
+        if (full) el.textContent = clipLongText(full.textContent);
+    });
+}
+
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.lt-toggle');
+    if (!btn) return;
+    e.preventDefault();
+    const box = btn.parentElement;
+    const preview = box.querySelector('.lt-preview');
+    const full = box.querySelector('.lt-full');
+    if (btn.getAttribute('aria-expanded') === 'true') {
+        preview.textContent = clipLongText(full.textContent);
+        preview.style.display = '';
+        full.style.display = 'none';
+        btn.textContent = 'show full text';
+        btn.setAttribute('aria-expanded', 'false');
+    } else {
+        preview.style.display = 'none';
+        full.style.display = '';
+        btn.textContent = 'collapse';
+        btn.setAttribute('aria-expanded', 'true');
+    }
+});
+
 async function loadExplainability() {
-    const shapPlots = [
-        {
-            file: 'explainability/shap_legalbert.html',
-            title: 'LegalBERT, asked about Right_to_Delete',
-            badge: 'Test sample 1',
-            note: 'The sample is an address block, and Right_to_Delete never appears in it. Every word votes slightly <em>against</em> the label; the model is correctly staying quiet rather than inventing a right.',
-        },
-        {
-            file: 'explainability/shap_roberta.html',
-            title: 'RoBERTa-large, asked about Right_to_Opt_Out',
-            badge: 'Test sample 2',
-            note: 'Same test sentence, different question. Here a few words tilt the vote; most stay near zero. The joined span separators render as line breaks in the source text.',
-        },
-    ];
-
-    el('shap-cards').innerHTML = shapPlots.map((p, i) => `
-        <div class="col-lg-6">
-          <div class="card h-100">
-            <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
-              <span class="small fw-semibold">${esc(p.title)}</span>
-              <span class="badge bg-light text-muted">${esc(p.badge)}</span>
-            </div>
-            <div class="card-body p-3">
-              <div id="shap-plot-${i}" class="shap-plot rounded p-2 mb-2" style="overflow:auto; max-height:320px; background:#fff; border:1px solid #dee2e6;">
-                <div class="text-muted small d-flex align-items-center gap-2"><div class="spinner-border spinner-border-sm"></div> Loading SHAP plot…</div>
+    try {
+        const res = await fetch('explainability/shap_samples.json');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const samples = await res.json();
+        el('shap-cards').innerHTML = samples.map((s) => `
+            <div class="col-lg-6">
+              <div class="card h-100">
+                <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                  <span class="small fw-semibold">${esc(s.model)}, asked about ${esc(s.asked_about)}</span>
+                  <span class="badge bg-light text-muted">${esc(s.badge)}</span>
+                </div>
+                <div class="card-body p-3">
+                  ${longTextHtml(s.text)}
+                  <div class="alert alert-light border small py-2 px-3 mb-2">
+                    Starting confidence: <strong>${(s.base * 100).toFixed(1)}%</strong>
+                    &nbsp;→&nbsp; after seeing these words: <strong>${(Math.max(0, s.final) * 100).toFixed(1)}%</strong>
+                  </div>
+                  <p class="small text-muted">${esc(s.note)}</p>
+                  ${shapWordsHtml(s.words)}
+                </div>
               </div>
-              <div class="small text-muted">${p.note}</div>
-            </div>
-          </div>
-        </div>`).join('');
-
-    for (let i = 0; i < shapPlots.length; i++) {
-        try {
-            const res = await fetch(shapPlots[i].file);
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            el(`shap-plot-${i}`).innerHTML = await res.text();
-        } catch (err) {
-            el(`shap-plot-${i}`).innerHTML = `<span class="text-muted small">Could not load ${esc(shapPlots[i].file)}: ${esc(err.message)}</span>`;
-        }
+            </div>`).join('');
+        setupLongText(el('shap-cards'));
+    } catch (err) {
+        el('shap-cards').innerHTML = `<div class="col-12 text-muted small">Could not load SHAP samples: ${esc(err.message)}</div>`;
     }
 
     try {
@@ -530,20 +587,21 @@ async function loadExplainability() {
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const samples = await res.json();
         el('lime-cards').innerHTML = samples.map((s) => `
-            <div class="col-md-4">
+            <div class="col-lg-6">
               <div class="card h-100">
-                <div class="card-header py-2 d-flex justify-content-between align-items-center gap-2">
-                  <span class="small fw-semibold">LIME sample ${esc(String(s.index))}</span>
+                <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                  <span class="small fw-semibold">${esc(s.title)}</span>
                   <span class="text-muted small">${esc(s.doc_id)}</span>
                 </div>
                 <div class="card-body">
-                  <p class="small text-muted mb-2">${esc(s.text)}</p>
+                  ${longTextHtml(s.text)}
                   <div class="mb-2">${s.labels.map(badgeHtml).join(' ')}</div>
-                  <div class="small text-muted mb-2">What the human annotators marked as true for this span. LIME asked Flan-T5-base about these same three test spans (notebook BLOCK 26).</div>
+                  <div class="small text-muted mb-2">What the human annotators marked as true for this span.</div>
                   ${limeWordsHtml(s.lime)}
                 </div>
               </div>
             </div>`).join('');
+        setupLongText(el('lime-cards'));
     } catch (err) {
         el('lime-cards').innerHTML = `<div class="col-12 text-muted small">Could not load LIME samples: ${esc(err.message)}</div>`;
     }
