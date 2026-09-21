@@ -192,6 +192,11 @@
               <p class="mb-1"><span class="badge bg-info text-dark me-1">Limit sensitive</span> "Go easy on my sensitive data."</p>
               <p class="mb-0"><span class="badge bg-primary me-1">Notice</span> "You have to tell me, up front."</p>
             </div>
+            <div class="alert alert-light border small mt-3 mb-0">
+              The labels were hand-added by six annotators (RA1–RA6). Where several annotators independently
+              flagged the same label, it's high-confidence. Spans with none of the six rights — null-label
+              sentences — show as "—" in the browser below.
+            </div>
           </div>
           <div class="col-lg-7">
             <div class="small">
@@ -226,14 +231,18 @@
         <h2 class="h4 mb-3">About this experiment</h2>
         <p class="mb-2">
           The target is a set of six CPRA rights/failure labels that map from the eight-label schema in the
-          <a href="https://aclanthology.org/2024.emnlp-main.217/" target="_blank" rel="noopener">C3PA paper</a>
-          Two original labels — <em>Right_to_Access</em> and <em>Risk_Assessment</em> — are dropped because
-          they lack a C3PA taxonomy mapping. Pipeline steps, exactly as run in
-          <code class="font-mono">CPRA_40pct_CLEAN (1).ipynb</code>:
+          <a href="https://aclanthology.org/2024.emnlp-main.217/" target="_blank" rel="noopener">C3PA paper</a>.
+          The dataset (Bin Musa et al., <strong>built and released in 2024</strong>, published at EMNLP 2024) was created
+          under the regulatory framework that is still in force — CPRA took effect <strong>January 1, 2023</strong>
+          and remains California law today — so this is a <em>current</em> corpus, not a historical one.
+          The raw CSVs record who annotated each span (six annotators, <code class="font-mono">RA1</code>–<code class="font-mono">RA6</code>),
+          and spans can carry one label, several labels, or none. Two original labels — <em>Right_to_Access</em>
+          and <em>Risk_Assessment</em> — are dropped because they lack a C3PA taxonomy mapping. Pipeline steps,
+          exactly as run in <code class="font-mono">CPRA_40pct_CLEAN (1).ipynb</code>:
         </p>
         <ol class="mb-2">
-          <li><strong>Group</strong> raw expert annotations into <code class="font-mono">(doc, text)</code> spans and collapse labels into a set per span (45,121 rows → 26,740 unique spans).</li>
-          <li><strong>Deduplicate</strong> shared boilerplate text across companies (992 duplicate spans removed → 25,748 unique spans across 399 documents).</li>
+          <li><strong>Group</strong> raw expert annotations into <code class="font-mono">(doc, text)</code> spans and collapse labels into a set per span (45,121 rows → 26,740 unique spans). Rows from multiple annotators landing on the same span and label are merged — agreement is a confidence signal.</li>
+          <li><strong>Deduplicate</strong> so each sentence appears once: identical text shared across policies (992 boilerplate spans) is removed → 25,748 unique spans across 399 documents.</li>
           <li><strong>Subsample to 40%</strong> of documents at random (seed 42) → 159 documents / 9,640 spans.</li>
           <li><strong>Split</strong> by document 70 / 15 / 15 (seed 42), no label leakage across splits.</li>
         </ol>
@@ -251,12 +260,16 @@
         </div>
         <div class="alert alert-light border small mb-3">
           <strong>How to read the label counts.</strong> No synthetic balancing is applied — the splits
-          keep the natural label distribution of the 40% subsample. <em>Notice_Requirement</em> dominates
-          (5,016 train spans); rare labels such as <em>Right_to_Limit_Sensitive</em> have small test support
-          (16 spans), which the notebook flags as making per-label F1 noisy regardless of threshold choice.
+          keep the natural label distribution of the 40% subsample. The imbalance is inherent to the source:
+          these are real policies, quoted close to verbatim, and the test data reflects the real world.
+          <em>Notice_Requirement</em> dominates (5,016 train spans); rare labels such as
+          <em>Right_to_Limit_Sensitive</em> have small test support (16 spans), which the notebook flags as
+          making per-label F1 noisy regardless of threshold choice.
         </div>
         <p class="small text-muted mt-3 mb-0">
-          Source data: <a href="https://github.com/MaazBinMusa/C3PA_Dataset" target="_blank" rel="noopener">MaazBinMusa/C3PA_Dataset</a>.
+          Source data: <a href="https://github.com/MaazBinMusa/C3PA_Dataset" target="_blank" rel="noopener">MaazBinMusa/C3PA_Dataset</a>
+          (released 2024; each row records the annotator — <code class="font-mono">RANumb</code> —
+          the annotated <code class="font-mono">Text</code> span, and its <code class="font-mono">Label</code>).
           This page is a static export (JSON) of the exact splits reproduced by <code class="font-mono">export_dataset.py</code>
           from <code class="font-mono">CPRA_40pct_CLEAN (1).ipynb</code>.
         </p>
@@ -272,14 +285,30 @@
           The setup behind the splits on this page, in case the methodology gets probed.
           Every step below is pinned to seed&nbsp;42 and reproduced byte-for-byte by
           <code class="font-mono">export_dataset.py</code> from the notebook's cells&nbsp;9–11.
+          The corpus is C3PA (bin&nbsp;Musa et&nbsp;al., <strong>2024</strong> — built under the CPRA/CCPA regime that
+          has been in effect since <strong>January 1, 2023</strong>), so the annotations reflect the law as it stands today.
         </p>
+
+        <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">About the source annotations</h3>
+        <p class="small text-muted mb-2">
+          The evidence is right in the GitHub CSVs (<code class="font-mono">Annotations/DB</code> and
+          <code class="font-mono">Annotations/WS</code>): every row records <code class="font-mono">RANumb</code> (which annotator),
+          the <code class="font-mono">Text</code> span, and its <code class="font-mono">Label</code>. Six people — RA1 through RA6 —
+          added the labels by hand. Looking at the raw rows directly:
+        </p>
+        <ul class="small mb-2 ps-3">
+          <li class="mb-1"><strong>Single-label sentences</strong> carry exactly one CPRA right.</li>
+          <li class="mb-1"><strong>Multi-label sentences</strong> carry several at once (a sentence can both require notice and state an opt-out right).</li>
+          <li class="mb-1"><strong>Null-label sentences</strong> are policy text with no annotation at all — these appear in the browser below as spans with "—".</li>
+          <li class="mb-1"><strong>Agreement is confidence:</strong> when multiple annotators independently flagged the same span and label (e.g., three of them), the label is treated as high-confidence.</li>
+        </ul>
 
         <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">Pipeline, in order</h3>
         <div class="pipeline-flow d-flex flex-wrap align-items-stretch gap-2 mb-3">
           <div class="pipe-step">
             <div class="pipe-num">1</div>
             <div class="pipe-title">Annotate</div>
-            <p class="pipe-desc">The C3PA authors' expert labelers tag real company privacy policies with CPRA categories (45,121 raw rows).</p>
+            <p class="pipe-desc">Six expert annotators (RA1–RA6) tag real company privacy policies with CPRA categories (45,121 raw rows; agreement across annotators = confidence).</p>
           </div>
           <div class="pipe-arrow">→</div>
           <div class="pipe-step">
@@ -297,7 +326,7 @@
           <div class="pipe-step">
             <div class="pipe-num">4</div>
             <div class="pipe-title">Deduplicate</div>
-            <p class="pipe-desc">992 identical boilerplate spans (template legalese shared across firms) removed → 25,748 spans / 399 docs.</p>
+            <p class="pipe-desc">So no sentence shows up twice: any sentence that appears more than once (992 identical boilerplate spans) is removed → 25,748 / 399 docs. Repeating text risks leakage.</p>
           </div>
           <div class="pipe-arrow">→</div>
           <div class="pipe-step pipe-hot">
@@ -313,6 +342,23 @@
           </div>
         </div>
         <p class="small text-muted mb-3">Every random draw uses seed&nbsp;42 — rerun the notebook from the same inputs and you get the exact same partitions.</p>
+
+        <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">Class imbalance — why it exists, and why we keep it</h3>
+        <p class="small text-muted mb-2">
+          Imbalance is heavy in this corpus, and it is inherent to the <em>source material</em>, not an artifact
+          of how we sampled. These are companies' actual privacy policies, quoted close to verbatim — you can't
+          change what the real documents say.
+        </p>
+        <ul class="small mb-2 ps-3">
+          <li class="mb-1"><strong>High-confidence labels come from annotator agreement.</strong> Six annotators (RA1–RA6) worked in parallel; when multiple of them independently flagged the same span and label (e.g., three), that label is high-confidence.</li>
+          <li class="mb-1"><strong>If the imbalance shows up consistently across many policies, it's the real world, not a sampling artifact.</strong> Policies genuinely say "notice" far more often than they say "limit the use of my sensitive data."</li>
+          <li class="mb-1"><strong>The test data reflects the real world.</strong> We deliberately did not pull out majority-class examples to make the distribution look even — re-balancing to fit what the data "should" look like would mean changing the data to match an expectation instead of reflecting reality.</li>
+        </ul>
+        <p class="small text-muted mb-0">
+          In a perfect world the six labels would be evenly distributed; in the real world they are not. So the
+          imbalance is handled at <em>learning</em> time (per-class weights + focal loss, below) and at
+          <em>scoring</em> time (macro F1 treats every right equally), never by editing the documents themselves.
+        </p>
 
         <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">The split, by the numbers</h3>
         <div class="table-responsive mb-2">
@@ -333,6 +379,15 @@
           <em>Right_to_Limit_Sensitive</em> has 16 test spans — so test F1 for those labels reads as noisy,
           which the notebook explicitly flags.
         </p>
+        <p class="small fw-semibold mb-1">Why 70 / 15 / 15?</p>
+        <p class="small text-muted mb-3">
+          Training gets the largest share because a model learns from examples — more clean examples means a
+          better-trained model. Some data still has to stay out of training so we can (a) tune the settings
+          on a set the model has never seen (validation) and (b) grade it exactly once at the very end (test).
+          70/15/15 is standard machine-learning practice; because documents are grouped randomly with a pinned
+          seed (42), the exact partitioning is reproducible. (Ratios like 60/20/20 or 80/10/10 are also common —
+          the point of any ratio is that the test set is never part of training or tuning.)
+        </p>
 
         <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">Why there is no leakage</h3>
         <ul class="mb-0">
@@ -341,8 +396,37 @@
           <li class="mb-2"><strong>Deduplication before splitting.</strong> The 992 identical-text spans are removed in step&nbsp;3, before any split exists, so template text cannot recur in multiple splits.</li>
           <li class="mb-2"><strong>Seed-pinned randomness.</strong> Both the 40% subsample and the split shuffle use seed&nbsp;42, so the exact partitions can be regenerated from the same inputs.</li>
           <li class="mb-2"><strong>Validation-only tuning.</strong> Per-class thresholds and hyperparameters are selected on the validation split; the test set is evaluated exactly once, with those choices frozen (each model's config comes from a candidate search scored on validation only).</li>
-          <li class="mb-2"><strong>Imbalance is handled, not balanced away.</strong> The natural long-tailed label distribution is counteracted with per-class <code class="font-mono">pos_weight</code> on the BCE term and focal loss, without synthetic oversampling and without touching the test split.</li>
+          <li class="mb-2"><strong>Imbalance is handled, not balanced away.</strong> Per-class <code class="font-mono">pos_weight</code> and focal loss counteract the natural long-tailed distribution at training time (see "Class imbalance" above); the test split is never down-sampled or otherwise edited.</li>
         </ul>
+
+        <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">Hyperparameters — the knobs, tuned on validation</h3>
+        <p class="small text-muted mb-2">
+          Each model has its own configuration values — knobs that change how it analyzes the data: how fast it
+          learns (learning rate), how many full passes over the training set (epochs), how hard it tries to pin
+          everything down vs. staying general (dropout, weight decay), and the sharpness of the focal loss
+          (gamma). There is no single magic configuration; every model gets its own tuned set.
+        </p>
+        <p class="small text-muted mb-3">
+          What validation is <em>for</em>: try a few candidate knob settings on the validation split, see which
+          one performs best there — on sentences the model never trained on — and lock in the winner. Only then
+          does the model move to test, for a single, final grade. (The notebook records what happens without this
+          guardrail: forcing the smaller model's settings onto RoBERTa collapsed its validation score to ~0.13 —
+          exactly the failure validation exists to catch.)
+        </p>
+
+        <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">Scoring — why macro F1</h3>
+        <p class="small text-muted mb-2">
+          We deliberately give <strong>little credit for getting the easy, common labels right</strong> — a model
+          that just predicts "Notice" on most spans should not get a high grade for it. Getting the <strong>harder,
+          rarer labels</strong> right is what moves the score. Macro-averaged F1 enforces exactly this: it averages the
+          F1 of each of the six rights <em>equally</em>, regardless of how common that right is in the data.
+        </p>
+        <p class="small text-muted mb-3">
+          A micro- or weight-averaged score would be the wrong tool here: it would be dominated by the frequent
+          Notice class, letting a lazy model coast while rare rights (e.g. <em>Right_to_Limit_Sensitive</em>, 16
+          test spans) counted for almost nothing. Macro F1 flips that — every label counts equally, which is also
+          why we report each label's F1 separately in the model cards.
+        </p>
 
         <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">How we know it's really learning — not memorizing</h3>
         <p class="small text-muted mb-2">
@@ -659,7 +743,7 @@
           <div class="card-body p-3">
             <h6 class="text-uppercase small fw-bold mb-2">Data &amp; legal sources</h6>
             <ul class="small mb-0 ps-3">
-              <li class="mb-2"><a href="https://github.com/MaazBinMusa/C3PA_Dataset" target="_blank" rel="noopener">C3PA dataset</a> (Bin Musa et al.)</li>
+              <li class="mb-2"><a href="https://github.com/MaazBinMusa/C3PA_Dataset" target="_blank" rel="noopener">C3PA dataset</a> (Bin Musa et&nbsp;al., released 2024; EMNLP 2024)</li>
               <li class="mb-2"><a href="https://aclanthology.org/2024.emnlp-main.217/" target="_blank" rel="noopener">C3PA paper — EMNLP 2024</a></li>
               <li class="mb-2"><a href="https://arxiv.org/abs/2410.03925" target="_blank" rel="noopener">C3PA paper (arXiv)</a></li>
               <li class="mb-2"><a href="https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?division=3.&amp;lawCode=CIV&amp;part=4.&amp;title=1.81.5" target="_blank" rel="noopener">CCPA / CPRA — California Civil Code, Div. 3, Pt. 4, Title 1.81.5</a></li>
