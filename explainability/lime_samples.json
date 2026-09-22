@@ -1,27 +1,13 @@
 [
  {
-  "title": "A legal definition, where the model stayed sure",
-  "doc_id": "DB_101",
-  "text": "A. Identifiers ||| Examples: A real name, alias, postal address, unique personal identifier, online identifier, Internet Protocol address, email address, account name, Social Security number, driver's license number, passport number, or other similar identifiers. ||| Collected: YES\n\nCategory: B. Personal information categories listed in the California Customer Records statute (Cal. Civ. Code § 1798.80(e)). ||| Examples: A name, signature, Social Security number, physical characteristics or description, address, telephone number, passport number, driver's license or state identification card number, insurance policy number, education, employment, employment history, bank account number, credit card number, debit card number, or any other financial information, medical information, or health insurance information. Some personal information included in this category may overlap with other categories. ||| Collected: YES\n\nCategory: C. Protected classification characteristics under California or federal law. ||| Examples: Age (40 years or older), race, color, ancestry, national origin, citizenship, religion or creed, marital status, medical condition, physical or mental disability, sex (including gender, gender identity, gender expression, pregnancy or childbirth and related medical conditions), sexual orientation, veteran or military status, genetic information (including familial genetic information). ||| Collected: YES",
-  "labels": [
-   "Notice_Requirement"
-  ],
-  "lime": {
-   "Notice_Requirement": [{"word": "A", "weight": 0.0}, {"word": "Identifiers", "weight": 0.0}, {"word": "Examples", "weight": 0.0}, {"word": "real", "weight": 0.0}, {"word": "name", "weight": 0.0}, {"word": "alias", "weight": 0.0}, {"word": "postal", "weight": 0.0}, {"word": "address", "weight": 0.0}, {"word": "unique", "weight": 0.0}, {"word": "personal", "weight": 0.0}],
-   "Right_to_Correct": [{"word": "A", "weight": 0.0}, {"word": "Identifiers", "weight": 0.0}, {"word": "Examples", "weight": 0.0}, {"word": "real", "weight": 0.0}, {"word": "name", "weight": 0.0}, {"word": "alias", "weight": 0.0}, {"word": "postal", "weight": 0.0}, {"word": "address", "weight": 0.0}, {"word": "unique", "weight": 0.0}, {"word": "personal", "weight": 0.0}],
-   "Right_to_Delete": [{"word": "A", "weight": 0.0}, {"word": "Identifiers", "weight": 0.0}, {"word": "Examples", "weight": 0.0}, {"word": "real", "weight": 0.0}, {"word": "name", "weight": 0.0}, {"word": "alias", "weight": 0.0}, {"word": "postal", "weight": 0.0}, {"word": "address", "weight": 0.0}, {"word": "unique", "weight": 0.0}, {"word": "personal", "weight": 0.0}],
-   "Right_to_Know": [{"word": "A", "weight": 0.0}, {"word": "Identifiers", "weight": 0.0}, {"word": "Examples", "weight": 0.0}, {"word": "real", "weight": 0.0}, {"word": "name", "weight": 0.0}, {"word": "alias", "weight": 0.0}, {"word": "postal", "weight": 0.0}, {"word": "address", "weight": 0.0}, {"word": "unique", "weight": 0.0}, {"word": "personal", "weight": 0.0}],
-   "Right_to_Limit_Sensitive": [{"word": "A", "weight": 0.0}, {"word": "Identifiers", "weight": 0.0}, {"word": "Examples", "weight": 0.0}, {"word": "real", "weight": 0.0}, {"word": "name", "weight": 0.0}, {"word": "alias", "weight": 0.0}, {"word": "postal", "weight": 0.0}, {"word": "address", "weight": 0.0}, {"word": "unique", "weight": 0.0}, {"word": "personal", "weight": 0.0}],
-   "Right_to_Opt_Out": [{"word": "A", "weight": 0.0}, {"word": "Identifiers", "weight": 0.0}, {"word": "Examples", "weight": 0.0}, {"word": "real", "weight": 0.0}, {"word": "name", "weight": 0.0}, {"word": "alias", "weight": 0.0}, {"word": "postal", "weight": 0.0}, {"word": "address", "weight": 0.0}, {"word": "unique", "weight": 0.0}, {"word": "personal", "weight": 0.0}]
-  }
- },
- {
   "title": "A close call, decided by a few words",
-  "doc_id": "DB_101",
+  "tag": "Flan-T5-base",
+  "question": "which CPRA rights does this sentence promise?",
   "text": "At any time you may contact PeopleSearcher via email to request that your Personal Information no longer be shared by PeopleSearcher.",
   "labels": [
    "Right_to_Opt_Out"
   ],
+  "note": "The sentence mentions several rights at once, so the wording had to sort out which one it really promises. A handful of words tipped the balance, and the human annotators agreed with the call.",
   "lime": {
    "Right_to_Opt_Out": [
     {"word": "longer", "weight": 0.4699},

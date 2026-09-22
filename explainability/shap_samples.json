@@ -1,12 +1,12 @@
 [
  {
-  "model": "LegalBERT",
-  "asked_about": "Right_to_Delete",
-  "badge": "Test sentence 1",
+  "title": "An address, where the model stayed quiet",
+  "tag": "LegalBERT",
+  "question": "does this sentence promise the right to delete a user's data?",
   "text": "2135 Boynton Beach, FL 33426, United States",
   "base": 0.032961,
   "final": 0.008961,
-  "note": "The sentence is an address block, and no CPRA right is stated in it. Every word leaned slightly against the right, so the model settled well below its starting confidence. It stays quiet instead of inventing a right: that is the behavior you want from a compliance checker.",
+  "note": "A street address promises no right at all, and every word voted slightly against the right. The model stays quiet instead of inventing one, which is the behavior you want from a compliance checker.",
   "words": [
    {
     "word": "33426",
@@ -31,45 +31,6 @@
    {
     "word": "States",
     "value": -0.002
-   }
-  ]
- },
- {
-  "model": "RoBERTa-large",
-  "asked_about": "Right_to_Opt_Out",
-  "badge": "Test sentence 1, same sentence",
-  "text": "2135 Boynton Beach, FL 33426, United States",
-  "base": 0.010449,
-  "final": 0.0,
-  "note": "Same sentence, different question and model. The words mostly cancel out and the confidence ends at zero: even a large model refuses to fabricate an opt-out right out of a street address. The two models disagree on which words moved the needle, but agree on the verdict.",
-  "words": [
-   {
-    "word": "33426",
-    "value": -0.005
-   },
-   {
-    "word": ",",
-    "value": -0.004
-   },
-   {
-    "word": "Beach",
-    "value": 0.003
-   },
-   {
-    "word": "Boynton",
-    "value": 0.002
-   },
-   {
-    "word": "FL",
-    "value": -0.002
-   },
-   {
-    "word": "United",
-    "value": -0.002
-   },
-   {
-    "word": ",",
-    "value": 0.001
    }
   ]
  }

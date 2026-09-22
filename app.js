@@ -554,64 +554,74 @@ document.addEventListener('click', (e) => {
     }
 });
 
-async function loadExplainability() {
-    try {
-        const res = await fetch('explainability/shap_samples.json');
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const samples = await res.json();
-        el('shap-cards').innerHTML = samples.map((s) => `
-            <div class="col-lg-6">
-              <div class="card h-100">
-                <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
-                  <span class="small fw-semibold">${esc(s.model)}, asked about ${esc(s.asked_about)}</span>
-                  <span class="badge bg-light text-muted">${esc(s.badge)}</span>
-                </div>
-                <div class="card-body p-3">
-                  ${longTextHtml(s.text)}
-                  <div class="alert alert-light border small py-2 px-3 mb-2">
-                    Starting confidence: <strong>${(s.base * 100).toFixed(1)}%</strong>
-                    &nbsp;→&nbsp; after seeing these words: <strong>${(Math.max(0, s.final) * 100).toFixed(1)}%</strong>
-                  </div>
-                  <p class="small text-muted">${esc(s.note)}</p>
-                  ${shapWordsHtml(s.words)}
-                </div>
-              </div>
-            </div>`).join('');
-        setupLongText(el('shap-cards'));
-    } catch (err) {
-        el('shap-cards').innerHTML = `<div class="col-12 text-muted small">Could not load SHAP samples: ${esc(err.message)}</div>`;
-    }
+function shapCardHtml(s) {
+    return `
+      <div class="col-lg-6">
+        <div class="card h-100">
+          <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <span class="small fw-semibold">${esc(s.title)}</span>
+            <span class="text-muted small">${esc(s.tag)}</span>
+          </div>
+          <div class="card-body p-3">
+            <div class="small text-muted mb-2">Question: ${esc(s.question)}</div>
+            ${longTextHtml(s.text)}
+            <div class="small text-muted mb-2">
+              <strong>Confidence:</strong> ${(s.base * 100).toFixed(1)}% before reading the sentence
+              &rarr; ${(Math.max(0, s.final) * 100).toFixed(1)}% after weighing the words
+            </div>
+            <p class="small text-muted">${esc(s.note)}</p>
+            ${shapWordsHtml(s.words)}
+          </div>
+        </div>
+      </div>`;
+}
 
+function limeCardHtml(s) {
+    return `
+      <div class="col-lg-6">
+        <div class="card h-100">
+          <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <span class="small fw-semibold">${esc(s.title)}</span>
+            <span class="text-muted small">${esc(s.tag)}</span>
+          </div>
+          <div class="card-body">
+            <div class="small text-muted mb-2">Question: ${esc(s.question)}</div>
+            ${longTextHtml(s.text)}
+            <div class="mb-2">${s.labels.map(badgeHtml).join(' ')}</div>
+            <p class="small text-muted">${esc(s.note)}</p>
+            ${limeWordsHtml(s.lime)}
+          </div>
+        </div>
+      </div>`;
+}
+
+async function loadExplainability() {
+    const container = el('explain-cards');
+    if (!container) return;
+    const cards = [];
     try {
         const res = await fetch('explainability/lime_samples.json');
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        const samples = await res.json();
-        el('lime-cards').innerHTML = samples.map((s) => `
-            <div class="col-lg-6">
-              <div class="card h-100">
-                <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
-                  <span class="small fw-semibold">${esc(s.title)}</span>
-                  <span class="text-muted small">${esc(s.doc_id)}</span>
-                </div>
-                <div class="card-body">
-                  ${longTextHtml(s.text)}
-                  <div class="mb-2">${s.labels.map(badgeHtml).join(' ')}</div>
-                  <div class="small text-muted mb-2">What the human annotators marked as true for this span.</div>
-                  ${limeWordsHtml(s.lime)}
-                </div>
-              </div>
-            </div>`).join('');
-        setupLongText(el('lime-cards'));
+        cards.push(...(await res.json()).map(limeCardHtml));
     } catch (err) {
-        el('lime-cards').innerHTML = `<div class="col-12 text-muted small">Could not load LIME samples: ${esc(err.message)}</div>`;
+        cards.push(`<div class="col-12 text-muted small">Could not load the word breakdown: ${esc(err.message)}</div>`);
     }
+    try {
+        const res = await fetch('explainability/shap_samples.json');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        cards.push(...(await res.json()).map(shapCardHtml));
+    } catch (err) {
+        cards.push(`<div class="col-12 text-muted small">Could not load the word breakdown: ${esc(err.message)}</div>`);
+    }
+    container.innerHTML = cards.join('');
+    setupLongText(container);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.tab-split').forEach((btn) => {
         btn.addEventListener('click', () => showSplit(btn.dataset.split));
     });
-    if (el('shap-cards') && el('lime-cards')) loadExplainability();
+    if (el('explain-cards')) loadExplainability();
     renderModelChart();
     renderSplitShareChart();
     renderPRFChart();
