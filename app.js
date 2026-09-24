@@ -135,7 +135,7 @@ function renderChart(name) {
 
 const MODEL_BAR = {
     labels: ['LegalBERT', 'RoBERTa-large', 'Flan-T5-base'],
-    values: [0.7627, 0.7777, 0.7677],
+    values: [0.7764, 0.8016, 0.7863],
 };
 
 const SPLIT_DECISIONS = {
@@ -147,9 +147,9 @@ const SPLIT_DECISIONS = {
 const SPLIT_TOTALS = { train: 6490, val: 1633, test: 1787 };
 
 const PRF = [
-    { model: 'LegalBERT', p: 0.7779, r: 0.7596, f1: 0.7627 },
-    { model: 'RoBERTa-large', p: 0.8220, r: 0.7542, f1: 0.7777 },
-    { model: 'Flan-T5-base', p: 0.8479, r: 0.7248, f1: 0.7677 },
+    { model: 'LegalBERT', p: 0.7819, r: 0.7888, f1: 0.7764 },
+    { model: 'RoBERTa-large', p: 0.8198, r: 0.7956, f1: 0.8016 },
+    { model: 'Flan-T5-base', p: 0.8278, r: 0.7561, f1: 0.7863 },
 ];
 
 function renderModelChart() {

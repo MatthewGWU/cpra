@@ -7,55 +7,39 @@
   "labels": [
    "Right_to_Opt_Out"
   ],
-  "note": "The sentence mentions several rights at once, so the wording had to sort out which one it really promises. A handful of words tipped the balance, and the human annotators agreed with the call.",
+  "note": "The sentence brushes against several rights at once, so the wording had to sort out which one it really promises. A handful of words tipped the balance, and the hand-labeled ground truth agrees with the call.",
   "lime": {
    "Right_to_Opt_Out": [
-    {"word": "longer", "weight": 0.4699},
-    {"word": "shared", "weight": 0.2187},
-    {"word": "request", "weight": 0.173},
-    {"word": "no", "weight": 0.1672},
-    {"word": "be", "weight": 0.1569},
-    {"word": "any", "weight": -0.1449},
-    {"word": "you", "weight": 0.1169},
-    {"word": "that", "weight": 0.1039},
-    {"word": "via", "weight": -0.0736},
-    {"word": "Information", "weight": 0.0711}
+    {"word": "request", "weight": 0.453},
+    {"word": "longer", "weight": 0.2882},
+    {"word": "shared", "weight": 0.2701},
+    {"word": "that", "weight": 0.2096},
+    {"word": "no", "weight": 0.1381}
    ],
    "Right_to_Know": [
-    {"word": "longer", "weight": -0.1792},
-    {"word": "your", "weight": -0.1414},
-    {"word": "time", "weight": -0.1246},
-    {"word": "any", "weight": 0.0866},
-    {"word": "PeopleSearcher", "weight": -0.0699},
-    {"word": "to", "weight": -0.0693},
-    {"word": "request", "weight": 0.0669},
-    {"word": "contact", "weight": 0.0665},
-    {"word": "Personal", "weight": 0.0548},
-    {"word": "At", "weight": 0.0528}
-   ],
-   "Right_to_Limit_Sensitive": [
-    {"word": "shared", "weight": -0.0848},
-    {"word": "that", "weight": 0.0693},
-    {"word": "you", "weight": -0.0564},
-    {"word": "contact", "weight": -0.0545},
-    {"word": "At", "weight": 0.0543},
-    {"word": "by", "weight": -0.0486},
-    {"word": "time", "weight": 0.044},
-    {"word": "your", "weight": 0.0428},
-    {"word": "email", "weight": 0.0227},
-    {"word": "longer", "weight": -0.0155}
+    {"word": "longer", "weight": -0.2392},
+    {"word": "may", "weight": 0.1359},
+    {"word": "that", "weight": -0.1104},
+    {"word": "PeopleSearcher", "weight": 0.0742},
+    {"word": "request", "weight": 0.0678}
    ],
    "Notice_Requirement": [
-    {"word": "request", "weight": -0.2559},
-    {"word": "longer", "weight": -0.236},
-    {"word": "At", "weight": -0.1477},
-    {"word": "that", "weight": -0.1452},
-    {"word": "no", "weight": -0.1145},
-    {"word": "shared", "weight": -0.104},
-    {"word": "via", "weight": 0.095},
-    {"word": "you", "weight": -0.0855},
-    {"word": "be", "weight": -0.0849},
-    {"word": "any", "weight": 0.0562}
+    {"word": "request", "weight": -0.5541},
+    {"word": "may", "weight": -0.1916},
+    {"word": "PeopleSearcher", "weight": -0.1659},
+    {"word": "that", "weight": -0.1427},
+    {"word": "Personal", "weight": 0.1283}
+   ],
+   "Right_to_Limit_Sensitive": [
+    {"word": "shared", "weight": -0.1172},
+    {"word": "At", "weight": 0.0844},
+    {"word": "Personal", "weight": -0.0724},
+    {"word": "PeopleSearcher", "weight": 0.0674},
+    {"word": "by", "weight": -0.0633}
+   ],
+   "Right_to_Delete": [
+    {"word": "time", "weight": -0.0122},
+    {"word": "longer", "weight": 0.0104}
    ]
   }
  }

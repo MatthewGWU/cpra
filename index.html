@@ -92,9 +92,9 @@
             <hr class="my-3">
             <h6 class="text-muted text-uppercase small mb-2">Model metrics <span class="badge bg-light text-muted" style="font-weight:400;">this 40% run</span></h6>
             <p class="small text-muted mb-2">All three models trained on the train split below, thresholds tuned on validation, test evaluated exactly once.</p>
-            <div class="small text-muted d-flex justify-content-between"><span>Best macro F1</span><span class="fw-semibold" style="color:#1b4d89;">0.7777 (RoBERTa-large)</span></div>
-            <div class="small text-muted d-flex justify-content-between mt-1"><span>LegalBERT</span><span class="fw-semibold">0.7627</span></div>
-            <div class="small text-muted d-flex justify-content-between mt-1"><span>Flan-T5-base</span><span class="fw-semibold">0.7677</span></div>
+            <div class="small text-muted d-flex justify-content-between"><span>Best macro F1</span><span class="fw-semibold" style="color:#1b4d89;">0.8016 (RoBERTa-large)</span></div>
+            <div class="small text-muted d-flex justify-content-between mt-1"><span>LegalBERT</span><span class="fw-semibold">0.7764</span></div>
+            <div class="small text-muted d-flex justify-content-between mt-1"><span>Flan-T5-base</span><span class="fw-semibold">0.7863</span></div>
           </div>
         </div>
       </div>
@@ -114,7 +114,9 @@
               <strong>What this is.</strong> A working check of whether machine-learning models can read
               real companies' privacy policies and spot the rights those policies promise, matched against
               expert legal annotations. We use a slice of the data (40% of the documents) so the whole
-              experiment fits in one notebook and every number on this page can be reproduced.
+              experiment fits in one notebook and every number on this page can be reproduced. We also thin
+              out the most common clause type (notice-style clauses) before splitting, so one easy,
+              super-common category cannot swallow everything else.
             </p>
             <p class="mb-3">
               <strong>Why it matters.</strong> A business could run its own privacy policy through this
@@ -144,11 +146,11 @@
             </div>
             <ul class="small mb-0 ps-3">
               <li class="mb-2"><strong>The best model gets it right most of the time.</strong>
-              RoBERTa-large matches the human experts on roughly 78% of what it scores, with all six rights
-              counting equally. The other two models trail by about one point.</li>
+              RoBERTa-large matches the human experts on roughly 80% of what it scores, with all six rights
+              counting equally. The other two models trail by about one to two points.</li>
               <li class="mb-2"><strong>The models learn, they don't just guess.</strong> To prove it, we also
-              score strategies that never learn: one always answers "Notice" (0.10), another answers every
-              right on every sentence (0.22). The trained models score 0.76 or higher, more than triple the
+              score strategies that never learn: one always answers "Notice" (0.14), another answers every
+              right on every sentence (0.25). The trained models score 0.78 or higher, roughly three times the
               best of those guesses, and they hold their score on policies they never saw during training.
               Something that had memorized its lessons instead of learning them would collapse there; these
               don't.</li>
@@ -156,15 +158,16 @@
               real policy sentences and "Notice" appears constantly, while limits on sensitive data almost
               never do. That is what the real world looks like, not a flaw in our numbers. So we grade so the
               easy answer cannot win: all six rights are scored equally, meaning spamming "Notice" earns
-              nothing extra and rare rights matter just as much. Strip "Notice" out to make the counts look
-              even and the scores stay neat but they stop describing real policies. We'd rather measure the
-              world as it is.</li>
+              nothing extra and rare rights matter just as much. We did trim the most common clause type
+              (notice-only spans, 40%) so it cannot dominate the experiment, but we stopped there: we did not
+              pad the rare rights, so the data still looks like real policies, just less lopsided. We'd rather
+              measure the world as it is.</li>
             </ul>
           </div>
           <div class="col-lg-4">
             <div class="row text-center g-2">
               <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">159</div><div class="small text-muted">documents</div></div>
-              <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">9,640</div><div class="small text-muted">policy spans</div></div>
+              <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">6,582</div><div class="small text-muted">policy spans</div></div>
               <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">6</div><div class="small text-muted">CPRA rights</div></div>
             </div>
             <hr class="my-3">
@@ -184,7 +187,7 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
       <div>
         <h2 class="h4 mb-1">Browse the splits</h2>
-        <p class="text-muted mb-0">Document-level 70 / 15 / 15 split (seed&nbsp;42) of the 40% document subsample (159 documents); no leakage across splits. Text spans are shown with their ground-truth CPRA labels.</p>
+        <p class="text-muted mb-0">Document-level 70 / 15 / 15 split (seed&nbsp;42) of the 40% document subsample (159 documents), after a 40% trim of notice-only spans (seed&nbsp;42) so the most common clause type cannot dominate; no leakage across splits. Text spans are shown with their ground-truth CPRA labels.</p>
       </div>
       <div class="btn-group" role="group">
         <button class="btn btn-outline-primary tab-split" data-split="train">Train</button>
@@ -245,8 +248,8 @@
             </div>
             <p class="small text-muted mb-0">
               Each group of bars is one right: Train (navy), Validation (grey), Test (green). The three bars in a
-              group are nearly equal because we never re-balanced the data; every split is the same world, just
-              smaller. That sameness is what makes tuning fair: we pick the model's "how sure must it be?" setting
+              group are nearly equal because the only re-balancing, the notice-only trim, happened before the
+              split; every split keeps the same shape, just smaller. That sameness is what makes tuning fair: we pick the model's "how sure must it be?" setting
               on validation, and test describes the same kinds of policies, so the setting transfers.
             </p>
           </div>
@@ -280,13 +283,13 @@
               <ul class="mb-2 ps-3">
                 <li class="mb-1">Nearly every policy has notice-type sections (what we collect, why, cookies, contact details) scattered across the whole document, not one single clause.</li>
                 <li class="mb-1">So annotators tagged many different spans per policy as Notice, and Notice is also often the <em>second</em> label on a span that already states another right (span can carry several labels).</li>
-                <li class="mb-1">The result: roughly 9× more Notice decisions than the next most common right (Know). You can verify this below: pick a split and filter by <code class="font-mono">Notice_Requirement</code>; you'll see it come from many different documents.</li>
+                <li class="mb-1">The result: roughly 5× more Notice decisions than the next most common right (Know). You can verify this below: pick a split and filter by <code class="font-mono">Notice_Requirement</code>; you'll see it come from many different documents.</li>
               </ul>
-              <div class="fw-semibold text-uppercase text-muted mb-2">Could we "fix" the imbalance? Yes, we chose not to</div>
+              <div class="fw-semibold text-uppercase text-muted mb-2">Could we "fix" the imbalance? We trimmed it, then stopped</div>
               <ul class="mb-0 ps-3">
-                <li class="mb-1"><b>Down-sampling Notice / repeating rare rows</b> would throw away real policy text and make the dataset look unlike real policies.</li>
-                <li class="mb-1"><b>Synthetic examples</b> (SMOTE-style) would fabricate legal wording; a made-up clause isn't evidence.</li>
-                <li class="mb-1"><span class="fw-semibold">What we do instead:</span> keep the real, uneven data (it mirrors reality), give the rare rights extra weight during training so they still get learned, and score with macro F1 so every right counts equally, while flagging each label whose test count is tiny as "read with care."</li>
+                <li class="mb-1"><b>We down-sampled the biggest class once:</b> 40% of notice-only spans were dropped at random (keeping 60%, seed 42), so notice no longer towers over every number. Multi-label spans that carry notice alongside another right were kept untouched.</li>
+                <li class="mb-1"><b>We did not pad the rare rights.</b> Synthetic examples (SMOTE-style) would fabricate legal wording; a made-up clause isn't evidence. Repeating rare rows would just train the model on the same sentences twice.</li>
+                <li class="mb-1"><span class="fw-semibold">What we do instead:</span> keep the trimmed-but-real data (it still mirrors reality), give the rare rights extra weight during training so they still get learned, and score with macro F1 so every right counts equally, while flagging each label whose test count is tiny as "read with care."</li>
               </ul>
             </div>
           </div>
@@ -352,9 +355,9 @@
                   <tr><th>Model</th><th>Release</th><th>Precision (macro)</th><th>Recall (macro)</th><th>F1 (macro)</th></tr>
                 </thead>
                 <tbody>
-                  <tr><td>LegalBERT <span class="badge bg-light text-muted" style="font-weight:400;">domain baseline</span></td><td>2020</td><td>0.7779</td><td>0.7596</td><td>0.7627</td></tr>
-                  <tr class="table-warning"><td>RoBERTa-large</td><td>2019</td><td>0.8220</td><td>0.7542</td><td><strong>0.7777</strong></td></tr>
-                  <tr><td>Flan-T5-base</td><td>2023</td><td>0.8479</td><td>0.7248</td><td>0.7677</td></tr>
+                  <tr><td>LegalBERT <span class="badge bg-light text-muted" style="font-weight:400;">domain baseline</span></td><td>2020</td><td>0.7819</td><td>0.7888</td><td>0.7764</td></tr>
+                  <tr class="table-warning"><td>RoBERTa-large</td><td>2019</td><td>0.8198</td><td>0.7956</td><td><strong>0.8016</strong></td></tr>
+                  <tr><td>Flan-T5-base</td><td>2023</td><td>0.8278</td><td>0.7561</td><td>0.7863</td></tr>
                 </tbody>
               </table>
             </div>
@@ -371,12 +374,12 @@
               <div class="mb-2">
                 <strong>Precision ("when the tool says it, is it true?")</strong>
                 When the model flags a clause as, say, <em>Right to Delete</em>, how often is that correct?
-                <span class="text-muted">Flan-T5-base is the pickiest (0.85), with the fewest false alarms.</span>
+                <span class="text-muted">Flan-T5-base is the pickiest (0.83), with the fewest false alarms.</span>
               </div>
               <div class="mb-2">
                 <strong>Recall ("did it catch everything relevant?")</strong>
                 Of the clauses that really do state a right, how many were found?
-                <span class="text-muted">RoBERTa-large finds the most (0.75), with the fewest missed obligations.</span>
+                <span class="text-muted">RoBERTa-large finds the most (0.80), with the fewest missed obligations.</span>
               </div>
               <div>
                 <strong>F1 (the single combined grade).</strong> A 0–1 balance of the two, so you can't win by
@@ -388,8 +391,8 @@
         </div>
         <p class="small text-muted mb-3">
           <strong>These numbers describe the splits on this page.</strong> Each model was trained on the
-          train split (6,328 spans), its per-class thresholds tuned on the validation split (1,592 spans),
-          and evaluated exactly once on the fixed test split (1,720 spans). LegalBERT is the
+          train split (4,327 spans), its per-class thresholds tuned on the validation split (1,073 spans),
+          and evaluated exactly once on the fixed test split (1,182 spans). LegalBERT is the
           legal-domain baseline; RoBERTa-large and Flan-T5-base are the general-purpose candidates, and
           the same validation-driven config discipline is used for each. The notebook's overfit
           diagnostic flags every label HEALTHY, and small test support on rare labels (e.g.
@@ -407,7 +410,7 @@
                 </div>
                 <p class="small text-muted mb-2">BERT encoder pre-trained on legal corpora (contracts, legislation, court cases) instead of general web text.</p>
                 <p class="small mb-2"><span class="fw-semibold">Why picked:</span> the domain baseline (the reference point every candidate is compared against. Same classification head and recipe, pretrained on legal text instead of general web text.</p>
-                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7627 says:</span> it scored slightly below the other two models in this experiment, which is exactly the question this baseline was built to answer: does legal pretraining help at this scale?</p>
+                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7764 says:</span> it scored slightly below the other two models in this experiment, which is exactly the question this baseline was built to answer: does legal pretraining help at this scale?</p>
                 <a class="small link-primary" href="https://huggingface.co/nlpaueb/legal-bert-base-uncased" target="_blank" rel="noopener">nlpaueb/legal-bert-base-uncased ↗</a>
               </div>
             </div>
@@ -421,7 +424,7 @@
                 </div>
                 <p class="small text-muted mb-2">A large BERT variant trained with more data and longer training for stronger general transfer.</p>
                 <p class="small mb-2"><span class="fw-semibold">Why picked:</span> the strongest general-purpose off-the-shelf encoder, much larger than the LegalBERT baseline and with no legal pretraining. It is a deliberate capacity test.</p>
-                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7777 says:</span> it earned the best F1 of the three models in this experiment. That result is specific to these three models and these splits; it is not a claim about models in general.</p>
+                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.8016 says:</span> it earned the best F1 of the three models in this experiment. That result is specific to these three models and these splits; it is not a claim about models in general.</p>
                 <a class="small link-primary" href="https://huggingface.co/roberta-large" target="_blank" rel="noopener">roberta-large ↗</a>
               </div>
             </div>
@@ -435,7 +438,7 @@
                 </div>
                 <p class="small text-muted mb-2">A text-to-text (encoder-decoder) model instruction-tuned across many tasks.</p>
                 <p class="small mb-2"><span class="fw-semibold">Why picked:</span> a different architecture on purpose. If the same pipeline works on BERT-style encoders <em>and</em> a generative encoder-decoder, the findings are not tied to one architecture, and Flan-T5 is the one whose reasoning we show word by word.</p>
-                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7677 says:</span> the highest precision (0.85) but the lowest recall (a precision-leaning profile). It matched the LegalBERT baseline, so on these splits an instruction-tuned encoder-decoder is a workable alternative when you care about precision and want the reasoning shown word by word.</p>
+                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7863 says:</span> the highest precision (0.83) but the lowest recall (a precision-leaning profile). It slightly out-scored the LegalBERT baseline, so on these splits an instruction-tuned encoder-decoder is a workable alternative when you care about precision and want the reasoning shown word by word.</p>
                 <a class="small link-primary" href="https://huggingface.co/google/flan-t5-base" target="_blank" rel="noopener">google/flan-t5-base ↗</a>
               </div>
             </div>
@@ -473,7 +476,7 @@
         <p class="text-muted small mb-3">
           For readers who want the engineering behind the numbers above, collapsed so the
           plain-English version stays on top. Everything below is reproducible from
-          <code class="font-mono">CPRA_40pct_CLEAN (1).ipynb</code>: seed-pinned splits, leakage
+          <code class="font-mono">CPRA_40pct_Notice40 (1).ipynb</code>: seed-pinned splits, leakage
           controls, hyperparameter search, and the checks that show the models are genuinely learning.
         </p>
         <div class="d-grid">
@@ -493,12 +496,13 @@
                   The raw CSVs record who annotated each span (six annotators, <code class="font-mono">RA1</code>–<code class="font-mono">RA6</code>),
                   and spans can carry one label, several labels, or none. Two original labels (<em>Right_to_Access</em>
                   and <em>Risk_Assessment</em>) are dropped because they lack a C3PA taxonomy mapping. Pipeline steps,
-                  exactly as run in <code class="font-mono">CPRA_40pct_CLEAN (1).ipynb</code>:
+                  exactly as run in <code class="font-mono">CPRA_40pct_Notice40 (1).ipynb</code>:
                 </p>
                 <ol class="mb-2">
                   <li><strong>Group</strong> raw expert annotations into <code class="font-mono">(doc, text)</code> spans and collapse labels into a set per span (45,121 rows → 26,740 unique spans). Rows from multiple annotators landing on the same span and label are merged; agreement is a confidence signal.</li>
                   <li><strong>Deduplicate</strong> so each sentence appears once: identical text shared across policies (992 boilerplate spans) is removed → 25,748 unique spans across 399 documents.</li>
                   <li><strong>Subsample to 40%</strong> of documents at random (seed 42) → 159 documents / 9,640 spans.</li>
+                  <li><strong>Trim the biggest class</strong>: 40% of notice-only spans removed at random (seed 42, keeping 60%) → 6,582 spans. Multi-label spans that carry notice alongside another right are kept.</li>
                   <li><strong>Split</strong> by document 70 / 15 / 15 (seed 42), no label leakage across splits.</li>
                 </ol>
                 <div class="table-responsive">
@@ -507,17 +511,18 @@
                       <tr><th>Split</th><th>Documents</th><th>Spans</th><th>Label decisions</th></tr>
                     </thead>
                     <tbody>
-                      <tr><td>Train</td><td>111</td><td>6,328</td><td>6,490</td></tr>
-                      <tr><td>Validation</td><td>23</td><td>1,592</td><td>1,633</td></tr>
-                      <tr><td>Test</td><td>25</td><td>1,720</td><td>1,787</td></tr>
+                      <tr><td>Train</td><td>111</td><td>4,327</td><td>4,489</td></tr>
+                      <tr><td>Validation</td><td>23</td><td>1,073</td><td>1,114</td></tr>
+                      <tr><td>Test</td><td>25</td><td>1,182</td><td>1,249</td></tr>
                     </tbody>
                   </table>
                 </div>
                 <div class="alert alert-light border small mb-3">
-                  <strong>How to read the label counts.</strong> No synthetic balancing is applied; the splits
-                  keep the natural label distribution of the 40% subsample. The imbalance is inherent to the source:
+                  <strong>How to read the label counts.</strong> The only re-balancing is the notice-only trim before the
+                  split; nothing else is synthesized or removed, so the splits keep the natural label distribution
+                  of that trimmed 40% subsample. The remaining imbalance is inherent to the source:
                   these are real policies, quoted close to verbatim, and the test data reflects the real world.
-                  <em>Notice_Requirement</em> dominates (5,016 train spans); rare labels such as
+                  <em>Notice_Requirement</em> still dominates (3,015 train spans); rare labels such as
                   <em>Right_to_Limit_Sensitive</em> have small test support (16 spans), which the notebook flags as
                   making per-label F1 noisy regardless of threshold choice.
                 </div>
@@ -526,7 +531,7 @@
                   (released 2024; each row records the annotator (<code class="font-mono">RANumb</code>),
                   the annotated <code class="font-mono">Text</code> span, and its <code class="font-mono">Label</code>).
                   This page is a static export (JSON) of the exact splits reproduced by <code class="font-mono">export_dataset.py</code>
-                  from <code class="font-mono">CPRA_40pct_CLEAN (1).ipynb</code>.
+                  from <code class="font-mono">CPRA_40pct_Notice40 (1).ipynb</code>.
                 </p>
 
                 <h2 class="h4 mb-2">Methodology &amp; leakage controls</h2>
@@ -578,14 +583,20 @@
                     <p class="pipe-desc">So no sentence shows up twice: any sentence that appears more than once (992 identical boilerplate spans) is removed → 25,748 / 399 docs. Repeating text risks leakage.</p>
                   </div>
                   <div class="pipe-arrow">→</div>
-                  <div class="pipe-step pipe-hot">
+                  <div class="pipe-step">
                     <div class="pipe-num">5</div>
                     <div class="pipe-title">Subsample 40%</div>
                     <p class="pipe-desc">A random 40% of documents (seed 42) → 159 docs / 9,640 spans. Deliberately low-resource and fully reproducible.</p>
                   </div>
                   <div class="pipe-arrow">→</div>
-                  <div class="pipe-step">
+                  <div class="pipe-step pipe-hot">
                     <div class="pipe-num">6</div>
+                    <div class="pipe-title">Trim notice-only</div>
+                    <p class="pipe-desc">40% of notice-only spans dropped at random (seed 42, keeping 60%) → 6,582 spans; notice stops towering over the other rights.</p>
+                  </div>
+                  <div class="pipe-arrow">→</div>
+                  <div class="pipe-step">
+                    <div class="pipe-num">7</div>
                     <div class="pipe-title">Split by document</div>
                     <p class="pipe-desc">70 / 15 / 15 (seed 42) → Train · Validation · Test. Documents are atomic, so no span can cross splits.</p>
                   </div>
@@ -642,8 +653,8 @@
                 <ul class="mb-0">
                   <li class="mb-2"><strong>Whole-document split.</strong> Documents are the atom: every span of a document lands in exactly one split, so a span cannot drift between train, validation, and test.</li>
                   <li class="mb-2"><strong>Two independent disjointness checks.</strong> After splitting, the script asserts (i) the three document-ID sets are pairwise disjoint, and (ii) the three span-text sets are pairwise disjoint, catching any surviving boilerplate. Both hold on the exported JSONs: 0 overlapping documents and 0 overlapping texts across every split pair.</li>
-                  <li class="mb-2"><strong>Deduplication before splitting.</strong> The 992 identical-text spans are removed in step&nbsp;3, before any split exists, so template text cannot recur in multiple splits.</li>
-                  <li class="mb-2"><strong>Seed-pinned randomness.</strong> Both the 40% subsample and the split shuffle use seed&nbsp;42, so the exact partitions can be regenerated from the same inputs.</li>
+                  <li class="mb-2"><strong>Deduplication before splitting.</strong> The 992 identical-text spans are removed in step&nbsp;2, before any split exists, so template text cannot recur in multiple splits.</li>
+                  <li class="mb-2"><strong>Seed-pinned randomness.</strong> The 40% document subsample, the notice-only trim, and the split shuffle all use seed&nbsp;42, so the exact partitions can be regenerated from the same inputs.</li>
                   <li class="mb-2"><strong>Validation-only tuning.</strong> Per-class thresholds and hyperparameters are selected on the validation split; the test set is evaluated exactly once, with those choices frozen (each model's config comes from a candidate search scored on validation only).</li>
                   <li class="mb-2"><strong>Imbalance is handled, not balanced away.</strong> Per-class <code class="font-mono">pos_weight</code> and focal loss counteract the natural long-tailed distribution at training time (see "Class imbalance" above); the test split is never down-sampled or otherwise edited.</li>
                 </ul>
@@ -658,9 +669,9 @@
                 <p class="small text-muted mb-3">
                   What validation is <em>for</em>: try a few candidate knob settings on the validation split, see which
                   one performs best there (on sentences the model never trained on) and lock in the winner. Only then
-                  does the model move to test, for a single, final grade. (The notebook records what happens without this
-                  guardrail: forcing the smaller model's settings onto RoBERTa collapsed its validation score to ~0.13,
-                  exactly the failure validation exists to catch.)
+                  does the model move to test, for a single, final grade. (The notebook checks what skipping the search
+                  would cost: reusing the smaller model's settings for RoBERTa scored 0.82 on validation, while
+                  RoBERTa's own tuned settings scored 0.84. Each model gets its own search, not inherited settings.)
                 </p>
         
                 <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">Scoring (why macro F1)</h3>
@@ -685,9 +696,9 @@
         
                 <p class="small fw-semibold mb-1">1 · It must beat a "dumb" baseline by a lot.</p>
                 <p class="small text-muted mb-2">
-                  We computed what simple, no-learning guesses score on the <em>actual</em> test set (1720 spans). A model that just
-                  always said <em>Notice</em> gets macro F1 0.102; one that predicts every right gets 0.224. The three
-                  trained models score 0.763–0.778, about 3.4× the best dumb baseline, so the score cannot come from
+                  We computed what simple, no-learning guesses score on the <em>actual</em> test set (1,182 spans). A model that just
+                  always said <em>Notice</em> gets macro F1 0.137; one that predicts every right gets 0.246. The three
+                  trained models score 0.776–0.802, about 3.2× the best dumb baseline, so the score cannot come from
                   guessing label frequency.
                 </p>
                 <div class="table-responsive mb-3">
@@ -697,9 +708,9 @@
                     </thead>
                     <tbody>
                       <tr><td>No labels at all</td><td class="text-muted small">predicts nothing (label frequency ignored)</td><td>0.000</td></tr>
-                      <tr><td>"Always Notice"</td><td class="text-muted small">only uses the most common label</td><td>0.102</td></tr>
-                      <tr><td>"Always everything"</td><td class="text-muted small">every right on every span</td><td>0.224</td></tr>
-                      <tr class="table-warning"><td>LegalBERT / RoBERTa-large / Flan-T5-base</td><td class="small">learned from the training spans</td><td><strong>0.763 / 0.778 / 0.768</strong></td></tr>
+                      <tr><td>"Always Notice"</td><td class="text-muted small">only uses the most common label</td><td>0.137</td></tr>
+                      <tr><td>"Always everything"</td><td class="text-muted small">every right on every span</td><td>0.246</td></tr>
+                      <tr class="table-warning"><td>LegalBERT / RoBERTa-large / Flan-T5-base</td><td class="small">learned from the training spans</td><td><strong>0.776 / 0.802 / 0.786</strong></td></tr>
                     </tbody>
                   </table>
                 </div>
@@ -718,22 +729,22 @@
                       <tr><th>Label</th><th>Train F1</th><th>Val F1</th><th>Gap</th><th>Pattern</th></tr>
                     </thead>
                     <tbody>
-                      <tr><td>Notice_Requirement</td><td>0.984</td><td>0.991</td><td>−0.007</td><td class="text-success">HEALTHY</td></tr>
-                      <tr><td>Right_to_Correct</td><td>0.915</td><td>0.905</td><td>+0.010</td><td class="text-success">HEALTHY</td></tr>
-                      <tr><td>Right_to_Delete</td><td>0.922</td><td>0.894</td><td>+0.028</td><td class="text-success">HEALTHY</td></tr>
-                      <tr><td>Right_to_Know</td><td>0.830</td><td>0.889</td><td>−0.059</td><td class="text-success">HEALTHY</td></tr>
-                      <tr><td>Right_to_Limit_Sensitive</td><td>0.650</td><td>0.750</td><td>−0.100</td><td class="text-success">HEALTHY</td></tr>
-                      <tr><td>Right_to_Opt_Out</td><td>0.897</td><td>0.933</td><td>−0.035</td><td class="text-success">HEALTHY</td></tr>
+                      <tr><td>Notice_Requirement</td><td>0.969</td><td>0.987</td><td>−0.018</td><td class="text-success">HEALTHY</td></tr>
+                      <tr><td>Right_to_Correct</td><td>0.901</td><td>0.909</td><td>−0.008</td><td class="text-success">HEALTHY</td></tr>
+                      <tr><td>Right_to_Delete</td><td>0.924</td><td>0.915</td><td>+0.010</td><td class="text-success">HEALTHY</td></tr>
+                      <tr><td>Right_to_Know</td><td>0.835</td><td>0.900</td><td>−0.065</td><td class="text-success">HEALTHY</td></tr>
+                      <tr><td>Right_to_Limit_Sensitive</td><td>0.657</td><td>0.696</td><td>−0.038</td><td class="text-success">HEALTHY</td></tr>
+                      <tr><td>Right_to_Opt_Out</td><td>0.905</td><td>0.944</td><td>−0.039</td><td class="text-success">HEALTHY</td></tr>
                     </tbody>
                   </table>
                 </div>
         
-                <p class="small fw-semibold mb-1">3 · The validator can catch a broken model.</p>
+                <p class="small fw-semibold mb-1">3 · Per-model tuning is measurable.</p>
                 <p class="small text-muted mb-2">
-                  The notebook records an early error: applying the small LegalBERT's training schedule to the much
-                  larger RoBERTa collapsed its <em>validation</em> macro F1 to ~0.13, a clear red flag on data the
-                  model had never trained on. Re-running the search properly (validation-only) recovered 0.78. A metric
-                  that correctly flags under-training like that cannot be a lucky fit to priors: it tracks real learning.
+                  The notebook checks that the validation-driven search isn't theater: reusing the smaller LegalBERT's
+                  training schedule for the much larger RoBERTa scored 0.82 on validation, while RoBERTa's own tuned
+                  schedule scored 0.84, on data the model never trained on. A metric that can detect that gap, and pick
+                  the stronger setting, is tracking real learning rather than fitting priors.
                 </p>
         
                 <p class="small fw-semibold mb-1">4 · The reasons match human intuition.</p>
@@ -862,7 +873,7 @@
 <footer class="bg-dark text-light py-4 mt-4">
   <div class="container small text-muted">
     CPRA / C3PA · 40%-scale pipeline explorer · generated from
-    <code class="font-mono">CPRA_40pct_CLEAN (1).ipynb</code> via <code class="font-mono">export_dataset.py</code>.
+    <code class="font-mono">CPRA_40pct_Notice40 (1).ipynb</code> via <code class="font-mono">export_dataset.py</code>.
     Data mirrored from the <a href="https://github.com/MaazBinMusa/C3PA_Dataset" class="link-light" target="_blank" rel="noopener">C3PA dataset</a>.
   </div>
 </footer>

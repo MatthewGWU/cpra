@@ -6,7 +6,7 @@
   "text": "2135 Boynton Beach, FL 33426, United States",
   "base": 0.032961,
   "final": 0.008961,
-  "note": "A street address promises no right at all, and every word voted slightly against the right. The model stays quiet instead of inventing one, which is the behavior you want from a compliance checker.",
+  "note": "This span is an address block, and it does not promise the right to delete. Every word voted slightly against that right, so the model's confidence stayed low instead of inventing a yes, which is the behavior you want from a compliance checker.",
   "words": [
    {
     "word": "33426",

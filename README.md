@@ -21,7 +21,9 @@ those annotations. Six of its labels map cleanly to CPRA, so we:
 2. **Deduplicate** so each sentence appears at most once: shared boilerplate text (992 identical spans)
    is removed → 25,748 across 399 documents. Repeated text risks leakage.
 3. **Subsample to 40%** of documents at random with seed 42 (159 documents / 9,640 spans), a low-resource scale point.
-4. **Split** by document 70 / 15 / 15 (111 / 23 / 25 docs; 6,328 / 1,592 / 1,720 spans), seed-pinned so the
+4. **Trim the biggest class**: 40% of notice-only spans are removed at random (seed 42, keeping 60%) so the most
+   common clause type cannot dominate; multi-label spans that carry notice alongside another right are kept → 6,582 spans.
+5. **Split** by document 70 / 15 / 15 (111 / 23 / 25 docs; 4,327 / 1,073 / 1,182 spans), seed-pinned so the
    partitioning is reproducible. Train gets the largest share (standard ML practice; the model learns from
    examples), validation tunes the hyperparameter "knobs," and test is graded exactly once.
 
@@ -31,13 +33,14 @@ and inspect SHAP / LIME word-level explanations.
 
 ### Design choices worth defending
 
-- **We keep the real-world imbalance.** The policies are quoted close to verbatim, so Notice vastly
-  outnumbers rarer rights like Limit-Sensitive; that is reality, not a sampling artifact, and the test
-  split reflects it. We counteract the imbalance at *learning* time (per-class `pos_weight` + focal loss)
-  and at *scoring* time (macro F1 treats every right equally), never by down-sampling the documents.
+- **We keep the real-world imbalance (trimmed once, then left alone).** The policies are quoted close to
+  verbatim, so Notice vastly outnumbers rarer rights like Limit-Sensitive; that is reality, not a sampling
+  artifact, and the test split reflects it. We thin the biggest class once (40% of notice-only spans, seed 42),
+  then counteract the remaining imbalance at *learning* time (per-class `pos_weight` + focal loss)
+  and at *scoring* time (macro F1 treats every right equally), never by padding the rare rights.
 - **Macro F1, not micro/weighted.** Easy, common labels get little credit; getting the rarer, harder labels
-  right is what moves the score. The nontrivial baselines (always-Notice 0.102, always-everything 0.224)
-  sit far below the trained models' 0.763–0.778.
+  right is what moves the score. The nontrivial baselines (always-Notice 0.137, always-everything 0.246)
+  sit far below the trained models' 0.776–0.802.
 - **Currency.** C3PA was released in 2024 (EMNLP 2024), under the CPRA/CCPA framework that has been in
   effect since January 1, 2023; the annotations reflect the law as it stands today.
 
@@ -59,7 +62,7 @@ disjointness are asserted).
 | `data/train.json`, `data/val.json`, `data/test.json` | The 40%-scale JSON splits (browser-facing). |
 | `export_dataset.py` | Reproduces those JSON splits from the raw dataset. |
 | `explainability/` | SHAP / LIME sample cards as bar lists with the real per-word weights (JSON), plus the original SHAP force-plot exports for provenance. |
-| `CPRA_40pct_CLEAN (1).ipynb` | The current notebook: subsampling, split, training, explainability. |
+| `CPRA_40pct_Notice40 (1).ipynb` | The current notebook: subsampling, notice trim, split, training, explainability. |
 
 ## Run locally
 
@@ -82,6 +85,6 @@ python export_dataset.py   # expects the C3PA_Dataset clone in ./C3PA_Dataset
   [RoBERTa-large](https://huggingface.co/roberta-large),
   [Flan-T5-base](https://huggingface.co/google/flan-t5-base)
 
-All three models were trained on the train split (6,328 spans) at the 40% scale,
-with per-class thresholds tuned on validation (1,592 spans) and a single test pass
-(1,720 spans). Best macro F1 on the test split: RoBERTa-large at 0.7777.
+All three models were trained on the train split (4,327 spans) at the 40% scale,
+with per-class thresholds tuned on validation (1,073 spans) and a single test pass
+(1,182 spans). Best macro F1 on the test split: RoBERTa-large at 0.8016.

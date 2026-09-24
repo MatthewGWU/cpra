@@ -1,11 +1,14 @@
 """Export the CPRA/C3PA train / validation / test splits to JSON.
 
-Mirrors the pipeline in CPRA_40pct_CLEAN (1).ipynb exactly:
+Mirrors the pipeline in CPRA_40pct_Notice40 (1).ipynb exactly:
   1. Load raw C3PA annotations from C3PA_Dataset/Annotations/{DB,WS}
   2. Map C3PA categories onto the 6-label CPRA schema
   3. Group rows into (doc_id, text) spans and deduplicate shared boilerplate text
   4. Randomly subsample 40% of documents (seed 42) - a low-resource scale point
-  5. Split by document 70 / 15 / 15 (seed 42), asserting no leakage
+  5. [CLASS BALANCE FIX] Within those documents, drop 40% of
+     Notice_Requirement-only spans at random, keeping 60% (seed 42). Multi-label
+     spans that include Notice alongside another label are kept untouched.
+  6. Split by document 70 / 15 / 15 (seed 42), asserting no leakage
 
 Writes data/train.json, data/val.json, data/test.json for the showcase SPA.
 """
@@ -119,7 +122,22 @@ def main():
     df_master = df_master[df_master["doc_id"].isin(docs_keep)].reset_index(drop=True)
     print(f"Subsampled to {len(docs_keep)} documents ({len(df_master)} rows) - {int(SCALE_FRACTION * 100)}% scale.")
 
-    # Step 5: document-level 70 / 15 / 15 split (notebook cell 11, seed 42)
+    # Step 5: within the subsample, reduce Notice_Requirement-only spans by 40% (notebook cell 9)
+    notice_only_mask = df_master["labels"].apply(lambda x: x == ["Notice_Requirement"])
+    notice_only_rows = df_master[notice_only_mask]
+    other_rows = df_master[~notice_only_mask]
+
+    random.seed(42)
+    n_notice_keep = int(len(notice_only_rows) * 0.60)
+    notice_keep_idx = random.sample(list(notice_only_rows.index), n_notice_keep)
+    notice_kept = df_master.loc[notice_keep_idx]
+
+    before_reduction = len(df_master)
+    df_master = pd.concat([other_rows, notice_kept]).sort_index().reset_index(drop=True)
+    print(f"Notice_Requirement-only spans: {len(notice_only_rows)} -> kept {len(notice_kept)} (60% kept, 40% removed)")
+    print(f"Total spans: {before_reduction} -> {len(df_master)} (documents unchanged: {df_master['doc_id'].nunique()})")
+
+    # Step 6: document-level 70 / 15 / 15 split (notebook cell 11, seed 42)
     random.seed(42)
     unique_docs = sorted(df_master["doc_id"].unique())
     shuffled_docs = unique_docs.copy()
