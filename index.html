@@ -283,14 +283,29 @@
               <ul class="mb-2 ps-3">
                 <li class="mb-1">Nearly every policy has notice-type sections (what we collect, why, cookies, contact details) scattered across the whole document, not one single clause.</li>
                 <li class="mb-1">So annotators tagged many different spans per policy as Notice, and Notice is also often the <em>second</em> label on a span that already states another right (span can carry several labels).</li>
-                <li class="mb-1">The result: roughly 5× more Notice decisions than the next most common right (Know). You can verify this below: pick a split and filter by <code class="font-mono">Notice_Requirement</code>; you'll see it come from many different documents.</li>
+                <li class="mb-1">You can verify this below: load a split and filter to the notice-requirement right; you'll see it come from many different documents.</li>
               </ul>
               <div class="fw-semibold text-uppercase text-muted mb-2">Could we "fix" the imbalance? We trimmed it, then stopped</div>
-              <ul class="mb-0 ps-3">
-                <li class="mb-1"><b>We down-sampled the biggest class once:</b> 40% of notice-only spans were dropped at random (keeping 60%, seed 42), so notice no longer towers over every number. Multi-label spans that carry notice alongside another right were kept untouched.</li>
-                <li class="mb-1"><b>We did not pad the rare rights.</b> Synthetic examples (SMOTE-style) would fabricate legal wording; a made-up clause isn't evidence. Repeating rare rows would just train the model on the same sentences twice.</li>
-                <li class="mb-1"><span class="fw-semibold">What we do instead:</span> keep the trimmed-but-real data (it still mirrors reality), give the rare rights extra weight during training so they still get learned, and score with macro F1 so every right counts equally, while flagging each label whose test count is tiny as "read with care."</li>
-              </ul>
+              <p class="mb-0">
+                One right, the requirement to notify people what data you're collecting, showed up far more often than
+                any other right in the real documents, about 9 times more common than the next-largest right. That's not
+                a data error; it's genuinely how privacy policies are written. To keep one common right from dominating
+                training, we randomly dropped 40% of the notice-only examples, while leaving every other right's examples
+                completely untouched. That brought the imbalance down from about 9x to about 5x, without inventing any
+                fake data to fill gaps.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="border-top pt-3 mt-3">
+          <div class="row text-center g-3">
+            <div class="col-6">
+              <div class="fs-4 fw-bold" style="color:#1b4d89;">~9x</div>
+              <div class="small text-muted">Before trimming: Notice was about 9 times more common than the next most common right.</div>
+            </div>
+            <div class="col-6">
+              <div class="fs-4 fw-bold" style="color:#1b4d89;">~5x</div>
+              <div class="small text-muted">After trimming: about 5 times more common. Still the biggest slice, but it no longer towers over every number.</div>
             </div>
           </div>
         </div>
@@ -342,6 +357,7 @@
     <div class="card">
       <div class="card-body p-4">
         <h2 class="h4 mb-3">Model comparison on the test split <span class="badge bg-light text-muted align-middle" style="font-weight:400;">trained and evaluated on these splits</span></h2>
+        <p class="small text-muted mb-3"><strong>Macro F1</strong> is the average grade across all six rights, so a model can't win just by getting the easy, common right correct; every right counts equally.</p>
         <div class="row g-4 align-items-center mb-3">
           <div class="col-lg-5">
             <div class="chart-box">
@@ -396,7 +412,7 @@
           legal-domain baseline; RoBERTa-large and Flan-T5-base are the general-purpose candidates, and
           the same validation-driven config discipline is used for each. The notebook's overfit
           diagnostic flags every label HEALTHY, and small test support on rare labels (e.g.
-          <em>Right_to_Limit_Sensitive</em>&nbsp;=&nbsp;16) makes those per-label F1 values noisy regardless of
+          the <em>right to limit sensitive data</em>&nbsp;=&nbsp;16 test spans) makes those per-label F1 values noisy regardless of
           threshold choice.
         </p>
         <h3 class="h5 mt-4 mb-3">The models</h3>
@@ -500,8 +516,8 @@
                   under the regulatory framework that is still in force (CPRA took effect <strong>January 1, 2023</strong>
                   and remains California law today), so this is a <em>current</em> corpus, not a historical one.
                   The raw CSVs record who annotated each span (six annotators, <code class="font-mono">RA1</code>–<code class="font-mono">RA6</code>),
-                  and spans can carry one label, several labels, or none. Two original labels (<em>Right_to_Access</em>
-                  and <em>Risk_Assessment</em>) are dropped because they lack a C3PA taxonomy mapping. Pipeline steps,
+                  and spans can carry one label, several labels, or none. Two of the source labels (<em>right to access</em>
+                  and <em>risk assessment</em>) are dropped because they lack a C3PA taxonomy mapping. Pipeline steps,
                   exactly as run in <code class="font-mono">CPRA_40pct_Notice40 (1).ipynb</code>:
                 </p>
                 <ol class="mb-2">
@@ -528,8 +544,8 @@
                   split; nothing else is synthesized or removed, so the splits keep the natural label distribution
                   of that trimmed 40% subsample. The remaining imbalance is inherent to the source:
                   these are real policies, quoted close to verbatim, and the test data reflects the real world.
-                  <em>Notice_Requirement</em> still dominates (3,015 train spans); rare labels such as
-                  <em>Right_to_Limit_Sensitive</em> have small test support (16 spans), which the notebook flags as
+                  the <em>notice-requirement</em> right still dominates (3,015 train spans); rare labels such as
+                  the <em>right to limit sensitive data</em> have small test support (16 spans), which the notebook flags as
                   making per-label F1 noisy regardless of threshold choice.
                 </div>
                 <p class="small text-muted mt-3 mb-0">
@@ -580,7 +596,7 @@
                   <div class="pipe-step">
                     <div class="pipe-num">3</div>
                     <div class="pipe-title">Map 8 → 6 labels</div>
-                    <p class="pipe-desc">Only six CPRA rights have a C3PA mapping; <em>Right_to_Access</em> and <em>Risk_Assessment</em> are dropped.</p>
+                    <p class="pipe-desc">Only six CPRA rights have a C3PA mapping; <em>right to access</em> and <em>risk assessment</em> are dropped.</p>
                   </div>
                   <div class="pipe-arrow">→</div>
                   <div class="pipe-step">
@@ -642,7 +658,7 @@
                 <p class="small text-muted mb-3">
                   The test split is a partition of the 40% subsample (25 of the 159 documents), not a freshly
                   sampled set. Rare labels keep their natural (small) support in it; for example,
-                  <em>Right_to_Limit_Sensitive</em> has 16 test spans, so test F1 for those labels reads as noisy,
+                  the <em>right to limit sensitive data</em> has 16 test spans, so test F1 for those labels reads as noisy,
                   which the notebook explicitly flags.
                 </p>
                 <p class="small fw-semibold mb-1">Why 70 / 15 / 15?</p>
@@ -658,7 +674,7 @@
                 <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">Why there is no leakage</h3>
                 <ul class="mb-0">
                   <li class="mb-2"><strong>Whole-document split.</strong> Documents are the atom: every span of a document lands in exactly one split, so a span cannot drift between train, validation, and test.</li>
-                  <li class="mb-2"><strong>Two independent disjointness checks.</strong> After splitting, the script asserts (i) the three document-ID sets are pairwise disjoint, and (ii) the three span-text sets are pairwise disjoint, catching any surviving boilerplate. Both hold on the exported JSONs: 0 overlapping documents and 0 overlapping texts across every split pair.</li>
+                  <li class="mb-2"><strong>We double-checked two ways:</strong> no document ever appears in more than one group, and no exact sentence ever appears in more than one group either.</li>
                   <li class="mb-2"><strong>Deduplication before splitting.</strong> The 992 identical-text spans are removed in step&nbsp;2, before any split exists, so template text cannot recur in multiple splits.</li>
                   <li class="mb-2"><strong>Seed-pinned randomness.</strong> The 40% document subsample, the notice-only trim, and the split shuffle all use seed&nbsp;42, so the exact partitions can be regenerated from the same inputs.</li>
                   <li class="mb-2"><strong>Validation-only tuning.</strong> Per-class thresholds and hyperparameters are selected on the validation split; the test set is evaluated exactly once, with those choices frozen (each model's config comes from a candidate search scored on validation only).</li>
@@ -701,7 +717,7 @@
                 </p>
                 <p class="small text-muted mb-3">
                   A micro- or weight-averaged score would be the wrong tool here: it would be dominated by the frequent
-                  Notice class, letting a model coast while rare rights (e.g. <em>Right_to_Limit_Sensitive</em>, 16
+                  Notice class, letting a model coast while rare rights (e.g. the <em>right to limit sensitive data</em>, 16
                   test spans) counted for almost nothing. Macro F1 flips that: every label counts equally, which is also
                   why we report each label's F1 separately in the model cards.
                 </p>

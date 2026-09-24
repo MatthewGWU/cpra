@@ -621,6 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.tab-split').forEach((btn) => {
         btn.addEventListener('click', () => showSplit(btn.dataset.split));
     });
+    showSplit('train');
     if (el('explain-cards')) loadExplainability();
     renderModelChart();
     renderSplitShareChart();
