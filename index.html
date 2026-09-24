@@ -86,7 +86,7 @@
             <h6 class="text-muted text-uppercase small mb-3">The 40%-scale splits (browse below)</h6>
             <div class="row text-center">
               <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">159</div><div class="small text-muted">Docs</div></div>
-              <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">9,640</div><div class="small text-muted">Spans</div></div>
+              <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">6,582</div><div class="small text-muted">Spans</div></div>
               <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">6</div><div class="small text-muted">Labels</div></div>
             </div>
             <hr class="my-3">
@@ -501,7 +501,7 @@
                 <ol class="mb-2">
                   <li><strong>Group</strong> raw expert annotations into <code class="font-mono">(doc, text)</code> spans and collapse labels into a set per span (45,121 rows → 26,740 unique spans). Rows from multiple annotators landing on the same span and label are merged; agreement is a confidence signal.</li>
                   <li><strong>Deduplicate</strong> so each sentence appears once: identical text shared across policies (992 boilerplate spans) is removed → 25,748 unique spans across 399 documents.</li>
-                  <li><strong>Subsample to 40%</strong> of documents at random (seed 42) → 159 documents / 9,640 spans.</li>
+                  <li><strong>Subsample to 40%</strong> of documents at random (seed 42) → 159 documents.</li>
                   <li><strong>Trim the biggest class</strong>: 40% of notice-only spans removed at random (seed 42, keeping 60%) → 6,582 spans. Multi-label spans that carry notice alongside another right are kept.</li>
                   <li><strong>Split</strong> by document 70 / 15 / 15 (seed 42), no label leakage across splits.</li>
                 </ol>
@@ -586,7 +586,7 @@
                   <div class="pipe-step">
                     <div class="pipe-num">5</div>
                     <div class="pipe-title">Subsample 40%</div>
-                    <p class="pipe-desc">A random 40% of documents (seed 42) → 159 docs / 9,640 spans. Deliberately low-resource and fully reproducible.</p>
+                    <p class="pipe-desc">A random 40% of documents (seed 42) → 159 docs. Deliberately low-resource and fully reproducible.</p>
                   </div>
                   <div class="pipe-arrow">→</div>
                   <div class="pipe-step pipe-hot">
@@ -627,9 +627,9 @@
                       <tr><th>Split</th><th>Documents</th><th>Spans</th><th>Anything shared with the other splits?</th></tr>
                     </thead>
                     <tbody>
-                      <tr><td>Train</td><td>111</td><td>6,328</td><td class="text-success">No</td></tr>
-                      <tr><td>Validation</td><td>23</td><td>1,592</td><td class="text-success">No</td></tr>
-                      <tr><td>Test</td><td>25</td><td>1,720</td><td class="text-success">No</td></tr>
+                      <tr><td>Train</td><td>111</td><td>4,327</td><td class="text-success">No</td></tr>
+                      <tr><td>Validation</td><td>23</td><td>1,073</td><td class="text-success">No</td></tr>
+                      <tr><td>Test</td><td>25</td><td>1,182</td><td class="text-success">No</td></tr>
                     </tbody>
                   </table>
                 </div>

@@ -20,7 +20,7 @@ those annotations. Six of its labels map cleanly to CPRA, so we:
    confidence signal.
 2. **Deduplicate** so each sentence appears at most once: shared boilerplate text (992 identical spans)
    is removed → 25,748 across 399 documents. Repeated text risks leakage.
-3. **Subsample to 40%** of documents at random with seed 42 (159 documents / 9,640 spans), a low-resource scale point.
+3. **Subsample to 40%** of documents at random with seed 42 (159 documents), a low-resource scale point.
 4. **Trim the biggest class**: 40% of notice-only spans are removed at random (seed 42, keeping 60%) so the most
    common clause type cannot dominate; multi-label spans that carry notice alongside another right are kept → 6,582 spans.
 5. **Split** by document 70 / 15 / 15 (111 / 23 / 25 docs; 4,327 / 1,073 / 1,182 spans), seed-pinned so the
