@@ -113,17 +113,14 @@
             <p class="mb-3">
               <strong>What this is.</strong> A working check of whether machine-learning models can read
               real companies' privacy policies and spot the rights those policies promise, matched against
-              expert legal annotations. We use a slice of the data (40% of the documents) so the whole
-              experiment fits in one notebook and every number on this page can be reproduced. We also thin
-              out the most common clause type (notice-style clauses) before splitting, so one easy,
-              super-common category cannot swallow everything else.
+              expert legal annotations. Every number on this page is reproducible from a single notebook. We
+              also thin out the most common clause type (notice-style clauses) before splitting, reducing how
+              much one easy, super-common category can crowd out the rest, though it still remains the largest.
             </p>
             <p class="mb-3">
               <strong>Why it matters.</strong> A business could run its own privacy policy through this
               pipeline and get a plain-language read of which CPRA rights it promises and which it is
-              missing, before a regulator or a lawsuit does the same review. And if you doubt the scores,
-              that is fair: every sentence below is real, every label was added by a human expert, and the
-              reasoning is shown word by word, so you can check the work yourself.
+              missing, before a regulator or a lawsuit does the same review.
             </p>
             <div class="pipeline-flow d-flex flex-wrap align-items-stretch gap-2 mb-3">
               <div class="pipe-step">
@@ -300,12 +297,12 @@
         <div class="border-top pt-3 mt-3">
           <div class="row text-center g-3">
             <div class="col-6">
-              <div class="fs-4 fw-bold" style="color:#1b4d89;">~9x</div>
+              <div class="fs-4 fw-bold" style="color:#1b4d89;">9x</div>
               <div class="small text-muted">Before trimming: Notice was about 9 times more common than the next most common right.</div>
             </div>
             <div class="col-6">
-              <div class="fs-4 fw-bold" style="color:#1b4d89;">~5x</div>
-              <div class="small text-muted">After trimming: about 5 times more common. Still the biggest slice, but it no longer towers over every number.</div>
+              <div class="fs-4 fw-bold" style="color:#1b4d89;">5x</div>
+              <div class="small text-muted">After trimming: about 5 times more common. Still the biggest slice, but by a much smaller margin.</div>
             </div>
           </div>
         </div>
@@ -517,8 +514,7 @@
                   and remains California law today), so this is a <em>current</em> corpus, not a historical one.
                   The raw CSVs record who annotated each span (six annotators, <code class="font-mono">RA1</code>–<code class="font-mono">RA6</code>),
                   and spans can carry one label, several labels, or none. Two of the source labels (<em>right to access</em>
-                  and <em>risk assessment</em>) are dropped because they lack a C3PA taxonomy mapping. Pipeline steps,
-                  exactly as run in <code class="font-mono">CPRA_40pct_Notice40 (1).ipynb</code>:
+                  and <em>risk assessment</em>) are dropped because they lack a C3PA taxonomy mapping. Pipeline steps:
                 </p>
                 <ol class="mb-2">
                   <li><strong>Group</strong> raw expert annotations into <code class="font-mono">(doc, text)</code> spans and collapse labels into a set per span (45,121 rows → 26,740 unique spans). Rows from multiple annotators landing on the same span and label are merged; agreement is a confidence signal.</li>
@@ -614,7 +610,7 @@
                   <div class="pipe-step pipe-hot">
                     <div class="pipe-num">6</div>
                     <div class="pipe-title">Trim notice-only</div>
-                    <p class="pipe-desc">40% of notice-only spans dropped at random (seed 42, keeping 60%) → 6,582 spans; notice stops towering over the other rights.</p>
+                    <p class="pipe-desc">40% of notice-only spans dropped at random (seed 42, keeping 60%) → 6,582 spans; notice is still the biggest right, just less lopsided.</p>
                   </div>
                   <div class="pipe-arrow">→</div>
                   <div class="pipe-step">
