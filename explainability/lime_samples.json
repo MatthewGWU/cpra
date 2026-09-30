@@ -1,46 +1,70 @@
 [
- {
-  "title": "A close call, decided by a few words",
-  "tag": "Flan-T5-base",
-  "question": "which CPRA rights does this sentence promise?",
-  "text": "At any time you may contact PeopleSearcher via email to request that your Personal Information no longer be shared by PeopleSearcher.",
-  "labels": [
-   "Right_to_Opt_Out"
-  ],
-  "note": "The sentence brushes against several rights at once, so the wording had to sort out which one it really promises. A handful of words tipped the balance, and the hand-labeled ground truth agrees with the call.",
-  "lime": {
-   "Right_to_Opt_Out": [
-    {"word": "request", "weight": 0.453},
-    {"word": "longer", "weight": 0.2882},
-    {"word": "shared", "weight": 0.2701},
-    {"word": "that", "weight": 0.2096},
-    {"word": "no", "weight": 0.1381}
-   ],
-   "Right_to_Know": [
-    {"word": "longer", "weight": -0.2392},
-    {"word": "may", "weight": 0.1359},
-    {"word": "that", "weight": -0.1104},
-    {"word": "PeopleSearcher", "weight": 0.0742},
-    {"word": "request", "weight": 0.0678}
-   ],
-   "Notice_Requirement": [
-    {"word": "request", "weight": -0.5541},
-    {"word": "may", "weight": -0.1916},
-    {"word": "PeopleSearcher", "weight": -0.1659},
-    {"word": "that", "weight": -0.1427},
-    {"word": "Personal", "weight": 0.1283}
-   ],
-   "Right_to_Limit_Sensitive": [
-    {"word": "shared", "weight": -0.1172},
-    {"word": "At", "weight": 0.0844},
-    {"word": "Personal", "weight": -0.0724},
-    {"word": "PeopleSearcher", "weight": 0.0674},
-    {"word": "by", "weight": -0.0633}
-   ],
-   "Right_to_Delete": [
-    {"word": "time", "weight": -0.0122},
-    {"word": "longer", "weight": 0.0104}
-   ]
+  {
+    "title": "A sentence about stopping data sharing",
+    "tag": "Flan-T5-base",
+    "question": "Does this passage describe the Right_to_Opt_Out?",
+    "text": "At any time you may contact PeopleSearcher via email to request that your Personal Information no longer be shared by PeopleSearcher.",
+    "labels": [
+      "Right_to_Opt_Out"
+    ],
+    "note": "This passage is labeled Right_to_Opt_Out in the dataset, and the model agreed. The top two words are longer and no, and together they push the model toward the label.",
+    "lime": {
+      "Right_to_Opt_Out": [
+        {
+          "word": "longer",
+          "weight": 0.471
+        },
+        {
+          "word": "no",
+          "weight": 0.3789
+        },
+        {
+          "word": "that",
+          "weight": 0.2324
+        },
+        {
+          "word": "email",
+          "weight": 0.2105
+        },
+        {
+          "word": "Personal",
+          "weight": 0.2097
+        }
+      ]
+    }
+  },
+  {
+    "title": "A long deletion section with nine exceptions",
+    "tag": "Flan-T5-base",
+    "question": "Does this passage describe the Right_to_Delete?",
+    "text": "Deletion Request Rights\n\nYou have the right to request that PeopleSearcher delete any of your personal information that we collected from you and retained, subject to certain exceptions. Once we receive and confirm your verifiable consumer request, we will delete (and direct our service providers to delete) your personal information from our records, unless an exception applies.\n\nWe may deny your deletion request if retaining the information is necessary for us or our service provider(s) to:\n\n1. Complete the transaction for which we collected the personal information, provide a good or service that you requested, take actions reasonably anticipated within the context of our ongoing business relationship with you, or otherwise perform our contract with you.\n2. Detect security incidents, protect against malicious, deceptive, fraudulent, or illegal activity, or prosecute those responsible for such activities.\n3. Debug products to identify and repair errors that impair existing intended functionality.\n4. Exercise free speech, ensure the right of another consumer to exercise their free speech rights, or exercise another right provided for by law.\n5. Comply with the California Electronic Communications Privacy Act (Cal. Penal Code § 1546 et. seq.).\n6. Engage in public or peer-reviewed scientific, historical, or statistical research in the public interest that adheres to all other applicable ethics and privacy laws, when the information's deletion may likely render impossible or seriously impair the research's achievement, if you previously provided informed consent.\n7. Enable solely internal uses that are reasonably aligned with consumer expectations based on your relationship with us.\n8. Comply with a legal obligation.\n9. Make other internal and lawful uses of that information that are compatible with the context in which you provided it.",
+    "labels": [
+      "Right_to_Delete"
+    ],
+    "note": "This passage is labeled Right_to_Delete in the dataset, and the model agreed. The top word is delete. Most of the passage is a list of exceptions, and those words push the model away from the label.",
+    "lime": {
+      "Right_to_Delete": [
+        {
+          "word": "delete",
+          "weight": 0.1329
+        },
+        {
+          "word": "on",
+          "weight": 0.1194
+        },
+        {
+          "word": "have",
+          "weight": 0.1184
+        },
+        {
+          "word": "by",
+          "weight": -0.0692
+        },
+        {
+          "word": "Once",
+          "weight": 0.0668
+        }
+      ]
+    }
   }
- }
 ]
