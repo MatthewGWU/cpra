@@ -84,7 +84,7 @@ function renderLabelDist(name) {
     const rows = filteredRows(name);
     const counts = labelCounts(rows);
     const max = Math.max(1, ...Object.values(counts));
-    el('dist-body').innerHTML = LABELS.map((label) => {
+    el(name + '-dist-body').innerHTML = LABELS.map((label) => {
         const n = counts[label];
         const pct = Math.round((n / max) * 100);
         return `
@@ -102,8 +102,8 @@ function renderLabelDist(name) {
 }
 
 function renderChart(name) {
-    const canvas = el('dist-chart');
-    const emptyEl = el('dist-chart-empty');
+    const canvas = el(name + '-dist-chart');
+    const emptyEl = el(name + '-dist-chart-empty');
     if (typeof Chart === 'undefined') {
         if (emptyEl) emptyEl.classList.remove('d-none');
         return;
@@ -254,7 +254,7 @@ function renderTable(name) {
     const start = (state.pages[name] - 1) * PAGE_SIZE;
     const pageRows = rows.slice(start, start + PAGE_SIZE);
 
-    el('table-body').innerHTML = pageRows.map((r, i) => {
+    el(name + '-table-body').innerHTML = pageRows.map((r, i) => {
         const badges = r.labels.length ? r.labels.map(badgeHtml).join('') :
             '<span class="text-muted small">(none)</span>';
         return `
@@ -271,11 +271,11 @@ function renderTable(name) {
         </tr>`;
     }).join('');
 
-    el('page-info').textContent = `Showing ${rows.length ? start + 1 : 0}–${Math.min(start + PAGE_SIZE, rows.length)} of ${rows.length.toLocaleString()} spans`;
-    el('prev-btn').disabled = state.pages[name] <= 1;
-    el('next-btn').disabled = state.pages[name] >= totalPages;
-    el('page-pos').textContent = `Page ${state.pages[name]} of ${totalPages}`;
-    el('total-pos').textContent = rows.length.toLocaleString();
+    el(name + '-page-info').textContent = `Showing ${rows.length ? start + 1 : 0}–${Math.min(start + PAGE_SIZE, rows.length)} of ${rows.length.toLocaleString()} spans`;
+    el(name + '-prev-btn').disabled = state.pages[name] <= 1;
+    el(name + '-next-btn').disabled = state.pages[name] >= totalPages;
+    el(name + '-page-pos').textContent = `Page ${state.pages[name]} of ${totalPages}`;
+    el(name + '-total-pos').textContent = rows.length.toLocaleString();
 }
 
 function renderSplitHeader(name) {
@@ -283,30 +283,28 @@ function renderSplitHeader(name) {
     const docs = new Set(rows.map((r) => r.doc_id)).size;
     const multi = rows.filter((r) => r.labels.length > 1).length;
 
-    el('split-title').textContent = `${SPLIT_NAMES[name]} set`;
-    el('split-copy').innerHTML =
+    el(name + '-split-copy').innerHTML =
         `The <strong>${SPLIT_NAMES[name]}</strong> split: ${rows.length.toLocaleString()} spans from ` +
         `<strong>${docs.toLocaleString()}</strong> unique documents (${multi.toLocaleString()} multi-label spans). ` +
         `Filtered and paged from the JSON extracted from the notebook.`;
 
-    el('stat-span').textContent = rows.length.toLocaleString();
-    el('stat-doc').textContent = docs.toLocaleString();
-    el('stat-multi').textContent = multi.toLocaleString();
+    el(name + '-stat-span').textContent = rows.length.toLocaleString();
+    el(name + '-stat-doc').textContent = docs.toLocaleString();
+    el(name + '-stat-multi').textContent = multi.toLocaleString();
 }
 
-async function showSplit(name) {
-    state.active = name;
-    document.querySelectorAll('.tab-split').forEach((b) => b.classList.toggle('active', b.dataset.split === name));
+async function renderSplit(name) {
+    const content = el('split-' + name);
+    if (!content) return;
 
-    const content = el('split-content');
     content.innerHTML = `
-      <div class="d-none" id="split-loading">
+      <div class="d-none" id="${name}-split-loading">
         <div class="text-center text-muted py-5">
           <div class="spinner-border text-primary mb-3" role="status"></div>
           <div>Loading ${SPLIT_NAMES[name].toLowerCase()} split…</div>
         </div>
       </div>
-      <div id="split-ready"></div>`;
+      <div id="${name}-split-ready"></div>`;
 
     try {
         await fetchSplit(name);
@@ -322,18 +320,17 @@ async function showSplit(name) {
         return;
     }
 
-    el('split-loading').classList.remove('d-none');
-    el('split-ready').innerHTML = `
+    el(name + '-split-loading').classList.remove('d-none');
+    el(name + '-split-ready').innerHTML = `
       <div class="mb-3">
-        <h5 class="mb-1" id="split-title"></h5>
-        <p class="text-muted mb-0" id="split-copy"></p>
+        <p class="text-muted mb-0" id="${name}-split-copy"></p>
       </div>
 
       <div class="row g-3 mb-3">
         <div class="col-4">
           <div class="card text-center h-100">
             <div class="card-body py-3">
-              <div class="fs-4 fw-bold" id="stat-span">0</div>
+              <div class="fs-4 fw-bold" id="${name}-stat-span">0</div>
               <div class="text-muted small">Spans</div>
             </div>
           </div>
@@ -341,7 +338,7 @@ async function showSplit(name) {
         <div class="col-4">
           <div class="card text-center h-100">
             <div class="card-body py-3">
-              <div class="fs-4 fw-bold" id="stat-doc">0</div>
+              <div class="fs-4 fw-bold" id="${name}-stat-doc">0</div>
               <div class="text-muted small">Documents</div>
             </div>
           </div>
@@ -349,7 +346,7 @@ async function showSplit(name) {
         <div class="col-4">
           <div class="card text-center h-100">
             <div class="card-body py-3">
-              <div class="fs-4 fw-bold" id="stat-multi">0</div>
+              <div class="fs-4 fw-bold" id="${name}-stat-multi">0</div>
               <div class="text-muted small">Multi-label spans</div>
             </div>
           </div>
@@ -361,27 +358,27 @@ async function showSplit(name) {
         <div class="card-body py-3 row g-4 align-items-center">
           <div class="col-md-5">
             <div class="position-relative" style="height: 260px;">
-              <canvas id="dist-chart"></canvas>
-              <div id="dist-chart-empty" class="d-none position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center text-muted small">
+              <canvas id="${name}-dist-chart"></canvas>
+              <div id="${name}-dist-chart-empty" class="d-none position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center text-muted small">
                 Chart.js not loaded; showing bar list only.
               </div>
             </div>
           </div>
-          <div class="col-md-7" id="dist-body"></div>
+          <div class="col-md-7" id="${name}-dist-body"></div>
         </div>
       </div>
 
       <div class="card">
         <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
           <div class="d-flex align-items-center gap-2">
-            <input type="search" id="filter-input" class="form-control form-control-sm" style="max-width: 320px;"
+            <input type="search" id="${name}-filter-input" class="form-control form-control-sm" style="max-width: 320px;"
                    placeholder="Filter by text, doc, or label…">
-            <span class="small text-muted" id="total-pos"></span>
+            <span class="small text-muted" id="${name}-total-pos"></span>
           </div>
           <div class="d-flex align-items-center gap-2">
-            <span class="small text-muted" id="page-pos"></span>
-            <button id="prev-btn" class="btn btn-sm btn-outline-secondary">Prev</button>
-            <button id="next-btn" class="btn btn-sm btn-outline-secondary">Next</button>
+            <span class="small text-muted" id="${name}-page-pos"></span>
+            <button id="${name}-prev-btn" class="btn btn-sm btn-outline-secondary">Prev</button>
+            <button id="${name}-next-btn" class="btn btn-sm btn-outline-secondary">Next</button>
           </div>
         </div>
         <div class="table-responsive">
@@ -394,38 +391,38 @@ async function showSplit(name) {
                 <th style="width: 300px;">CPRA labels</th>
               </tr>
             </thead>
-            <tbody id="table-body"></tbody>
+            <tbody id="${name}-table-body"></tbody>
           </table>
         </div>
         <div class="card-footer py-1 d-flex justify-content-between align-items-center small text-muted">
-          <span id="page-info"></span>
+          <span id="${name}-page-info"></span>
           <span>${SPLIT_NAMES[name]} set</span>
         </div>
       </div>`;
 
-    el('split-loading').classList.add('d-none');
+    el(name + '-split-loading').classList.add('d-none');
 
     renderSplitHeader(name);
     renderLabelDist(name);
     renderChart(name);
     renderTable(name);
 
-    el('filter-input').addEventListener('input', (e) => {
+    el(name + '-filter-input').addEventListener('input', (e) => {
         state.filters[name] = e.target.value;
         state.pages[name] = 1;
         renderLabelDist(name);
         renderChart(name);
         renderTable(name);
     });
-    el('prev-btn').addEventListener('click', () => {
+    el(name + '-prev-btn').addEventListener('click', () => {
         if (state.pages[name] > 1) { state.pages[name] -= 1; renderTable(name); }
     });
-    el('next-btn').addEventListener('click', () => {
+    el(name + '-next-btn').addEventListener('click', () => {
         const totalPages = Math.ceil(filteredRows(name).length / PAGE_SIZE);
         if (state.pages[name] < totalPages) { state.pages[name] += 1; renderTable(name); }
     });
 
-    el('table-body').addEventListener('click', (e) => {
+    el(name + '-table-body').addEventListener('click', (e) => {
         const div = e.target.closest('.sample-text');
         if (!div) return;
         if (div.dataset.full === div.textContent) {
@@ -618,10 +615,7 @@ async function loadExplainability() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.tab-split').forEach((btn) => {
-        btn.addEventListener('click', () => showSplit(btn.dataset.split));
-    });
-    showSplit('train');
+    ['train', 'val', 'test'].forEach(renderSplit);
     if (el('explain-cards')) loadExplainability();
     renderModelChart();
     renderSplitShareChart();

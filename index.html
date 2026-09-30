@@ -13,7 +13,6 @@
     .brand-icon { width: 44px; height: 44px; display: grid; place-items: center; background: rgba(255,255,255,.12); border-radius: .6rem; }
     .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     .table thead th { white-space: nowrap; }
-    #split-content .card { box-shadow: 0 1px 2px rgba(16, 42, 67, .06); }
     .progress { background: #e9edf2; }
     :target { scroll-margin-top: 90px; }
     .chart-box { position: relative; height: 300px; }
@@ -50,15 +49,6 @@
         <li class="nav-item"><a class="nav-link" href="#explainability">Reasoning</a></li>
         <li class="nav-item"><a class="nav-link" href="#references">Sources</a></li>
         <li class="nav-item"><a class="nav-link" href="#glossary">Glossary</a></li>
-        <li class="nav-item">
-          <button class="btn btn-sm btn-outline-light tab-split me-lg-1" data-split="train">Train</button>
-        </li>
-        <li class="nav-item">
-          <button class="btn btn-sm btn-outline-light tab-split me-lg-1" data-split="val">Validation</button>
-        </li>
-        <li class="nav-item">
-          <button class="btn btn-sm btn-outline-light tab-split" data-split="test">Test</button>
-        </li>
       </ul>
     </div>
   </div>
@@ -190,16 +180,9 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
   </section>
 
 <section id="splits" class="mb-5">
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
-      <div>
-        <h2 class="h4 mb-1">Browse the splits</h2>
-        <p class="text-muted mb-0">Document-level 70 / 15 / 15 split (seed&nbsp;42) of the 60% document subsample (239 documents), no notice trim; an earlier comparison run at the 40% scale additionally trimmed notice-only spans and is kept for future research. No leakage across splits. Text spans are shown with their ground-truth CPRA labels.</p>
-      </div>
-      <div class="btn-group" role="group">
-        <button class="btn btn-outline-primary tab-split" data-split="train">Train</button>
-        <button class="btn btn-outline-primary tab-split" data-split="val">Validation</button>
-        <button class="btn btn-outline-primary tab-split" data-split="test">Test</button>
-      </div>
+    <div class="mb-3">
+      <h2 class="h4 mb-1">Browse the splits</h2>
+      <p class="text-muted mb-0">Document-level 70 / 15 / 15 split (seed&nbsp;42) of the 60% document subsample (239 documents), no notice trim; an earlier comparison run at the 40% scale additionally trimmed notice-only spans and is kept for future research. No leakage across splits. Text spans are shown with their ground-truth CPRA labels.</p>
     </div>
 
     <div class="row g-3 mb-3">
@@ -320,11 +303,23 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
       </div>
     </div>
 
-    <div id="split-content">
-      <div class="card text-center text-muted py-5">
-        <div>Select <strong>Train</strong>, <strong>Validation</strong>, or <strong>Test</strong> above to load a split.</div>
-      </div>
+    <div class="mb-3">
+      <h3 class="h5 mb-1">1. Train &mdash; where the models learn</h3>
+      <p class="text-muted small mb-0">The 111 documents the models practiced on. Everything below is real policy text from those documents, with the rights experts flagged in it.</p>
     </div>
+    <div id="split-train" class="mb-5"></div>
+
+    <div class="mb-3">
+      <h3 class="h5 mb-1">2. Validation &mdash; where the settings are tuned</h3>
+      <p class="text-muted small mb-0">The 23 documents used to pick each model&rsquo;s &ldquo;how sure must it be?&rdquo; setting, before the final grade.</p>
+    </div>
+    <div id="split-val" class="mb-5"></div>
+
+    <div class="mb-3">
+      <h3 class="h5 mb-1">3. Test &mdash; the final grade, seen exactly once</h3>
+      <p class="text-muted small mb-0">The 25 documents each model is graded on: policies it never saw during training.</p>
+    </div>
+    <div id="split-test"></div>
   </section>
 
   <section id="labels" class="mb-5">
