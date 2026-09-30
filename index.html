@@ -339,24 +339,19 @@
         <div class="card mb-3 bg-light border-0">
           <div class="card-body">
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-1 gap-2">
-              <div class="small fw-semibold">Same six rights, side by side (test set)</div>
-              <span class="text-muted small">share of every label decision on the test set</span>
+              <div class="small fw-semibold">Notice against everything else (test set)</div>
+              <span class="text-muted small">share of each run</span>
             </div>
-            <div class="row g-4 align-items-start">
-              <div class="col-lg-6">
-                <div class="position-relative" style="height: 340px;">
-                  <canvas id="imbalance-chart" aria-label="Grouped bar chart comparing each right's share of test decisions in the main run and the balanced test"></canvas>
-                  <div id="imbalance-chart-empty" class="d-none position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center text-muted small">
-                    Chart.js not loaded; the numbers are in the bar list and table below.
-                  </div>
-                </div>
+            <div class="position-relative" style="height: 190px;">
+              <canvas id="imbalance-chart" aria-label="Stacked bar showing the share of the Notice requirement against all five other rights combined, for the main run and the balanced test"></canvas>
+              <div id="imbalance-chart-empty" class="d-none position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center text-muted small">
+                Chart.js not loaded; the numbers are in the table below.
               </div>
-              <div class="col-lg-6" id="imbalance-bars"></div>
             </div>
             <p class="small text-muted mb-0 mt-3">
-              Each right's share of the label decisions on the test set. In the main run, "Notice" takes more than
-              three-quarters of them; in the balanced test it still takes more than half, but every other right
-              gets a noticeably bigger slice. The chart and the list show the same numbers.
+              The dark bar is the Notice requirement. The light bar is all five other rights added together.
+              In the main run, Notice fills about three-quarters of every policy sentence; in the balanced
+              test it drops to a little over half, giving the other rights noticeably more room.
             </p>
           </div>
         </div>

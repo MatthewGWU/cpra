@@ -218,18 +218,9 @@ function renderSplitShareChart() {
     });
 }
 
-const SHORT_LABEL = {
-    Notice_Requirement: 'Notice',
-    Right_to_Correct: 'Correct',
-    Right_to_Delete: 'Delete',
-    Right_to_Know: 'Know',
-    Right_to_Limit_Sensitive: 'Limit',
-    Right_to_Opt_Out: 'Opt out',
-};
-
 const IMBALANCE_TEST = {
-    main: { label: 'Main run (untrimmed)', total: 1787, counts: [1362, 45, 76, 187, 16, 101], color: '#1b4d89' },
-    trimmed: { label: 'Balanced test (notice trimmed)', total: 1338, counts: [757, 72, 94, 214, 44, 157], color: '#198754' },
+    main: { label: 'Main run (page above)', total: 1787, notice: 1362 },
+    trimmed: { label: 'Balanced test', total: 1338, notice: 757 },
 };
 
 function renderImbalanceChart() {
@@ -239,97 +230,76 @@ function renderImbalanceChart() {
         if (emptyEl) emptyEl.classList.remove('d-none');
         return;
     }
-    const share = (run, i) => +(((run.counts[i] || 0) / run.total) * 100).toFixed(1);
-    const valueLabels = {
-        id: 'valueLabels',
+    const keys = Object.keys(IMBALANCE_TEST);
+    const noticePct = keys.map((k) => +(((IMBALANCE_TEST[k].notice / IMBALANCE_TEST[k].total) * 100).toFixed(1)));
+    const restPct = noticePct.map((v) => +(100 - v).toFixed(1));
+
+    const segLabels = {
+        id: 'segLabels',
         afterDatasetsDraw(chart) {
-            const { ctx } = chart;
+            const ctx = chart.ctx;
             ctx.save();
-            ctx.font = '600 10px system-ui, sans-serif';
-            ctx.fillStyle = '#334';
-            chart.data.datasets.forEach((ds, di) => {
+            ctx.font = '700 13px system-ui, sans-serif';
+            for (let di = 0; di < chart.data.datasets.length; di += 1) {
                 const meta = chart.getDatasetMeta(di);
-                if (meta.hidden) return;
+                if (meta.hidden) continue;
+                const ds = chart.data.datasets[di];
+                const color = di === 0 ? '#ffffff' : '#33414f';
+                ctx.fillStyle = color;
                 meta.data.forEach((bar, i) => {
-                    ctx.fillText(`${ds.data[i].toFixed(1)}%`, bar.x + 5, bar.y + 3);
+                    if (!bar || bar.width < 30) return;
+                    ctx.fillText(ds.data[i].toFixed(0) + '%', bar.x + 8, bar.y + 4);
                 });
-            });
+            }
             ctx.restore();
         },
     };
+
     new Chart(canvas.getContext('2d'), {
         type: 'bar',
         data: {
-            labels: LABELS.map((l) => SHORT_LABEL[l]),
-            datasets: Object.keys(IMBALANCE_TEST).map((key) => {
-                const run = IMBALANCE_TEST[key];
-                return {
-                    label: run.label,
-                    data: LABELS.map((_, i) => share(run, i)),
-                    backgroundColor: run.color,
-                    borderRadius: 3,
-                    maxBarThickness: 14,
-                };
-            }),
+            labels: keys.map((k) => IMBALANCE_TEST[k].label),
+            datasets: [
+                {
+                    label: 'Notice requirement',
+                    data: noticePct,
+                    backgroundColor: '#1b4d89',
+                    borderRadius: 4,
+                    maxBarThickness: 44,
+                },
+                {
+                    label: 'The five other rights, combined',
+                    data: restPct,
+                    backgroundColor: '#c3ccd8',
+                    borderRadius: 4,
+                    maxBarThickness: 44,
+                },
+            ],
         },
         options: {
             indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
-            layout: { padding: { right: 42 } },
             plugins: {
-                legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
+                legend: { position: 'top', labels: { boxWidth: 14, font: { size: 12 } } },
                 tooltip: {
                     callbacks: {
                         label: (ctx) => {
-                            const run = IMBALANCE_TEST[Object.keys(IMBALANCE_TEST)[ctx.datasetIndex]];
-                            const n = run.counts[ctx.dataIndex];
-                            return ` ${run.label}: ${ctx.parsed.x.toFixed(1)}% (${n.toLocaleString()} of ${run.total.toLocaleString()})`;
+                            const run = IMBALANCE_TEST[keys[ctx.dataIndex]];
+                            const n = ctx.datasetIndex === 0 ? run.notice : run.total - run.notice;
+                            return ' ' + ctx.dataset.label + ': ' + ctx.parsed.x.toFixed(1) + '% (' +
+                                n.toLocaleString() + ' of ' + run.total.toLocaleString() + ')';
                         },
                     },
                 },
             },
             scales: {
-                x: { title: { display: true, text: '% of label decisions on the test set', font: { size: 10 } }, min: 0, max: 85, grid: { color: '#e9edf2' } },
-                y: { ticks: { font: { size: 11 } }, grid: { display: false } },
+                x: { stacked: true, min: 0, max: 100, ticks: { callback: (v) => v + '%' }, grid: { color: '#e9edf2' } },
+                y: { stacked: true, ticks: { font: { size: 12 } }, grid: { display: false } },
             },
         },
-        plugins: [valueLabels],
+        plugins: [segLabels],
     });
-}
-
-function renderImbalanceBars() {
-    const host = el('imbalance-bars');
-    if (!host) return;
-    const main = IMBALANCE_TEST.main;
-    const trimmed = IMBALANCE_TEST.trimmed;
-    const max = Math.max(...main.counts, ...trimmed.counts);
-    host.innerHTML = LABELS.map((label, i) => {
-        const m = main.counts[i];
-        const t = trimmed.counts[i];
-        const mp = ((m / main.total) * 100).toFixed(1);
-        const tp = ((t / trimmed.total) * 100).toFixed(1);
-        return `
-        <div class="mb-3">
-          <div class="small mb-1">${esc(SHORT_LABEL[label])}</div>
-          <div class="d-flex align-items-center gap-2 mb-1">
-            <span class="small text-muted" style="width: 96px;">Main run</span>
-            <div class="bg-light rounded flex-grow-1" style="height: 11px;">
-              <div class="rounded" style="background:#1b4d89; height: 11px; width:${((m / max) * 100).toFixed(1)}%;"
-                   title="Main run: ${m.toLocaleString()} decisions (${mp}%)"></div>
-            </div>
-            <span class="small text-muted text-nowrap" style="width: 118px; text-align:right;">${mp}% &middot; ${m.toLocaleString()}</span>
-          </div>
-          <div class="d-flex align-items-center gap-2">
-            <span class="small text-muted" style="width: 96px;">Balanced test</span>
-            <div class="bg-light rounded flex-grow-1" style="height: 11px;">
-              <div class="rounded" style="background:#198754; height: 11px; width:${((t / max) * 100).toFixed(1)}%;"
-                   title="Balanced test: ${t.toLocaleString()} decisions (${tp}%)"></div>
-            </div>
-            <span class="small text-muted text-nowrap" style="width: 118px; text-align:right;">${tp}% &middot; ${t.toLocaleString()}</span>
-          </div>
-        </div>`;
-    }).join('');
 }
 
 function renderPRFChart() {
@@ -735,5 +705,4 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSplitShareChart();
     renderPRFChart();
     renderImbalanceChart();
-    renderImbalanceBars();
 });
