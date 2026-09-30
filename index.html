@@ -323,79 +323,86 @@
   <section id="imbalance" class="mb-5">
     <div class="card">
       <div class="card-body p-4">
-        <h2 class="h4 mb-2">The imbalance experiment, side by side</h2>
-        <p class="text-muted small mb-3">
-          The page above is the main run: 40% of documents, every span kept exactly as the annotators tagged
-          it, so "Notice" is about 7 times more common than the next-largest right. Below it is a separate,
-          larger experiment (60% of documents) that trimmed 60% of the <em>notice-only</em> spans before
-          training &mdash; a test of what happens when one very common right can't dominate the data. Both runs are
-          honest on their own terms: same six labels, same seed-pinned document split, same three models, same
-          threshold rule. Nothing was synthesized in either.
+        <h2 class="h4 mb-2">What happens when you balance the data?</h2>
+        <p class="text-muted mb-3">
+          Real privacy policies talk about <em>notice</em> ("we'll tell you what we do with your data") far more
+          often than they talk about the other rights, like deleting data or stopping targeted ads. In the main
+          run above, "notice" shows up about <strong>7 times more often</strong> than the next most common right.
+          That lopsidedness is the real world &mdash; it's what policies actually look like.
+        </p>
+        <p class="text-muted mb-3">
+          To test whether it hurts accuracy, we ran a second version: we started with more policies (60% of the
+          collection instead of 40%) and set aside 60% of the sentences that talked <em>only</em> about notice.
+          "Notice" stayed the biggest category &mdash; still about 3.5x the next right &mdash; but it no longer
+          dominated the way it did before. We never invented any examples; we only put some extra ones aside.
         </p>
         <div class="table-responsive">
           <table class="table table-sm table-bordered align-middle mb-3">
             <thead class="table-light">
               <tr>
                 <th style="min-width: 220px;">&nbsp;</th>
-                <th>Main run (imbalanced data)<br><span class="text-muted fw-normal small">40% of documents, untrimmed</span></th>
-                <th>Imbalance experiment (trimmed)<br><span class="text-muted fw-normal small">60% of documents, notice-only spans cut 60%</span></th>
+                <th>Main run (page above)<br><span class="text-muted fw-normal small">40% of policies, sentences used as-is</span></th>
+                <th>Balanced test<br><span class="text-muted fw-normal small">60% of policies, extra "notice-only" sentences set aside</span></th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>Corpus after subsample + (for the experiment) trim</td>
-                <td>159 docs &middot; 9,640 spans</td>
-                <td>238 docs &middot; 7,597 spans</td>
+                <td>Policies and sentences analyzed</td>
+                <td>159 policies &middot; 9,640 sentences</td>
+                <td>238 policies &middot; 7,597 sentences</td>
               </tr>
               <tr>
-                <td>Docs / spans per split (Train &middot; Val &middot; Test)</td>
-                <td>111/23/25 docs &middot; 6,328/1,592/1,720 spans</td>
-                <td>166/35/37 docs &middot; 5,016/1,328/1,253 spans</td>
+                <td>Training / checking / final-test sets</td>
+                <td>6,328 / 1,592 / 1,720 sentences</td>
+                <td>5,016 / 1,328 / 1,253 sentences</td>
               </tr>
               <tr>
-                <td>Notice vs. next-largest right (test split)</td>
+                <td>How lopsided: "notice" vs. next most common</td>
                 <td><strong>7x</strong> more common</td>
                 <td><strong>3.5x</strong> more common</td>
               </tr>
               <tr>
-                <td>LegalBERT &middot; macro F1 (test)</td>
+                <td>LegalBERT score</td>
                 <td>0.7562</td>
                 <td>0.8396</td>
               </tr>
               <tr>
-                <td>RoBERTa-large &middot; macro F1 (test)</td>
+                <td>RoBERTa-large score</td>
                 <td>0.7734</td>
                 <td>0.8498</td>
               </tr>
               <tr>
-                <td>Flan-T5-base &middot; macro F1 (test)</td>
+                <td>Flan-T5-base score</td>
                 <td><strong>0.7949</strong> (best)</td>
                 <td><strong>0.8552</strong> (best)</td>
               </tr>
               <tr>
-                <td>Dumb baseline: "always Notice" / "always everything" (test)</td>
+                <td>Score floor: an AI that never learns</td>
                 <td>0.147 / 0.224</td>
                 <td>0.126 / 0.264</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <p class="small text-muted mb-2">
-          <strong>Read the comparison honestly.</strong> The two runs differ in <em>two</em> ways at once: the
-          experiment uses more documents (60% vs. 40%) <em>and</em> trims the biggest class. So the higher F1 on the
-          right is not proof that trimming alone is what helped &mdash; more real training data helped too. The point of
-          showing them side by side is narrower: even after trimming 60% of the notice-only spans, Notice is still the
-          largest slice of the data (about 3.5x the next right), the models still beat the no-learning baselines by a
-          wide margin, and re-balancing did not require inventing any data. In both runs, the imbalance is handled at
-          <em>learning</em> time (per-class weights + focal loss) and <em>scoring</em> time (macro F1), never by editing
-          the documents beyond what is described here.
+        <p class="small text-muted mb-3">
+          <strong>How to read the scores.</strong> Scores run from 0 to 1, where 1.00 would be perfect &mdash;
+          flagging exactly the rights a lawyer would flag. So 0.8552 is roughly an 86 out of 100 on the final test,
+          higher than 0.7949 (about 79 out of 100).
         </p>
+        <div class="alert alert-light border small mb-2">
+          <strong>What the test shows.</strong>
+          <ul class="mb-0 ps-3">
+            <li>When the biggest category was thinned out, <strong>all three AIs scored higher</strong> (roughly +8, +8, and +6 points on the final test).</li>
+            <li>"Notice" stayed the most common right even after thinning &mdash; so the scores improved <em>without</em> making the data look fake.</li>
+            <li>The balancing act never invented anything. We set extra "notice-only" sentences aside in this test; every sentence is still a real sentence from a real policy.</li>
+          </ul>
+        </div>
         <p class="small text-muted mb-0">
-          If you are comparing the two F1 columns for a takeaway on class imbalance you can defend, the fair statement is
-          exactly this: on data that had its biggest class thinned, all three models scored higher than on the untouched
-          data, while both datasets were still visibly imbalanced and neither needed synthetic data. Flagship scores and
-          full label-by-label reports for this run are on the page above; the experiment notebook is
-          <code class="font-mono">CPRA_60pct_Sep_2026.ipynb</code>.
+          One honest caveat: this test changed <em>two</em> things at once &mdash; more policies to learn from and a
+          more balanced mix. So the higher scores are not proof that balancing alone caused them; the extra real data
+          may have helped too. What we can fairly claim is exactly this: with a less lopsided view of the data, every
+          model scored higher, and no synthetic examples were needed. Full label-by-label details live above; the
+          experiment notebook is <code class="font-mono">CPRA_60pct_Sep_2026.ipynb</code>.
         </p>
       </div>
     </div>
