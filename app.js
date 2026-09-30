@@ -218,6 +218,49 @@ function renderSplitShareChart() {
     });
 }
 
+const IMBALANCE_TEST = {
+    main: { label: 'Main run (untrimmed)', total: 1787, counts: [1362, 45, 76, 187, 16, 101], color: '#1b4d89' },
+    trimmed: { label: 'Balanced test (notice trimmed)', total: 1338, counts: [757, 72, 94, 214, 44, 157], color: '#198754' },
+};
+
+function renderImbalanceChart() {
+    const canvas = el('imbalance-chart');
+    const emptyEl = el('imbalance-chart-empty');
+    if (!canvas || typeof Chart === 'undefined') {
+        if (emptyEl) emptyEl.classList.remove('d-none');
+        return;
+    }
+    const share = (run, i) => +(((run.counts[i] || 0) / run.total) * 100).toFixed(1);
+    new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: LABELS,
+            datasets: Object.keys(IMBALANCE_TEST).map((key) => {
+                const run = IMBALANCE_TEST[key];
+                return {
+                    label: run.label,
+                    data: LABELS.map((_, i) => share(run, i)),
+                    backgroundColor: run.color,
+                    borderRadius: 3,
+                    maxBarThickness: 18,
+                };
+            }),
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
+                tooltip: { callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}% of decisions` } },
+            },
+            scales: {
+                x: { ticks: { maxRotation: 45, minRotation: 0, font: { size: 9 } }, grid: { display: false } },
+                y: { title: { display: true, text: '% of label decisions on the test set', font: { size: 10 } }, min: 0, max: 80, grid: { color: '#e9edf2' } },
+            },
+        },
+    });
+}
+
 function renderPRFChart() {
     const canvas = el('prf-chart');
     if (!canvas || typeof Chart === 'undefined') return;
@@ -620,4 +663,5 @@ document.addEventListener('DOMContentLoaded', () => {
     renderModelChart();
     renderSplitShareChart();
     renderPRFChart();
+    renderImbalanceChart();
 });
