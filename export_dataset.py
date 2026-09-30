@@ -1,18 +1,24 @@
 """Export the CPRA/C3PA train / validation / test splits to JSON.
 
-Mirrors the pipeline in CPRA_40pct_Notice40 (1).ipynb exactly:
+Mirrors the pipeline in the main showcase notebook CPRA_40pct_CLEAN_(3).ipynb:
   1. Load raw C3PA annotations from C3PA_Dataset/Annotations/{DB,WS}
   2. Map C3PA categories onto the 6-label CPRA schema
   3. Group rows into (doc_id, text) spans and deduplicate shared boilerplate text
-  4. Randomly subsample 40% of documents (seed 42) - a low-resource scale point
-  5. [CLASS BALANCE FIX] Within those documents, drop 40% of
-     Notice_Requirement-only spans at random, keeping 60% (seed 42). Multi-label
-     spans that include Notice alongside another label are kept untouched.
+  4. Randomly subsample 40% of documents (seed 42) - the main run's scale
+  5. [NO CLASS-LEVEL EDIT] Unlike the earlier comparison runs, the main run
+     trims nothing: every span of the sampled documents is kept exactly as the
+     annotators tagged it, so the natural label imbalance is left untouched.
   6. Split by document 70 / 15 / 15 (seed 42), asserting no leakage
+
+The same script can reproduce the 60%-scale imbalance experiment
+(CPRA_60pct_Sep_2026.ipynb) via --scale 0.60 --notice-keep 0.40, where
+--notice-keep is the fraction of Notice_Requirement-only spans kept (0.40
+means 60% are dropped). Defaults produce the main showcase's untrimmed 40% run.
 
 Writes data/train.json, data/val.json, data/test.json for the showcase SPA.
 """
 
+import argparse
 import json
 import os
 import random
@@ -89,6 +95,18 @@ def load_raw_records():
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--scale", type=float, default=SCALE_FRACTION,
+                        help="fraction of documents to subsample (seed 42)")
+    parser.add_argument("--notice-keep", type=float, default=1.0,
+                        help="fraction of Notice_Requirement-only spans to keep; "
+                             "1.0 = no trim (main run), 0.40 = the 60% imbalance experiment")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="print counts only; do not write data/*.json")
+    args = parser.parse_args()
+
+    scale = args.scale
+    notice_keep = args.notice_keep
     os.makedirs(OUT_DIR, exist_ok=True)
 
     c3pa_raw = pd.DataFrame(load_raw_records())
@@ -114,28 +132,31 @@ def main():
     print(f"Unique source documents: {df_master['doc_id'].nunique()}")
     print(f"Multi-label spans (2+ labels): {(df_master['labels'].apply(len) > 1).sum()}")
 
-    # Step 4: random 40% document subsample (notebook cell 9, seed 42)
+    # Step 4: random document subsample (notebook cell 9, seed 42)
     random.seed(42)
     all_docs = sorted(df_master["doc_id"].unique())
-    n_keep = int(len(all_docs) * SCALE_FRACTION)
+    n_keep = int(len(all_docs) * scale)
     docs_keep = set(random.sample(all_docs, n_keep))
     df_master = df_master[df_master["doc_id"].isin(docs_keep)].reset_index(drop=True)
-    print(f"Subsampled to {len(docs_keep)} documents ({len(df_master)} rows) - {int(SCALE_FRACTION * 100)}% scale.")
+    print(f"Subsampled to {len(docs_keep)} documents ({len(df_master)} rows) - {int(scale * 100)}% scale.")
 
-    # Step 5: within the subsample, reduce Notice_Requirement-only spans by 40% (notebook cell 9)
+    # Step 5: optional Notice_Requirement-only span trim (the imbalance experiment).
+    # The main showcase run keeps every span (notice_keep == 1.0, no trimming).
     notice_only_mask = df_master["labels"].apply(lambda x: x == ["Notice_Requirement"])
     notice_only_rows = df_master[notice_only_mask]
-    other_rows = df_master[~notice_only_mask]
-
-    random.seed(42)
-    n_notice_keep = int(len(notice_only_rows) * 0.60)
-    notice_keep_idx = random.sample(list(notice_only_rows.index), n_notice_keep)
-    notice_kept = df_master.loc[notice_keep_idx]
-
-    before_reduction = len(df_master)
-    df_master = pd.concat([other_rows, notice_kept]).sort_index().reset_index(drop=True)
-    print(f"Notice_Requirement-only spans: {len(notice_only_rows)} -> kept {len(notice_kept)} (60% kept, 40% removed)")
-    print(f"Total spans: {before_reduction} -> {len(df_master)} (documents unchanged: {df_master['doc_id'].nunique()})")
+    if notice_keep >= 1.0:
+        print("Notice_Requirement-only spans: NO trim (all kept, main run).")
+    else:
+        other_rows = df_master[~notice_only_mask]
+        random.seed(42)
+        n_notice_keep = int(len(notice_only_rows) * notice_keep)
+        notice_keep_idx = random.sample(list(notice_only_rows.index), n_notice_keep)
+        notice_kept = df_master.loc[notice_keep_idx]
+        before_reduction = len(df_master)
+        df_master = pd.concat([other_rows, notice_kept]).sort_index().reset_index(drop=True)
+        print(f"Notice_Requirement-only spans: {len(notice_only_rows)} -> kept {len(notice_kept)} "
+              f"({int(notice_keep * 100)}% kept, {100 - int(notice_keep * 100)}% removed)")
+        print(f"Total spans: {before_reduction} -> {len(df_master)} (documents unchanged: {df_master['doc_id'].nunique()})")
 
     # Step 6: document-level 70 / 15 / 15 split (notebook cell 11, seed 42)
     random.seed(42)
@@ -186,6 +207,9 @@ def main():
         print(f"{label:<28} {counts[0]:>8} {counts[1]:>8} {counts[2]:>8}")
 
     # Write JSON exports (each split is a JSON array of records)
+    if args.dry_run:
+        print("\nDry run - data/*.json NOT overwritten.")
+        return
     for key, df in splits.items():
         records = []
         for i, row in df.iterrows():

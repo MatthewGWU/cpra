@@ -45,6 +45,7 @@
         <li class="nav-item"><a class="nav-link" href="#summary">Short version</a></li>
         <li class="nav-item"><a class="nav-link" href="#technical">Technical</a></li>
         <li class="nav-item"><a class="nav-link" href="#labels">Labels</a></li>
+        <li class="nav-item"><a class="nav-link" href="#imbalance">Imbalance test</a></li>
         <li class="nav-item"><a class="nav-link" href="#models">Models</a></li>
         <li class="nav-item"><a class="nav-link" href="#explainability">Reasoning</a></li>
         <li class="nav-item"><a class="nav-link" href="#references">Sources</a></li>
@@ -67,25 +68,27 @@
           against the California Privacy Rights Act (CPRA), rebuilt on the
           <a href="https://github.com/MaazBinMusa/C3PA_Dataset" class="link-warning" target="_blank" rel="noopener">C3PA dataset</a>
           (Bin Musa et al., EMNLP 2024): 399 companies, expert-annotated policy spans, subsampled
-          to 60% of documents (seed 42) to train three models at this scale. An earlier 40% run that
-          trimmed the most common clause type is kept as a comparison for future research.
+          to 40% of documents (seed 42) to train three models at this scale. The data is exactly as
+          sampled &mdash; nothing trimmed, nothing invented &mdash; so the real-world imbalance between rights
+          is what the models had to learn from. A separate 60% experiment that did trim the most common
+          clause type is kept below as a side-by-side comparison.
         </p>
       </div>
       <div class="col-lg-4">
         <div class="card bg-white border-0 shadow-sm">
           <div class="card-body p-4">
-            <h6 class="text-muted text-uppercase small mb-3">The 60%-scale splits (browse below)</h6>
+            <h6 class="text-muted text-uppercase small mb-3">The 40%-scale splits (browse below)</h6>
             <div class="row text-center">
               <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">159</div><div class="small text-muted">Docs</div></div>
-              <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">6,582</div><div class="small text-muted">Spans</div></div>
+              <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">9,640</div><div class="small text-muted">Spans</div></div>
               <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">6</div><div class="small text-muted">Labels</div></div>
             </div>
             <hr class="my-3">
-            <h6 class="text-muted text-uppercase small mb-2">Model metrics <span class="badge bg-light text-muted" style="font-weight:400;">this 60% run</span></h6>
+            <h6 class="text-muted text-uppercase small mb-2">Model metrics <span class="badge bg-light text-muted" style="font-weight:400;">this 40% run</span></h6>
             <p class="small text-muted mb-2">All three models trained on the train split below, thresholds tuned on validation, test evaluated exactly once.</p>
-            <div class="small text-muted d-flex justify-content-between"><span>Best macro F1</span><span class="fw-semibold" style="color:#1b4d89;">0.8016 (RoBERTa-large)</span></div>
-            <div class="small text-muted d-flex justify-content-between mt-1"><span>LegalBERT</span><span class="fw-semibold">0.7764</span></div>
-            <div class="small text-muted d-flex justify-content-between mt-1"><span>Flan-T5-base</span><span class="fw-semibold">0.7863</span></div>
+            <div class="small text-muted d-flex justify-content-between"><span>Best macro F1</span><span class="fw-semibold" style="color:#1b4d89;">0.7949 (Flan-T5-base)</span></div>
+            <div class="small text-muted d-flex justify-content-between mt-1"><span>LegalBERT</span><span class="fw-semibold">0.7562</span></div>
+            <div class="small text-muted d-flex justify-content-between mt-1"><span>RoBERTa-large</span><span class="fw-semibold">0.7734</span></div>
           </div>
         </div>
       </div>
@@ -94,14 +97,6 @@
 </header>
 
 <main class="container py-4">
-
-    <div class="alert alert-warning mb-4" role="alert">
-      <strong>Switching to the 60% scale.</strong> The main experiment now uses 60% of the documents,
-      without the notice-requirement trim. I am running that <span class="font-mono">CPRA_60pct</span>
-      notebook now; until it finishes, the numbers and splits below are from the earlier
-      <strong>40% comparison run</strong> (the one with the notice trim), which we are keeping as a
-      comparison for future research. Every number will be refreshed once the 60% run is done.
-    </div>
 
     <section id="summary" class="mb-5">
     <div class="card border-0 shadow-sm">
@@ -112,10 +107,10 @@
             <p class="mb-3">
               <strong>What this is.</strong> A working check of whether machine-learning models can read
               real companies' privacy policies and spot the rights those policies promise, matched against
-              expert legal annotations. The main run uses 60% of the documents, and every number on
-              this page is reproducible from a single notebook. We also keep an earlier comparison run
-              at the 40% scale that thinned out the most common clause type (notice-style clauses); the
-              two runs show what reducing the notice imbalance does, without inventing any data.
+              expert legal annotations. The main run uses 40% of the documents, kept exactly as sampled,
+              and every number on this page is reproducible from a single notebook. We also keep a separate
+              60% experiment that thinned out the most common clause type (notice-style clauses); the two
+              runs are shown side by side to see what happens to the imbalance without inventing any data.
             </p>
             <p class="mb-3">
               <strong>Why it matters.</strong> A business could run its own privacy policy through this
@@ -141,29 +136,30 @@
                 <p class="pipe-desc">Word-by-word breakdowns show why each model called a sentence what it did.</p>
               </div>
             </div>
-            <ul class="small mb-0 ps-3">
+<ul class="small mb-0 ps-3">
               <li class="mb-2"><strong>The best model gets it right most of the time.</strong>
-              RoBERTa-large matches the human experts on roughly 80% of what it scores, with all six rights
-              counting equally. The other two models trail by about one to two points.</li>
+              Flan-T5-base matches the human experts on roughly 79% of what it scores, with all six rights
+              counting equally. The other two models trail by roughly one to four points.</li>
               <li class="mb-2"><strong>The models learn, they don't just guess.</strong> To prove it, we also
-              score strategies that never learn: one always answers "Notice" (0.14), another answers every
-              right on every sentence (0.25). The trained models score 0.78 or higher, roughly three times the
-              best of those guesses, and they hold their score on policies they never saw during training.
+              score strategies that never learn: one always answers "Notice" (0.15), another answers every
+              right on every sentence (0.22). The trained models score 0.76 or higher, roughly three and a
+              half times the best of those guesses, and they hold their score on policies they never saw during training.
               Something that had memorized its lessons instead of learning them would collapse there; these
               don't.</li>
               <li class="mb-2"><strong>Common rights are common for a reason.</strong> Read across thousands of
               real policy sentences and "Notice" appears constantly, while limits on sensitive data almost
               never do. That is what the real world looks like, not a flaw in our numbers. So we grade so the
-easy answer cannot win: all six rights are scored equally, meaning spamming "Notice" earns
+              easy answer cannot win: all six rights are scored equally, meaning spamming "Notice" earns
                nothing extra and rare rights matter just as much, and the data still looks like real policies.
-               (An earlier comparison run at the 40% scale trimmed notice-only spans to test the effect; the
-               main 60% run leaves the data exactly as sampled.) We'd rather measure the world as it is.</li>
+               The main run leaves the data exactly as sampled &mdash; imbalance and all &mdash; because that's what
+               these documents actually say. (A separate 60% run below trims notice-only spans as an experiment,
+               and we show both side by side.) We'd rather measure the world as it is.</li>
             </ul>
           </div>
           <div class="col-lg-4">
             <div class="row text-center g-2">
               <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">159</div><div class="small text-muted">documents</div></div>
-              <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">6,582</div><div class="small text-muted">policy spans</div></div>
+              <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">9,640</div><div class="small text-muted">policy spans</div></div>
               <div class="col-4"><div class="fs-4 fw-bold" style="color:#1b4d89;">6</div><div class="small text-muted">CPRA rights</div></div>
             </div>
             <hr class="my-3">
@@ -182,7 +178,7 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
 <section id="splits" class="mb-5">
     <div class="mb-3">
       <h2 class="h4 mb-1">Browse the splits</h2>
-      <p class="text-muted mb-0">Document-level 70 / 15 / 15 split (seed&nbsp;42) of the 60% document subsample (239 documents), no notice trim; an earlier comparison run at the 40% scale additionally trimmed notice-only spans and is kept for future research. No leakage across splits. Text spans are shown with their ground-truth CPRA labels.</p>
+      <p class="text-muted mb-0">Document-level 70 / 15 / 15 split (seed&nbsp;42) of the 40% document subsample (159 documents), no trimming at all &mdash; every span the annotators tagged is here. No leakage across splits. Text spans are shown with their ground-truth CPRA labels.</p>
     </div>
 
     <div class="row g-3 mb-3">
@@ -237,8 +233,9 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
             </div>
             <p class="small text-muted mb-0">
               Each group of bars is one right: Train (navy), Validation (grey), Test (green). The three bars in a
-              group are nearly equal because the only re-balancing, the notice-only trim, happened before the
-              split; every split keeps the same shape, just smaller. That sameness is what makes tuning fair: we pick the model's "how sure must it be?" setting
+              group are near-identical because every split is a random slice of the same unbalanced corpus &mdash; nothing
+              was re-balanced or trimmed before splitting. The imbalance ratio is the same in each split, just smaller
+              in absolute count as the set shrinks. That sameness is what makes tuning fair: we pick the model's "how sure must it be?" setting
               on validation, and test describes the same kinds of policies, so the setting transfers.
             </p>
           </div>
@@ -275,15 +272,16 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
                 <li class="mb-1">You can verify this below: load a split and filter to the notice-requirement right; you'll see it come from many different documents.</li>
                 <li class="mb-1">As an informal, qualitative spot check, I also read the public privacy policy of a company called Aaron's, and its notice requirement looks to be very prominent there too.</li>
               </ul>
-              <div class="fw-semibold text-uppercase text-muted mb-2">Could we "fix" the imbalance? The comparison run trimmed it once, then stopped</div>
+              <div class="fw-semibold text-uppercase text-muted mb-2">Could we "fix" the imbalance? The experiment trimmed it once</div>
               <p class="mb-0">
                 One right, the requirement to notify people what data you're collecting, showed up far more often than
-                any other right in the real documents, about 9 times more common than the next-largest right. That's not
-                a data error; it's genuinely how privacy policies are written, which is why the main 60% run keeps that
-                real-world imbalance untouched. To test what happens when one common right can't dominate training, the
-                comparison run randomly dropped 40% of the notice-only examples, while leaving every other right's examples
-                completely untouched. That brought the imbalance down from about 9x to about 5x, without inventing any
-                fake data to fill gaps.
+                any other right in the real documents &mdash; about 7 times more common than the next-largest right in the
+                main run's test split. That's not a data error; it's genuinely how privacy policies are written, which is
+                why the main 40% run keeps that real-world imbalance untouched. To test what happens when one common
+                right can't dominate training, the separate 60% experiment randomly dropped 60% of the notice-only
+                examples, while leaving every other right's examples completely untouched. That brought the imbalance
+                down from about 7x to about 3.5x, without inventing any fake data to fill gaps. Both runs are shown
+                side by side further down the page.
               </p>
             </div>
           </div>
@@ -291,12 +289,12 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
         <div class="border-top pt-3 mt-3">
           <div class="row text-center g-3">
             <div class="col-6">
-              <div class="fs-4 fw-bold" style="color:#1b4d89;">9x</div>
-              <div class="small text-muted">Before trimming: Notice was about 9 times more common than the next most common right.</div>
+              <div class="fs-4 fw-bold" style="color:#1b4d89;">7x</div>
+              <div class="small text-muted">Before trimming (main run): Notice was about 7 times more common than the next-most-common right in the test split.</div>
             </div>
             <div class="col-6">
-              <div class="fs-4 fw-bold" style="color:#1b4d89;">5x</div>
-              <div class="small text-muted">After trimming: about 5 times more common. Still the biggest slice, but by a much smaller margin.</div>
+              <div class="fs-4 fw-bold" style="color:#1b4d89;">3.5x</div>
+              <div class="small text-muted">In the 60% experiment, after trimming: about 3.5 times more common. Still the biggest slice, but by a much smaller margin.</div>
             </div>
           </div>
         </div>
@@ -305,21 +303,102 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
 
     <div class="mb-3">
       <h3 class="h5 mb-1">1. Train &mdash; where the models learn</h3>
-      <p class="text-muted small mb-0">The 111 documents the models practiced on. Everything below is real policy text from those documents, with the rights experts flagged in it.</p>
+      <p class="text-muted small mb-0">The 111 documents (6,328 spans) the models practiced on. Everything below is real policy text from those documents, with the rights experts flagged in it.</p>
     </div>
     <div id="split-train" class="mb-5"></div>
 
     <div class="mb-3">
       <h3 class="h5 mb-1">2. Validation &mdash; where the settings are tuned</h3>
-      <p class="text-muted small mb-0">The 23 documents used to pick each model&rsquo;s &ldquo;how sure must it be?&rdquo; setting, before the final grade.</p>
+      <p class="text-muted small mb-0">The 23 documents (1,592 spans) used to pick each model&rsquo;s &ldquo;how sure must it be?&rdquo; setting, before the final grade.</p>
     </div>
     <div id="split-val" class="mb-5"></div>
 
     <div class="mb-3">
       <h3 class="h5 mb-1">3. Test &mdash; the final grade, seen exactly once</h3>
-      <p class="text-muted small mb-0">The 25 documents each model is graded on: policies it never saw during training.</p>
+      <p class="text-muted small mb-0">The 25 documents (1,720 spans) each model is graded on: policies it never saw during training.</p>
     </div>
     <div id="split-test"></div>
+  </section>
+
+  <section id="imbalance" class="mb-5">
+    <div class="card">
+      <div class="card-body p-4">
+        <h2 class="h4 mb-2">The imbalance experiment, side by side</h2>
+        <p class="text-muted small mb-3">
+          The page above is the main run: 40% of documents, every span kept exactly as the annotators tagged
+          it, so "Notice" is about 7 times more common than the next-largest right. Below it is a separate,
+          larger experiment (60% of documents) that trimmed 60% of the <em>notice-only</em> spans before
+          training &mdash; a test of what happens when one very common right can't dominate the data. Both runs are
+          honest on their own terms: same six labels, same seed-pinned document split, same three models, same
+          threshold rule. Nothing was synthesized in either.
+        </p>
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered align-middle mb-3">
+            <thead class="table-light">
+              <tr>
+                <th style="min-width: 220px;">&nbsp;</th>
+                <th>Main run (imbalanced data)<br><span class="text-muted fw-normal small">40% of documents, untrimmed</span></th>
+                <th>Imbalance experiment (trimmed)<br><span class="text-muted fw-normal small">60% of documents, notice-only spans cut 60%</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Corpus after subsample + (for the experiment) trim</td>
+                <td>159 docs &middot; 9,640 spans</td>
+                <td>238 docs &middot; 7,597 spans</td>
+              </tr>
+              <tr>
+                <td>Docs / spans per split (Train &middot; Val &middot; Test)</td>
+                <td>111/23/25 docs &middot; 6,328/1,592/1,720 spans</td>
+                <td>166/35/37 docs &middot; 5,016/1,328/1,253 spans</td>
+              </tr>
+              <tr>
+                <td>Notice vs. next-largest right (test split)</td>
+                <td><strong>7x</strong> more common</td>
+                <td><strong>3.5x</strong> more common</td>
+              </tr>
+              <tr>
+                <td>LegalBERT &middot; macro F1 (test)</td>
+                <td>0.7562</td>
+                <td>0.8396</td>
+              </tr>
+              <tr>
+                <td>RoBERTa-large &middot; macro F1 (test)</td>
+                <td>0.7734</td>
+                <td>0.8498</td>
+              </tr>
+              <tr>
+                <td>Flan-T5-base &middot; macro F1 (test)</td>
+                <td><strong>0.7949</strong> (best)</td>
+                <td><strong>0.8552</strong> (best)</td>
+              </tr>
+              <tr>
+                <td>Dumb baseline: "always Notice" / "always everything" (test)</td>
+                <td>0.147 / 0.224</td>
+                <td>0.126 / 0.264</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small text-muted mb-2">
+          <strong>Read the comparison honestly.</strong> The two runs differ in <em>two</em> ways at once: the
+          experiment uses more documents (60% vs. 40%) <em>and</em> trims the biggest class. So the higher F1 on the
+          right is not proof that trimming alone is what helped &mdash; more real training data helped too. The point of
+          showing them side by side is narrower: even after trimming 60% of the notice-only spans, Notice is still the
+          largest slice of the data (about 3.5x the next right), the models still beat the no-learning baselines by a
+          wide margin, and re-balancing did not require inventing any data. In both runs, the imbalance is handled at
+          <em>learning</em> time (per-class weights + focal loss) and <em>scoring</em> time (macro F1), never by editing
+          the documents beyond what is described here.
+        </p>
+        <p class="small text-muted mb-0">
+          If you are comparing the two F1 columns for a takeaway on class imbalance you can defend, the fair statement is
+          exactly this: on data that had its biggest class thinned, all three models scored higher than on the untouched
+          data, while both datasets were still visibly imbalanced and neither needed synthetic data. Flagship scores and
+          full label-by-label reports for this run are on the page above; the experiment notebook is
+          <code class="font-mono">CPRA_60pct_Sep_2026.ipynb</code>.
+        </p>
+      </div>
+    </div>
   </section>
 
   <section id="labels" class="mb-5">
@@ -374,9 +453,9 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
                   <tr><th>Model</th><th>Release</th><th>Precision (macro)</th><th>Recall (macro)</th><th>F1 (macro)</th></tr>
                 </thead>
                 <tbody>
-                  <tr><td>LegalBERT <span class="badge bg-light text-muted" style="font-weight:400;">domain baseline</span></td><td>2020</td><td>0.7819</td><td>0.7888</td><td>0.7764</td></tr>
-                  <tr class="table-warning"><td>RoBERTa-large</td><td>2019</td><td>0.8198</td><td>0.7956</td><td><strong>0.8016</strong></td></tr>
-                  <tr><td>Flan-T5-base</td><td>2023</td><td>0.8278</td><td>0.7561</td><td>0.7863</td></tr>
+                  <tr><td>LegalBERT <span class="badge bg-light text-muted" style="font-weight:400;">domain baseline</span></td><td>2020</td><td>0.7738</td><td>0.7559</td><td>0.7562</td></tr>
+                  <tr><td>RoBERTa-large</td><td>2019</td><td>0.7835</td><td>0.7662</td><td>0.7734</td></tr>
+                  <tr class="table-warning"><td>Flan-T5-base</td><td>2023</td><td>0.8722</td><td>0.7518</td><td><strong>0.7949</strong></td></tr>
                 </tbody>
               </table>
             </div>
@@ -393,12 +472,12 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
               <div class="mb-2">
                 <strong>Precision ("when the tool says it, is it true?")</strong>
                 When the model flags a clause as, say, <em>Right to Delete</em>, how often is that correct?
-                <span class="text-muted">Flan-T5-base is the pickiest (0.83), with the fewest false alarms.</span>
+                <span class="text-muted">Flan-T5-base is the pickiest (0.87), with far fewer false alarms than the other two.</span>
               </div>
               <div class="mb-2">
                 <strong>Recall ("did it catch everything relevant?")</strong>
                 Of the clauses that really do state a right, how many were found?
-                <span class="text-muted">RoBERTa-large finds the most (0.80), with the fewest missed obligations.</span>
+                <span class="text-muted">RoBERTa-large finds the most (0.77), with the fewest missed obligations.</span>
               </div>
               <div>
                 <strong>F1 (the single combined grade).</strong> A 0–1 balance of the two, so you can't win by
@@ -410,8 +489,8 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
         </div>
         <p class="small text-muted mb-3">
           <strong>These numbers describe the splits on this page.</strong> Each model was trained on the
-          train split (4,327 spans), its per-class thresholds tuned on the validation split (1,073 spans),
-          and evaluated exactly once on the fixed test split (1,182 spans). LegalBERT is the
+          train split (6,328 spans), its per-class thresholds tuned on the validation split (1,592 spans),
+          and evaluated exactly once on the fixed test split (1,720 spans). LegalBERT is the
           legal-domain baseline; RoBERTa-large and Flan-T5-base are the general-purpose candidates, and
           the same validation-driven config discipline is used for each. The notebook's overfit
           diagnostic flags every label HEALTHY, and small test support on rare labels (e.g.
@@ -429,7 +508,7 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
                 </div>
                 <p class="small text-muted mb-2">BERT encoder pre-trained on legal corpora (contracts, legislation, court cases) instead of general web text.</p>
                 <p class="small mb-2"><span class="fw-semibold">Why picked:</span> the domain baseline (the reference point every candidate is compared against. Same classification head and recipe, pretrained on legal text instead of general web text.</p>
-                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7764 says:</span> it scored slightly below the other two models in this experiment, which is exactly the question this baseline was built to answer: does legal pretraining help at this scale?</p>
+                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7562 says:</span> it scored below the other two models in this experiment, which is exactly the question this baseline was built to answer: does legal pretraining help at this scale?</p>
                 <a class="small link-primary" href="https://huggingface.co/nlpaueb/legal-bert-base-uncased" target="_blank" rel="noopener">nlpaueb/legal-bert-base-uncased ↗</a>
               </div>
             </div>
@@ -443,7 +522,7 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
                 </div>
                 <p class="small text-muted mb-2">A large BERT variant trained with more data and longer training for stronger general transfer.</p>
                 <p class="small mb-2"><span class="fw-semibold">Why picked:</span> the strongest general-purpose off-the-shelf encoder, much larger than the LegalBERT baseline and with no legal pretraining. It is a deliberate capacity test.</p>
-                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.8016 says:</span> it earned the best F1 of the three models in this run. That result is specific to these three models, this data, and this seed's split; a different random seed could shuffle the order, so it is not a claim about models in general.</p>
+                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7734 says:</span> it edged out the LegalBERT baseline but trailed Flan-T5-base here. It found the most relevant clauses (highest recall), but flagged a lot more false positives, which pulled its grade down. That result is specific to these three models, this data, and this seed's split; a different random seed could shuffle the order, so it is not a claim about models in general.</p>
                 <a class="small link-primary" href="https://huggingface.co/roberta-large" target="_blank" rel="noopener">roberta-large ↗</a>
               </div>
             </div>
@@ -457,24 +536,26 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
                 </div>
                 <p class="small text-muted mb-2">A text-to-text (encoder-decoder) model instruction-tuned across many tasks.</p>
                 <p class="small mb-2"><span class="fw-semibold">Why picked:</span> a different architecture on purpose. If the same pipeline works on BERT-style encoders <em>and</em> a generative encoder-decoder, the findings are not tied to one architecture, and Flan-T5 is the one whose reasoning we show word by word.</p>
-                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7863 says:</span> the highest precision (0.83) but the lowest recall (a precision-leaning profile). It slightly out-scored the LegalBERT baseline, so on these splits an instruction-tuned encoder-decoder is a workable alternative when you care about precision and want the reasoning shown word by word.</p>
+                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7949 says:</span> it scored highest of the three, thanks to far higher precision (0.87 vs. 0.78 for the others) &mdash; when it flags a clause it is rarely wrong, and the rarer rights are where that discipline pays off. It caught fewer relevant clauses than RoBERTa (recall 0.75 vs. 0.77), but the precision win outweighed that here. On these splits an instruction-tuned encoder-decoder is a workable alternative when you care about precision and want the reasoning shown word by word.</p>
                 <a class="small link-primary" href="https://huggingface.co/google/flan-t5-base" target="_blank" rel="noopener">google/flan-t5-base ↗</a>
               </div>
             </div>
           </div>
         </div>
         <div class="alert alert-light border small mb-0">
-          <strong>Why RoBERTa-large scored highest here.</strong> RoBERTa-large is a very big, "supercharged" BERT:
-          the same family as LegalBERT, but far larger and pre-trained on far more text, so it simply has more room
-          to store what it learns. Flan-T5-base is newer (2023 vs. 2019), but it is the small, general-purpose
-          "vanilla" release: quick and light, not big and powerful. So a 2019 architecture can still win here,
-          because it's a bigger engine: size and how well the model was pre-trained matter more than release year.
+          <strong>Why Flan-T5-base scored highest here.</strong> Flan-T5-base treats the task as writing the answer
+          as text instead of picking from a fixed answer sheet, and it was instruction-tuned across many different
+          tasks, which appears to make it more cautious about calling a clause something it's not: its precision (0.87)
+          is well above the two BERT-style encoders (both 0.78). When most of the data is one very common right and a
+          handful of rarer ones, that caution pays off &mdash; it keeps the model from spraying "Notice" everywhere, and
+          getting a rare right right (or a false "rare right" wrong) moves a macro F1 score a lot. It's a different
+          architecture, not a bigger one: RoBERTa-large is the largest model here and still finished second.
           <br><br>
-          <strong>Read those scores narrowly.</strong> The three models are close (0.776 to 0.802, within a point
-          or two of each other. These are the macro-F1 scores from a single run, using one split (seed 42). Re-run
+          <strong>Read those scores narrowly.</strong> The three models are close (0.756 to 0.795, within a few points
+          of each other. These are the macro-F1 scores from a single run, using one split (seed 42). Re-run
           the experiment with a different seed and the exact numbers, and possibly which model edges ahead, could
-          shift by roughly a point. Treat this as "RoBERTa-large won this run, on this data", not as
-          "RoBERTa-large is the best model."
+          shift by roughly a point. Treat this as "Flan-T5-base won this run, on this data", not as
+          "Flan-T5-base is the best model."
         </div>
       </div>
     </div>
@@ -501,7 +582,7 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
         <p class="text-muted small mb-3">
           For readers who want the engineering behind the numbers above, collapsed so the
           plain-English version stays on top. Everything below is reproducible from
-          <code class="font-mono">CPRA_40pct_Notice40 (1).ipynb</code>: seed-pinned splits, leakage
+          <code class="font-mono">CPRA_40pct_CLEAN_(3).ipynb</code>: seed-pinned splits, leakage
           controls, hyperparameter search, and the checks that show the models are genuinely learning.
         </p>
         <div class="d-grid">
@@ -525,9 +606,9 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
                 <ol class="mb-2">
                   <li><strong>Group</strong> raw expert annotations into <code class="font-mono">(doc, text)</code> spans and collapse labels into a set per span (45,121 rows → 26,740 unique spans). Rows from multiple annotators landing on the same span and label are merged; agreement is a confidence signal.</li>
                   <li><strong>Deduplicate</strong> so each sentence appears once: identical text shared across policies (992 boilerplate spans) is removed → 25,748 unique spans across 399 documents.</li>
-                  <li><strong>Subsample to 60%</strong> of documents at random (seed 42) → 239 documents.</li>
+                  <li><strong>Subsample to 40%</strong> of documents at random (seed 42) → 159 documents (9,640 spans). The main run then splits directly &mdash; no notice trim, no re-balancing of any kind.</li>
                   <li><strong>Split</strong> by document 70 / 15 / 15 (seed 42), no label leakage across splits.</li>
-                  <li><strong>Comparison variant (kept for future research)</strong>: the earlier run used a 40% document subsample and also removed 40% of notice-only spans at random (seed 42, keeping 60%). Its notebook is <code class="font-mono">CPRA_40pct_Notice40 (1).ipynb</code>; the main 60% run follows the same steps on the larger, untrimmed slice.</li>
+                  <li><strong>Imbalance experiment (side by side below)</strong>: a separate run at the 60% scale (239 documents, 14,451 spans before any edit) that also removed 60% of notice-only spans at random (seed 42, keeping 40%). Multi-label spans that carry notice alongside another right are untouched. Its notebook is <code class="font-mono">CPRA_60pct_Sep_2026.ipynb</code>; the main 40% run follows the same steps on the smaller, untouched slice.</li>
                 </ol>
                 <div class="table-responsive">
                   <table class="table table-sm table-bordered mb-0">
@@ -535,19 +616,18 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
                       <tr><th>Split</th><th>Documents</th><th>Spans</th><th>Label decisions</th></tr>
                     </thead>
                     <tbody>
-                      <tr><td>Train</td><td>111</td><td>4,327</td><td>4,489</td></tr>
-                      <tr><td>Validation</td><td>23</td><td>1,073</td><td>1,114</td></tr>
-                      <tr><td>Test</td><td>25</td><td>1,182</td><td>1,249</td></tr>
+                      <tr><td>Train</td><td>111</td><td>6,328</td><td>6,490</td></tr>
+                      <tr><td>Validation</td><td>23</td><td>1,592</td><td>1,633</td></tr>
+                      <tr><td>Test</td><td>25</td><td>1,720</td><td>1,787</td></tr>
                     </tbody>
                   </table>
                 </div>
                 <div class="alert alert-light border small mb-3">
-                  <strong>How to read the label counts.</strong> The splits shown below are from the comparison run (40%
-                  subsample with a notice-only trim); the 60% main run will have no trim at all. Nothing is synthesized
-                  or removed beyond that test, so the splits keep the natural label distribution of the source. The
-                  remaining imbalance is inherent to the source:
+                  <strong>How to read the label counts.</strong> These are the main run's splits (40% subsample,
+                  untrimmed). Nothing is synthesized or removed, so the splits keep the natural label distribution of
+                  the source. The remaining imbalance is inherent to the source:
                   these are real policies, quoted close to verbatim, and the test data reflects the real world.
-                  the <em>notice-requirement</em> right still dominates (3,015 train spans); rare labels such as
+                  the <em>notice-requirement</em> right still dominates (5,016 train spans); rare labels such as
                   the <em>right to limit sensitive data</em> have small test support (16 spans), which the notebook flags as
                   making per-label F1 noisy regardless of threshold choice.
                 </div>
@@ -556,16 +636,17 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
                   (released 2024; each row records the annotator (<code class="font-mono">RANumb</code>),
                   the annotated <code class="font-mono">Text</code> span, and its <code class="font-mono">Label</code>).
                   This page is a static export (JSON) of the exact splits reproduced by <code class="font-mono">export_dataset.py</code>
-                  from <code class="font-mono">CPRA_40pct_Notice40 (1).ipynb</code>.
+                  from <code class="font-mono">CPRA_40pct_CLEAN_(3).ipynb</code>.
                 </p>
 
                 <h2 class="h4 mb-2">Methodology &amp; leakage controls</h2>
                 <p class="text-muted small mb-3">
                   The setup behind the splits on this page, in case the methodology gets probed.
-                  Every step below is pinned to seed&nbsp;42. The earlier comparison run is reproduced
+                  Every step below is pinned to seed&nbsp;42. The main run is reproduced
                   byte-for-byte by <code class="font-mono">export_dataset.py</code> from the cells&nbsp;9–11 of
-                  <code class="font-mono">CPRA_40pct_Notice40 (1).ipynb</code>; the 60% run reuses the same
-                  steps on a larger slice and its numbers will replace the comparison run's below.
+                  <code class="font-mono">CPRA_40pct_CLEAN_(3).ipynb</code>; the 60% imbalance experiment
+                  reuses the same steps on a larger slice with a notice-only trim, and its numbers are
+                  shown in the separate comparison table above.
                   The corpus is C3PA (bin&nbsp;Musa et&nbsp;al., <strong>2024</strong>, built under the CPRA/CCPA regime that
                   has been in effect since <strong>January 1, 2023</strong>), so the annotations reflect the law as it stands today.
                 </p>
@@ -612,8 +693,8 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
                   <div class="pipe-arrow">→</div>
                   <div class="pipe-step">
                     <div class="pipe-num">5</div>
-                    <div class="pipe-title">Subsample 60%</div>
-                    <p class="pipe-desc">A random 60% of documents (seed 42) → 239 docs, the main run's scale. Reproducible from a single notebook.</p>
+                    <div class="pipe-title">Subsample 40%</div>
+                    <p class="pipe-desc">A random 40% of documents (seed 42) → 159 docs, the untrimmed main run's scale. Reproducible from a single notebook.</p>
                   </div>
                   <div class="pipe-arrow">→</div>
                   <div class="pipe-step">
@@ -622,7 +703,7 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
                     <p class="pipe-desc">70 / 15 / 15 (seed 42) → Train · Validation · Test. Documents are atomic, so no span can cross splits.</p>
                   </div>
                 </div>
-                <p class="small text-muted mb-3">Every random draw uses seed&nbsp;42; rerun the notebook from the same inputs and you get the exact same partitions. The earlier comparison run at the 40% scale also removed 40% of notice-only spans (seed&nbsp;42, keeping 60%) before splitting; that variant is kept for future research, and its numbers are what the page currently shows until the 60% run finishes.</p>
+                <p class="small text-muted mb-3">Every random draw uses seed&nbsp;42; rerun the notebook from the same inputs and you get the exact same partitions. The imbalance experiment at the 60% scale additionally removed 60% of notice-only spans (seed&nbsp;42, keeping 40%) before splitting; that variant's numbers are in the comparison table above.</p>
         
                 <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">Class imbalance (why it exists, and why we keep it)</h3>
                 <p class="small text-muted mb-2">
@@ -633,12 +714,15 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
                 <ul class="small mb-2 ps-3">
                   <li class="mb-1"><strong>High-confidence labels come from annotator agreement.</strong> Six annotators (RA1–RA6) worked in parallel; when multiple of them independently flagged the same span and label (e.g., three), that label is high-confidence.</li>
                   <li class="mb-1"><strong>If the imbalance shows up consistently across many policies, it's the real world, not a sampling artifact.</strong> Policies genuinely say "notice" far more often than they say "limit the use of my sensitive data."</li>
-                  <li class="mb-1"><strong>The test data reflects the real world.</strong> We deliberately did not pull out majority-class examples to make the distribution look even; re-balancing to fit what the data "should" look like would mean changing the data to match an expectation instead of reflecting reality.</li>
+                  <li class="mb-1"><strong>The test data reflects the real world.</strong> The main run deliberately did not pull out majority-class examples to make the distribution look even; re-balancing to fit what the data "should" look like would mean changing the data to match an expectation instead of reflecting reality.</li>
                 </ul>
                 <p class="small text-muted mb-0">
                   In a perfect world the six labels would be evenly distributed; in the real world they are not. So the
                   imbalance is handled at <em>learning</em> time (per-class weights + focal loss, below) and at
                   <em>scoring</em> time (macro F1 treats every right equally), never by editing the documents themselves.
+                  The one experiment that does edit them (the 60% run, notice-only spans thinned by 60%) is presented
+                  transparently in the comparison table above &mdash; not as the main result, but as a check on what the
+                  imbalance buys and costs.
                 </p>
         
                 <h3 class="h6 fw-bold text-uppercase mt-4 mb-2">The split, by the numbers</h3>
@@ -648,14 +732,14 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
                       <tr><th>Split</th><th>Documents</th><th>Spans</th><th>Anything shared with the other splits?</th></tr>
                     </thead>
                     <tbody>
-                      <tr><td>Train</td><td>111</td><td>4,327</td><td class="text-success">No</td></tr>
-                      <tr><td>Validation</td><td>23</td><td>1,073</td><td class="text-success">No</td></tr>
-                      <tr><td>Test</td><td>25</td><td>1,182</td><td class="text-success">No</td></tr>
+                      <tr><td>Train</td><td>111</td><td>6,328</td><td class="text-success">No</td></tr>
+                      <tr><td>Validation</td><td>23</td><td>1,592</td><td class="text-success">No</td></tr>
+                      <tr><td>Test</td><td>25</td><td>1,720</td><td class="text-success">No</td></tr>
                     </tbody>
                   </table>
                 </div>
                 <p class="small text-muted mb-3">
-                  The test split is a partition of the subsample (25 of the 159 documents in the comparison run currently shown), not a freshly
+                  The test split is a partition of the subsample (25 of the 159 documents in the main run), not a freshly
                   sampled set. Rare labels keep their natural (small) support in it; for example,
                   the <em>right to limit sensitive data</em> has 16 test spans, so test F1 for those labels reads as noisy,
                   which the notebook explicitly flags.
@@ -675,7 +759,7 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
                   <li class="mb-2"><strong>Whole-document split.</strong> Documents are the atom: every span of a document lands in exactly one split, so a span cannot drift between train, validation, and test.</li>
                   <li class="mb-2"><strong>We double-checked two ways:</strong> no document ever appears in more than one group, and no exact sentence ever appears in more than one group either.</li>
                   <li class="mb-2"><strong>Deduplication before splitting.</strong> The 992 identical-text spans are removed in step&nbsp;2, before any split exists, so template text cannot recur in multiple splits.</li>
-                  <li class="mb-2"><strong>Seed-pinned randomness.</strong> The 60% document subsample and the split shuffle use seed&nbsp;42 (the notice-only trim in the earlier comparison run did too), so the exact partitions can be regenerated from the same inputs.</li>
+                  <li class="mb-2"><strong>Seed-pinned randomness.</strong> The 40% document subsample and the split shuffle use seed&nbsp;42 (the notice-only trim in the 60% imbalance experiment did too), so the exact partitions can be regenerated from the same inputs.</li>
                   <li class="mb-2"><strong>Validation-only tuning.</strong> Per-class thresholds and hyperparameters are selected on the validation split; the test set is evaluated exactly once, with those choices frozen (each model's config comes from a candidate search scored on validation only).</li>
                   <li class="mb-2"><strong>Imbalance is handled during training, not by editing the data.</strong> While the models learn, each right is given a weight that matches how rare it is, and hard cases get extra practice, so the models can't just cash in on the common Notice label. The test split is then scored exactly as it was produced: it is never down-sampled, re-weighted, or touched to make any model look better.</li>
                 </ul>
@@ -729,9 +813,9 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
         
                 <p class="small fw-semibold mb-1">1 · It must beat a "dumb" baseline by a lot.</p>
                 <p class="small text-muted mb-2">
-                  We computed what simple, no-learning guesses score on the <em>actual</em> test set (1,182 spans). A model that just
-                  always said <em>Notice</em> gets macro F1 0.137; one that predicts every right gets 0.246. The three
-                  trained models score 0.776–0.802, about 3.2× the best dumb baseline, so the score cannot come from
+                  We computed what simple, no-learning guesses score on the <em>actual</em> test set (1,720 spans). A model that just
+                  always said <em>Notice</em> gets macro F1 0.147; one that predicts every right gets 0.224. The three
+                  trained models score 0.756–0.795, about 3.5× the best dumb baseline, so the score cannot come from
                   guessing label frequency.
                 </p>
                 <div class="table-responsive mb-3">
@@ -741,9 +825,9 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
                     </thead>
                     <tbody>
                       <tr><td>No labels at all</td><td class="text-muted small">predicts nothing (label frequency ignored)</td><td>0.000</td></tr>
-                      <tr><td>"Always Notice"</td><td class="text-muted small">only uses the most common label</td><td>0.137</td></tr>
-                      <tr><td>"Always everything"</td><td class="text-muted small">every right on every span</td><td>0.246</td></tr>
-                      <tr class="table-warning"><td>LegalBERT / RoBERTa-large / Flan-T5-base</td><td class="small">learned from the training spans</td><td><strong>0.776 / 0.802 / 0.786</strong></td></tr>
+                      <tr><td>"Always Notice"</td><td class="text-muted small">only uses the most common label</td><td>0.147</td></tr>
+                      <tr><td>"Always everything"</td><td class="text-muted small">every right on every span</td><td>0.224</td></tr>
+                      <tr class="table-warning"><td>LegalBERT / RoBERTa-large / Flan-T5-base</td><td class="small">learned from the training spans</td><td><strong>0.756 / 0.773 / 0.795</strong></td></tr>
                     </tbody>
                   </table>
                 </div>
@@ -864,8 +948,9 @@ easy answer cannot win: all six rights are scored equally, meaning spamming "Not
 
 <footer class="bg-dark text-light py-4 mt-4">
   <div class="container small text-muted">
-    CPRA / C3PA · 60%-scale pipeline explorer · numbers currently from the comparison run generated by
-    <code class="font-mono">CPRA_40pct_Notice40 (1).ipynb</code> via <code class="font-mono">export_dataset.py</code>.
+    CPRA / C3PA · 40%-scale pipeline explorer · numbers generated by the
+    <code class="font-mono">CPRA_40pct_CLEAN_(3).ipynb</code> notebook via <code class="font-mono">export_dataset.py</code>,
+    with the 60% imbalance experiment from <code class="font-mono">CPRA_60pct_Sep_2026.ipynb</code> shown as a comparison.
     Data mirrored from the <a href="https://github.com/MaazBinMusa/C3PA_Dataset" class="link-light" target="_blank" rel="noopener">C3PA dataset</a>.
   </div>
 </footer>
