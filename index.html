@@ -69,7 +69,7 @@
           <a href="https://github.com/MaazBinMusa/C3PA_Dataset" class="link-warning" target="_blank" rel="noopener">C3PA dataset</a>
           (Bin Musa et al., EMNLP 2024): 399 companies, expert-annotated policy spans, subsampled
           to 40% of documents (seed 42) to train three models at this scale. The data is exactly as
-          sampled &mdash; nothing trimmed, nothing invented &mdash; so the real-world imbalance between rights
+          sampled (nothing trimmed, nothing invented), so the real-world imbalance between rights
           is what the models had to learn from. A separate 60% experiment that did trim the most common
           clause type is kept below as a side-by-side comparison.
         </p>
@@ -151,7 +151,7 @@
               never do. That is what the real world looks like, not a flaw in our numbers. So we grade so the
               easy answer cannot win: all six rights are scored equally, meaning spamming "Notice" earns
                nothing extra and rare rights matter just as much, and the data still looks like real policies.
-               The main run leaves the data exactly as sampled &mdash; imbalance and all &mdash; because that's what
+               The main run leaves the data exactly as sampled (imbalance and all) because that's what
                these documents actually say. (A separate 60% run below trims notice-only spans as an experiment,
                and we show both side by side.) We'd rather measure the world as it is.</li>
             </ul>
@@ -178,7 +178,7 @@
 <section id="splits" class="mb-5">
     <div class="mb-3">
       <h2 class="h4 mb-1">Browse the splits</h2>
-      <p class="text-muted mb-0">Document-level 70 / 15 / 15 split (seed&nbsp;42) of the 40% document subsample (159 documents), no trimming at all &mdash; every span the annotators tagged is here. No leakage across splits. Text spans are shown with their ground-truth CPRA labels.</p>
+      <p class="text-muted mb-0">Document-level 70 / 15 / 15 split (seed&nbsp;42) of the 40% document subsample (159 documents), no trimming at all; every span the annotators tagged is here. No leakage across splits. Text spans are shown with their ground-truth CPRA labels.</p>
     </div>
 
     <div class="row g-3 mb-3">
@@ -233,7 +233,7 @@
             </div>
             <p class="small text-muted mb-0">
               Each group of bars is one right: Train (navy), Validation (grey), Test (green). The three bars in a
-              group are near-identical because every split is a random slice of the same unbalanced corpus &mdash; nothing
+              group are near-identical because every split is a random slice of the same unbalanced corpus; nothing
               was re-balanced or trimmed before splitting. The imbalance ratio is the same in each split, just smaller
               in absolute count as the set shrinks. That sameness is what makes tuning fair: we pick the model's "how sure must it be?" setting
               on validation, and test describes the same kinds of policies, so the setting transfers.
@@ -275,7 +275,7 @@
               <div class="fw-semibold text-uppercase text-muted mb-2">Could we "fix" the imbalance? The experiment trimmed it once</div>
               <p class="mb-0">
                 One right, the requirement to notify people what data you're collecting, showed up far more often than
-                any other right in the real documents &mdash; about 7 times more common than the next-largest right in the
+                any other right in the real documents (about 7 times more common than the next-largest right in the
                 main run's test split. That's not a data error; it's genuinely how privacy policies are written, which is
                 why the main 40% run keeps that real-world imbalance untouched. To test what happens when one common
                 right can't dominate training, the separate 60% experiment randomly dropped 60% of the notice-only
@@ -302,19 +302,19 @@
     </div>
 
     <div class="mb-3">
-      <h3 class="h5 mb-1">1. Train &mdash; where the models learn</h3>
+      <h3 class="h5 mb-1">1. Train: where the models learn</h3>
       <p class="text-muted small mb-0">The 111 documents (6,328 spans) the models practiced on. Everything below is real policy text from those documents, with the rights experts flagged in it.</p>
     </div>
     <div id="split-train" class="mb-5"></div>
 
     <div class="mb-3">
-      <h3 class="h5 mb-1">2. Validation &mdash; where the settings are tuned</h3>
+      <h3 class="h5 mb-1">2. Validation: where the settings are tuned</h3>
       <p class="text-muted small mb-0">The 23 documents (1,592 spans) used to pick each model&rsquo;s &ldquo;how sure must it be?&rdquo; setting, before the final grade.</p>
     </div>
     <div id="split-val" class="mb-5"></div>
 
     <div class="mb-3">
-      <h3 class="h5 mb-1">3. Test &mdash; the final grade, seen exactly once</h3>
+      <h3 class="h5 mb-1">3. Test: the final grade, seen exactly once</h3>
       <p class="text-muted small mb-0">The 25 documents (1,720 spans) each model is graded on: policies it never saw during training.</p>
     </div>
     <div id="split-test"></div>
@@ -328,12 +328,12 @@
           Real privacy policies talk about <em>notice</em> ("we'll tell you what we do with your data") far more
           often than they talk about the other rights, like deleting data or stopping targeted ads. In the main
           run above, "notice" shows up about <strong>7 times more often</strong> than the next most common right.
-          That lopsidedness is the real world &mdash; it's what policies actually look like.
+          That lopsidedness is the real world; it's what policies actually look like.
         </p>
         <p class="text-muted mb-3">
           To test whether it hurts accuracy, we ran a second version: we started with more policies (60% of the
           collection instead of 40%) and set aside 60% of the sentences that talked <em>only</em> about notice.
-          "Notice" stayed the biggest category &mdash; still about 3.5x the next right &mdash; but it no longer
+          "Notice" stayed the biggest category (still about 3.5x the next right), but it no longer
           dominated the way it did before. We never invented any examples; we only put some extra ones aside.
         </p>
         <div class="card mb-3 bg-light border-0">
@@ -404,7 +404,7 @@
           </table>
         </div>
         <p class="small text-muted mb-3">
-          <strong>How to read the scores.</strong> Scores run from 0 to 1, where 1.00 would be perfect &mdash;
+          <strong>How to read the scores.</strong> Scores run from 0 to 1, where 1.00 would be perfect:
           flagging exactly the rights a lawyer would flag. So 0.8552 is roughly an 86 out of 100 on the final test,
           higher than 0.7949 (about 79 out of 100).
         </p>
@@ -412,13 +412,13 @@
           <strong>What the test shows.</strong>
           <ul class="mb-0 ps-3">
             <li>When the biggest category was thinned out, <strong>all three AIs scored higher</strong> (roughly +8, +8, and +6 points on the final test).</li>
-            <li>"Notice" stayed the most common right even after thinning &mdash; so the scores improved <em>without</em> making the data look fake.</li>
+            <li>"Notice" stayed the most common right even after thinning, so the scores improved <em>without</em> making the data look fake.</li>
             <li>The balancing act never invented anything. We set extra "notice-only" sentences aside in this test; every sentence is still a real sentence from a real policy.</li>
           </ul>
         </div>
         <p class="small text-muted mb-0">
-          One honest caveat: this test changed <em>two</em> things at once &mdash; more policies to learn from and a
-          more balanced mix. So the higher scores are not proof that balancing alone caused them; the extra real data
+          One honest caveat: this test changed <em>two</em> things at once (more policies to learn from and a
+          more balanced mix). So the higher scores are not proof that balancing alone caused them; the extra real data
           may have helped too. What we can fairly claim is exactly this: with a less lopsided view of the data, every
           model scored higher, and no synthetic examples were needed. Full label-by-label details live above; the
           experiment notebook is <code class="font-mono">CPRA_60pct_Sep_2026.ipynb</code>.
@@ -562,7 +562,7 @@
                 </div>
                 <p class="small text-muted mb-2">A text-to-text (encoder-decoder) model instruction-tuned across many tasks.</p>
                 <p class="small mb-2"><span class="fw-semibold">Why picked:</span> a different architecture on purpose. If the same pipeline works on BERT-style encoders <em>and</em> a generative encoder-decoder, the findings are not tied to one architecture, and Flan-T5 is the one whose reasoning we show word by word.</p>
-                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7949 says:</span> it scored highest of the three, thanks to far higher precision (0.87 vs. 0.78 for the others) &mdash; when it flags a clause it is rarely wrong, and the rarer rights are where that discipline pays off. It caught fewer relevant clauses than RoBERTa (recall 0.75 vs. 0.77), but the precision win outweighed that here. On these splits an instruction-tuned encoder-decoder is a workable alternative when you care about precision and want the reasoning shown word by word.</p>
+                <p class="small mb-2 text-body"><span class="fw-semibold">What its 0.7949 says:</span> it scored highest of the three, thanks to far higher precision (0.87 vs. 0.78 for the others): when it flags a clause it is rarely wrong, and the rarer rights are where that discipline pays off. It caught fewer relevant clauses than RoBERTa (recall 0.75 vs. 0.77), but the precision win outweighed that here. On these splits an instruction-tuned encoder-decoder is a workable alternative when you care about precision and want the reasoning shown word by word.</p>
                 <a class="small link-primary" href="https://huggingface.co/google/flan-t5-base" target="_blank" rel="noopener">google/flan-t5-base ↗</a>
               </div>
             </div>
@@ -573,7 +573,7 @@
           as text instead of picking from a fixed answer sheet, and it was instruction-tuned across many different
           tasks, which appears to make it more cautious about calling a clause something it's not: its precision (0.87)
           is well above the two BERT-style encoders (both 0.78). When most of the data is one very common right and a
-          handful of rarer ones, that caution pays off &mdash; it keeps the model from spraying "Notice" everywhere, and
+          handful of rarer ones, that caution pays off; it keeps the model from spraying "Notice" everywhere, and
           getting a rare right right (or a false "rare right" wrong) moves a macro F1 score a lot. It's a different
           architecture, not a bigger one: RoBERTa-large is the largest model here and still finished second.
           <br><br>
@@ -632,7 +632,7 @@
                 <ol class="mb-2">
                   <li><strong>Group</strong> raw expert annotations into <code class="font-mono">(doc, text)</code> spans and collapse labels into a set per span (45,121 rows → 26,740 unique spans). Rows from multiple annotators landing on the same span and label are merged; agreement is a confidence signal.</li>
                   <li><strong>Deduplicate</strong> so each sentence appears once: identical text shared across policies (992 boilerplate spans) is removed → 25,748 unique spans across 399 documents.</li>
-                  <li><strong>Subsample to 40%</strong> of documents at random (seed 42) → 159 documents (9,640 spans). The main run then splits directly &mdash; no notice trim, no re-balancing of any kind.</li>
+                  <li><strong>Subsample to 40%</strong> of documents at random (seed 42) → 159 documents (9,640 spans). The main run then splits directly, with no notice trim or re-balancing of any kind.</li>
                   <li><strong>Split</strong> by document 70 / 15 / 15 (seed 42), no label leakage across splits.</li>
                   <li><strong>Imbalance experiment (side by side below)</strong>: a separate run at the 60% scale (239 documents, 14,451 spans before any edit) that also removed 60% of notice-only spans at random (seed 42, keeping 40%). Multi-label spans that carry notice alongside another right are untouched. Its notebook is <code class="font-mono">CPRA_60pct_Sep_2026.ipynb</code>; the main 40% run follows the same steps on the smaller, untouched slice.</li>
                 </ol>
@@ -747,7 +747,7 @@
                   imbalance is handled at <em>learning</em> time (per-class weights + focal loss, below) and at
                   <em>scoring</em> time (macro F1 treats every right equally), never by editing the documents themselves.
                   The one experiment that does edit them (the 60% run, notice-only spans thinned by 60%) is presented
-                  transparently in the comparison table above &mdash; not as the main result, but as a check on what the
+                  transparently in the comparison table above, not as the main result, but as a check on what the
                   imbalance buys and costs.
                 </p>
         
