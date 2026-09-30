@@ -1,9 +1,10 @@
-# CPRA / C3PA at 40% Data Scale: Pipeline Explorer
+# CPRA / C3PA at 60% Data Scale: Pipeline Explorer
 
 A web app that shows how we rebuilt a CPRA (California Privacy Rights Act)
 compliance-classification experiment on top of the C3PA dataset (Bin Musa et al.,
-EMNLP 2024), trained three models at a 40% document-scale point, and exported the
-resulting train/validation/test splits as JSON.
+EMNLP 2024), trained three models at a 60% document-scale point, and exported the
+resulting train/validation/test splits as JSON. An earlier 40% run (which also
+trimmed the most common clause type) is kept as a comparison for future research.
 
 > Live site: [https://matthewgwu.github.io/cpra/](https://matthewgwu.github.io/cpra/)
 
@@ -20,9 +21,12 @@ those annotations. Six of its labels map cleanly to CPRA, so we:
    confidence signal.
 2. **Deduplicate** so each sentence appears at most once: shared boilerplate text (992 identical spans)
    is removed → 25,748 across 399 documents. Repeated text risks leakage.
-3. **Subsample to 40%** of documents at random with seed 42 (159 documents), a low-resource scale point.
-4. **Trim the biggest class**: 40% of notice-only spans are removed at random (seed 42, keeping 60%) so the most
-   common clause type cannot dominate; multi-label spans that carry notice alongside another right are kept → 6,582 spans.
+3. **Subsample to 60%** of documents at random with seed 42 (239 documents), the main run's scale.
+4. **Comparison variant (kept for future research)**: an earlier run used a 40% document subsample
+   (159 documents) and removed 40% of notice-only spans at random (seed 42, keeping 60%) so the most
+   common clause type could not dominate; multi-label spans that carry notice alongside another right
+   were kept → 6,582 spans. The site currently shows this comparison run's numbers while the 60% run
+   is being executed; they will be replaced when it finishes.
 5. **Split** by document 70 / 15 / 15 (111 / 23 / 25 docs; 4,327 / 1,073 / 1,182 spans), seed-pinned so the
    partitioning is reproducible. Train gets the largest share (standard ML practice; the model learns from
    examples), validation tunes the hyperparameter "knobs," and test is graded exactly once.
@@ -33,11 +37,12 @@ and inspect SHAP / LIME word-level explanations.
 
 ### Design choices worth defending
 
-- **We keep the real-world imbalance (trimmed once, then left alone).** The policies are quoted close to
-  verbatim, so Notice vastly outnumbers rarer rights like Limit-Sensitive; that is reality, not a sampling
-  artifact, and the test split reflects it. We thin the biggest class once (40% of notice-only spans, seed 42),
-  then counteract the remaining imbalance at *learning* time (per-class `pos_weight` + focal loss)
-  and at *scoring* time (macro F1 treats every right equally), never by padding the rare rights.
+- **We keep the real-world imbalance (the comparison run trims it once; the main run leaves it alone).** The
+  policies are quoted close to verbatim, so Notice vastly outnumbers rarer rights like Limit-Sensitive; that is
+  reality, not a sampling artifact, and the test split reflects it. The comparison run thins the biggest class
+  once (40% of notice-only spans, seed 42); the main 60% run keeps the data exactly as sampled. Both counteract
+  the remaining imbalance at *learning* time (per-class `pos_weight` + focal loss) and at *scoring* time (macro
+  F1 treats every right equally), never by padding the rare rights.
 - **Macro F1, not micro/weighted.** Easy, common labels get little credit; getting the rarer, harder labels
   right is what moves the score. The nontrivial baselines (always-Notice 0.137, always-everything 0.246)
   sit far below the trained models' 0.776–0.802.
@@ -59,10 +64,10 @@ disjointness are asserted).
 | --- | --- |
 | `index.html` | The single-page site (Bootstrap 5 + Chart.js, CDN). |
 | `app.js` | Client-side logic: split browser, charts, explainability. |
-| `data/train.json`, `data/val.json`, `data/test.json` | The 40%-scale JSON splits (browser-facing). |
+| `data/train.json`, `data/val.json`, `data/test.json` | The 60%-scale JSON splits (browser-facing; currently the comparison run's, to be replaced by the 60% run). |
 | `export_dataset.py` | Reproduces those JSON splits from the raw dataset. |
 | `explainability/` | SHAP / LIME sample cards as bar lists with the real per-word weights (JSON), plus the original SHAP force-plot exports for provenance. |
-| `CPRA_40pct_Notice40 (1).ipynb` | The current notebook: subsampling, notice trim, split, training, explainability. |
+| `CPRA_40pct_Notice40 (1).ipynb` | The earlier comparison notebook: 40% subsampling, notice trim, split, training, explainability. |
 
 ## Run locally
 
@@ -85,6 +90,7 @@ python export_dataset.py   # expects the C3PA_Dataset clone in ./C3PA_Dataset
   [RoBERTa-large](https://huggingface.co/roberta-large),
   [Flan-T5-base](https://huggingface.co/google/flan-t5-base)
 
-All three models were trained on the train split (4,327 spans) at the 40% scale,
-with per-class thresholds tuned on validation (1,073 spans) and a single test pass
-(1,182 spans). Best macro F1 on the test split: RoBERTa-large at 0.8016.
+All three models were trained on the train split (4,327 spans) at the 40% scale (the
+comparison run currently shown, pending the 60% run), with per-class thresholds tuned on
+validation (1,073 spans) and a single test pass (1,182 spans). Best macro F1 on the test
+split: RoBERTa-large at 0.8016.
