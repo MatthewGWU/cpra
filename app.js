@@ -218,6 +218,15 @@ function renderSplitShareChart() {
     });
 }
 
+const SHORT_LABEL = {
+    Notice_Requirement: 'Notice',
+    Right_to_Correct: 'Correct',
+    Right_to_Delete: 'Delete',
+    Right_to_Know: 'Know',
+    Right_to_Limit_Sensitive: 'Limit',
+    Right_to_Opt_Out: 'Opt out',
+};
+
 const IMBALANCE_TEST = {
     main: { label: 'Main run (untrimmed)', total: 1787, counts: [1362, 45, 76, 187, 16, 101], color: '#1b4d89' },
     trimmed: { label: 'Balanced test (notice trimmed)', total: 1338, counts: [757, 72, 94, 214, 44, 157], color: '#198754' },
@@ -231,10 +240,27 @@ function renderImbalanceChart() {
         return;
     }
     const share = (run, i) => +(((run.counts[i] || 0) / run.total) * 100).toFixed(1);
+    const valueLabels = {
+        id: 'valueLabels',
+        afterDatasetsDraw(chart) {
+            const { ctx } = chart;
+            ctx.save();
+            ctx.font = '600 10px system-ui, sans-serif';
+            ctx.fillStyle = '#334';
+            chart.data.datasets.forEach((ds, di) => {
+                const meta = chart.getDatasetMeta(di);
+                if (meta.hidden) return;
+                meta.data.forEach((bar, i) => {
+                    ctx.fillText(`${ds.data[i].toFixed(1)}%`, bar.x + 5, bar.y + 3);
+                });
+            });
+            ctx.restore();
+        },
+    };
     new Chart(canvas.getContext('2d'), {
         type: 'bar',
         data: {
-            labels: LABELS,
+            labels: LABELS.map((l) => SHORT_LABEL[l]),
             datasets: Object.keys(IMBALANCE_TEST).map((key) => {
                 const run = IMBALANCE_TEST[key];
                 return {
@@ -242,23 +268,68 @@ function renderImbalanceChart() {
                     data: LABELS.map((_, i) => share(run, i)),
                     backgroundColor: run.color,
                     borderRadius: 3,
-                    maxBarThickness: 18,
+                    maxBarThickness: 14,
                 };
             }),
         },
         options: {
+            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
+            layout: { padding: { right: 42 } },
             plugins: {
                 legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
-                tooltip: { callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}% of decisions` } },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => {
+                            const run = IMBALANCE_TEST[Object.keys(IMBALANCE_TEST)[ctx.datasetIndex]];
+                            const n = run.counts[ctx.dataIndex];
+                            return ` ${run.label}: ${ctx.parsed.x.toFixed(1)}% (${n.toLocaleString()} of ${run.total.toLocaleString()})`;
+                        },
+                    },
+                },
             },
             scales: {
-                x: { ticks: { maxRotation: 45, minRotation: 0, font: { size: 9 } }, grid: { display: false } },
-                y: { title: { display: true, text: '% of label decisions on the test set', font: { size: 10 } }, min: 0, max: 80, grid: { color: '#e9edf2' } },
+                x: { title: { display: true, text: '% of label decisions on the test set', font: { size: 10 } }, min: 0, max: 85, grid: { color: '#e9edf2' } },
+                y: { ticks: { font: { size: 11 } }, grid: { display: false } },
             },
         },
+        plugins: [valueLabels],
     });
+}
+
+function renderImbalanceBars() {
+    const host = el('imbalance-bars');
+    if (!host) return;
+    const main = IMBALANCE_TEST.main;
+    const trimmed = IMBALANCE_TEST.trimmed;
+    const max = Math.max(...main.counts, ...trimmed.counts);
+    host.innerHTML = LABELS.map((label, i) => {
+        const m = main.counts[i];
+        const t = trimmed.counts[i];
+        const mp = ((m / main.total) * 100).toFixed(1);
+        const tp = ((t / trimmed.total) * 100).toFixed(1);
+        return `
+        <div class="mb-3">
+          <div class="small mb-1">${esc(SHORT_LABEL[label])}</div>
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="small text-muted" style="width: 96px;">Main run</span>
+            <div class="bg-light rounded flex-grow-1" style="height: 11px;">
+              <div class="rounded" style="background:#1b4d89; height: 11px; width:${((m / max) * 100).toFixed(1)}%;"
+                   title="Main run: ${m.toLocaleString()} decisions (${mp}%)"></div>
+            </div>
+            <span class="small text-muted text-nowrap" style="width: 118px; text-align:right;">${mp}% &middot; ${m.toLocaleString()}</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="small text-muted" style="width: 96px;">Balanced test</span>
+            <div class="bg-light rounded flex-grow-1" style="height: 11px;">
+              <div class="rounded" style="background:#198754; height: 11px; width:${((t / max) * 100).toFixed(1)}%;"
+                   title="Balanced test: ${t.toLocaleString()} decisions (${tp}%)"></div>
+            </div>
+            <span class="small text-muted text-nowrap" style="width: 118px; text-align:right;">${tp}% &middot; ${t.toLocaleString()}</span>
+          </div>
+        </div>`;
+    }).join('');
 }
 
 function renderPRFChart() {
@@ -664,4 +735,5 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSplitShareChart();
     renderPRFChart();
     renderImbalanceChart();
+    renderImbalanceBars();
 });

@@ -342,16 +342,21 @@
               <div class="small fw-semibold">Same six rights, side by side (test set)</div>
               <span class="text-muted small">share of every label decision on the test set</span>
             </div>
-            <div class="position-relative" style="height: 320px;">
-              <canvas id="imbalance-chart"></canvas>
-              <div id="imbalance-chart-empty" class="d-none position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center text-muted small">
-                Chart.js not loaded; the numbers are in the table below.
+            <div class="row g-4 align-items-start">
+              <div class="col-lg-6">
+                <div class="position-relative" style="height: 340px;">
+                  <canvas id="imbalance-chart" aria-label="Grouped bar chart comparing each right's share of test decisions in the main run and the balanced test"></canvas>
+                  <div id="imbalance-chart-empty" class="d-none position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center text-muted small">
+                    Chart.js not loaded; the numbers are in the bar list and table below.
+                  </div>
+                </div>
               </div>
+              <div class="col-lg-6" id="imbalance-bars"></div>
             </div>
-            <p class="small text-muted mb-0 mt-2">
+            <p class="small text-muted mb-0 mt-3">
               Each right's share of the label decisions on the test set. In the main run, "Notice" takes more than
               three-quarters of them; in the balanced test it still takes more than half, but every other right
-              gets a noticeably bigger slice.
+              gets a noticeably bigger slice. The chart and the list show the same numbers.
             </p>
           </div>
         </div>
