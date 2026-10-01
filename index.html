@@ -38,8 +38,9 @@
     <div class="collapse navbar-collapse" id="nav">
       <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
         <li class="nav-item"><a class="nav-link" href="#why">Why</a></li>
-        <li class="nav-item"><a class="nav-link" href="#data">Data</a></li>
-        <li class="nav-item"><a class="nav-link" href="#models">Models</a></li>
+      <li class="nav-item"><a class="nav-link" href="#data">Data</a></li>
+      <li class="nav-item"><a class="nav-link" href="#notice">Notice</a></li>
+      <li class="nav-item"><a class="nav-link" href="#models">Models</a></li>
         <li class="nav-item"><a class="nav-link" href="#splits">Splits</a></li>
         <li class="nav-item"><a class="nav-link" href="#numbers">Numbers</a></li>
         <li class="nav-item"><a class="nav-link" href="#why-said">Reasons</a></li>
@@ -83,6 +84,8 @@
     <div class="section-lead">
     <p class="mb-3">Privacy policies are long and hard to read. California's privacy law, the CPRA, gives people rights such as deleting their data or stopping its sale. It also requires companies to describe those rights. Checking thousands of policies by hand is slow for regulators, researchers, and companies.</p>
     <p class="mb-3">This project tests whether AI models can do a first pass. I look for where a policy describes each right. I also show which words led to each decision. California was the first state with a law like this, and a growing number of states have passed their own. Tools like this could eventually help review policies at a much larger scale. This study is an early step.</p>
+    <p class="mb-3">The same method could be used by a company's internal audit team to check its own policies. It could also give a regulator a way to look through many company policies for gaps.</p>
+    <p class="mb-3">Asking ChatGPT the same question gives a different kind of answer. ChatGPT will usually give you a conclusion, but not a way to check how it got there. Saying "I asked ChatGPT" is not a finding. Here every step is written down and can be re-run. That covers the split, the seed, the score, and the words behind each decision. This is what makes the method more audit-ready.</p>
       <p class="small text-muted mb-0">The tool identifies what a policy <em>says</em>. It does not judge whether a company follows the law.</p>
     </div>
   </section>
@@ -139,6 +142,74 @@
         <p class="small text-muted mb-0 mt-2">Counts are across all 159 companies. A passage can be counted more than once when it carries more than one label.</p>
         <p class="small mb-0 mt-2">Notice_Requirement dominates because the law requires every policy to list the data it collects, shares, and sells. Those lists are long, so most of a policy's text is a data inventory.</p>
       </div>
+    </div>
+  </section>
+
+  <section id="notice" class="mb-5">
+    <h2 class="h4 mb-3">The Notice requirement</h2>
+    <p class="section-lead mb-3">Notice_Requirement appears about nine times more often than the next most common right. I ran a second experiment to see what happens when that gap is smaller.</p>
+
+    <div class="card mb-4">
+      <div class="card-header">Notice_Requirement compared with the next most common right</div>
+      <div class="card-body">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-7">
+            <div class="position-relative" style="height: 190px;">
+              <canvas id="trim-ratio-chart" aria-label="Bar chart comparing the Notice requirement against the next most common right, before and after trimming"></canvas>
+            </div>
+          </div>
+          <div class="col-md-5">
+            <p class="small mb-2">Before the trim, Right_to_Know was the next most common right. Notice outnumbered it <strong>9.4 times</strong>.</p>
+            <p class="small mb-0">After the trim, Notice outnumbered it <strong>3.8 times</strong>. The gap is much smaller.</p>
+          </div>
+        </div>
+        <p class="small text-muted mb-0 mt-3">Counts are training passages that carry each label, in the second experiment. Only Notice passages were removed, so the other five bars are unchanged.</p>
+      </div>
+    </div>
+
+    <h3 class="h6 mb-2">What the second experiment changed</h3>
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <div class="card h-100"><div class="card-body p-3">
+          <div class="card-title h6 mb-2">Main run</div>
+          <p class="small mb-1">159 companies, nothing removed.</p>
+          <p class="small mb-0 text-muted">Train 6,328 &middot; Validation 1,592 &middot; Test 1,720</p>
+        </div></div>
+      </div>
+      <div class="col-md-6">
+        <div class="card h-100"><div class="card-body p-3">
+          <div class="card-title h6 mb-2">Second run: Notice trimmed</div>
+          <p class="small mb-1">239 companies, 60% of Notice-only training passages removed.</p>
+          <p class="small mb-0 text-muted">Train 5,106 &middot; Validation 2,589 &middot; Test 2,104</p>
+        </div></div>
+      </div>
+    </div>
+    <p class="small section-lead mb-4">In the second run, 7,754 training passages carried only Notice_Requirement. I removed 4,652 of them at random and kept 3,102. Validation and test were not touched, so they keep their natural label mix.</p>
+
+    <div class="card mb-4">
+      <div class="card-header">Macro F1 on the test split, both runs</div>
+      <div class="card-body">
+        <div class="position-relative" style="height: 290px;">
+          <canvas id="trim-model-chart" aria-label="Grouped bar chart of macro F1 for the three models in both the main run and the trimmed run"></canvas>
+        </div>
+        <p class="small text-muted mb-0 mt-2">Each pair shows the same model in both runs. The trimmed run scores higher for all three models.</p>
+      </div>
+    </div>
+
+    <div class="accordion mb-4" id="trim-label-accordion">
+      <div class="accordion-item">
+        <h3 class="accordion-header" id="trim-label-head">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#trim-label-body" aria-expanded="false">Show test F1 per label in the second run</button>
+        </h3>
+        <div id="trim-label-body" class="accordion-collapse collapse" aria-labelledby="trim-label-head" data-bs-parent="#trim-label-accordion">
+          <div class="accordion-body p-0" id="trim-per-label-table"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-warning mb-0">
+      <p class="small fw-semibold mb-1">Two things changed at once, so I cannot tell you which one caused the higher scores.</p>
+      <p class="small mb-0">The second run uses more companies (239 instead of 159), and it has a trimmed training set. It also scores on a different test set, with 37 companies instead of 25. More training data on its own could explain the improvement. A clean test would trim Notice in training at the same 159 companies as the main run. It would also score both runs on the same test set.</p>
     </div>
   </section>
 
@@ -269,25 +340,14 @@
     <p class="small text-muted mt-3 mb-0">Passages are shown word for word from the test split, with their original line breaks restored.</p>
   </section>
 
-  <section id="experiment" class="mb-5">
-    <h2 class="h4 mb-3">Trimming experiment</h2>
-    <div class="card border-0 shadow-sm">
-      <div class="card-body p-4">
-        <span class="badge bg-light text-muted mb-2">In progress</span>
-        <p class="mb-2">Notice_Requirement passages are being reduced in the <em>training</em> data only. Validation and test are left untouched.</p>
-        <p class="mb-2">Purpose: test whether that changes results.</p>
-        <p class="mb-0">Current status: still running. No results yet.</p>
-      </div>
-    </div>
-  </section>
-
   <section id="limitations" class="mb-5">
     <h2 class="h4 mb-3">Limitations</h2>
     <ul class="section-lead small">
       <li class="mb-2">Results come from a single run. Scores moved by up to 0.03 between runs. So the small gaps between models do not show that one is better.</li>
       <li class="mb-2">The models differ in size, design, and training settings, so the comparison does not show why one scored higher.</li>
       <li class="mb-2">All data comes from one dataset (C3PA). The models have not been tested on policies from other sources.</li>
-      <li class="mb-2">Right_to_Limit_Sensitive has only 16 test passages, so its score is unstable.</li>
+      <li class="mb-2">The second run changed two things at once: more companies and a trimmed training set. It also used a different test set. So its higher scores cannot be attributed to the trim alone.</li>
+      <li class="mb-2">Right_to_Limit_Sensitive has only 16 test passages in the main run, so its score is unstable.</li>
       <li class="mb-2">Some passages contain formatting leftovers (such as "\n" or "|||") and near-duplicates from the source data.</li>
       <li class="mb-0">I grouped C3PA's categories into these six labels myself.</li>
     </ul>
@@ -344,6 +404,37 @@
                 </tbody>
               </table>
             </div>
+
+            <h4 class="h6 text-uppercase text-muted mb-2">The second run: Notice trimmed</h4>
+            <p class="small">The second run is a separate notebook, <code>CPRA_60pct_TRIM_trainonly (2).ipynb</code>. It follows the same steps, with two changes. It subsamples 60% of companies (239 instead of 159). After splitting, it removes 60% of the <code>Notice_Requirement</code>-only training passages (7,754 become 3,102, so training drops from 9,758 to 5,106). Validation (2,589) and test (2,104) are untouched and keep their natural label mix. Its thresholds were tuned the same way, on its own validation split.</p>
+            <div class="table-responsive mb-4">
+              <table class="table table-sm table-bordered">
+                <thead class="table-light"><tr><th>Label</th><th>Test passages</th><th>LegalBERT</th><th>RoBERTa-large</th></tr></thead>
+                <tbody>
+                  <tr><td><code>Notice_Requirement</code></td><td>1,636</td><td>0.425</td><td>0.100</td></tr>
+                  <tr><td><code>Right_to_Correct</code></td><td>67</td><td>0.500</td><td>0.400</td></tr>
+                  <tr><td><code>Right_to_Delete</code></td><td>89</td><td>0.650</td><td>0.275</td></tr>
+                  <tr><td><code>Right_to_Know</code></td><td>202</td><td>0.700</td><td>0.525</td></tr>
+                  <tr><td><code>Right_to_Limit_Sensitive</code></td><td>44</td><td>0.600</td><td>0.350</td></tr>
+                  <tr><td><code>Right_to_Opt_Out</code></td><td>141</td><td>0.625</td><td>0.550</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="small text-muted">Training label counts for the second run, before and after the trim:</p>
+            <div class="table-responsive mb-4">
+              <table class="table table-sm table-bordered">
+                <thead class="table-light"><tr><th>Label</th><th>Train before</th><th>Train after</th><th>Validation</th><th>Test</th></tr></thead>
+                <tbody>
+                  <tr><td><code>Notice_Requirement</code></td><td>7,795</td><td>3,143</td><td>2,065</td><td>1,636</td></tr>
+                  <tr><td><code>Right_to_Correct</code></td><td>229</td><td>229</td><td>79</td><td>67</td></tr>
+                  <tr><td><code>Right_to_Delete</code></td><td>417</td><td>417</td><td>103</td><td>89</td></tr>
+                  <tr><td><code>Right_to_Know</code></td><td>833</td><td>833</td><td>235</td><td>202</td></tr>
+                  <tr><td><code>Right_to_Limit_Sensitive</code></td><td>118</td><td>118</td><td>41</td><td>44</td></tr>
+                  <tr><td><code>Right_to_Opt_Out</code></td><td>616</td><td>616</td><td>178</td><td>141</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="small text-muted">Macro precision / recall in the second run: LegalBERT 0.8520 / 0.8301, RoBERTa-large 0.8428 / 0.8593, Flan-T5-base 0.8673 / 0.8186.</p>
 
             <h4 class="h6 text-uppercase text-muted mb-2">Thresholds</h4>
             <p class="small">A threshold is the probability above which a passage is given a label. For LegalBERT and RoBERTa-large I tuned one threshold per label on the validation set. I used the same rule for both. I tried every value from 0.10 to 0.825 in steps of 0.025. I kept the one with the best validation macro F1. Flan-T5-base writes label names as text, so it has no thresholds.</p>

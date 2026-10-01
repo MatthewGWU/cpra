@@ -69,6 +69,36 @@ const PER_LABEL = [
     { label: 'Right_to_Limit_Sensitive', support: 16, f1: [0.40, 0.45, 0.43] },
 ];
 
+/* Second run: CPRA_60pct_TRIM_trainonly (2).ipynb
+   239 companies (60%), 60% of Notice_Requirement-only TRAINING spans removed.
+   Validation and test untouched. Different test set from the main run. */
+const TRIM = {
+    trainBefore: 9758,
+    trainAfter: 5106,
+    val: 2589,
+    test: 2104,
+    noticeOnlyBefore: 7754,
+    noticeOnlyAfter: 3102,
+    trainCountsBefore: {
+        Notice_Requirement: 7795, Right_to_Know: 833, Right_to_Delete: 417,
+        Right_to_Correct: 229, Right_to_Opt_Out: 616, Right_to_Limit_Sensitive: 118,
+    },
+    trainCountsAfter: {
+        Notice_Requirement: 3143, Right_to_Know: 833, Right_to_Delete: 417,
+        Right_to_Correct: 229, Right_to_Opt_Out: 616, Right_to_Limit_Sensitive: 118,
+    },
+    score: [0.8373, 0.8483, 0.8404],
+};
+
+const TRIM_PER_LABEL = [
+    { label: 'Notice_Requirement', support: 1636, f1: [0.97, 0.97, 0.97] },
+    { label: 'Right_to_Know', support: 202, f1: [0.73, 0.73, 0.69] },
+    { label: 'Right_to_Delete', support: 89, f1: [0.90, 0.89, 0.91] },
+    { label: 'Right_to_Correct', support: 67, f1: [0.85, 0.88, 0.88] },
+    { label: 'Right_to_Opt_Out', support: 141, f1: [0.88, 0.89, 0.91] },
+    { label: 'Right_to_Limit_Sensitive', support: 44, f1: [0.70, 0.73, 0.69] },
+];
+
 const LABEL_COLOR = {
     Notice_Requirement: '#0d6efd',
     Right_to_Know: '#ffc107',
@@ -224,6 +254,103 @@ function renderPerLabelTable() {
         <th>LegalBERT</th><th>RoBERTa-large</th><th>Flan-T5-base</th>
       </tr></thead>`;
     const body = PER_LABEL.map((r) => `<tr>
+        <td><code class="small">${esc(r.label)}</code></td>
+        <td>${r.support.toLocaleString()}</td>
+        <td>${r.f1[0].toFixed(2)}</td>
+        <td>${r.f1[1].toFixed(2)}</td>
+        <td>${r.f1[2].toFixed(2)}</td>
+      </tr>`).join('');
+    host.innerHTML = `<table class="table table-sm table-bordered mb-0">${head}<tbody>${body}</tbody></table>`;
+}
+
+function renderTrimRatioChart() {
+    const canvas = el('trim-ratio-chart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    const before = TRIM.trainCountsBefore.Notice_Requirement;
+    const after = TRIM.trainCountsAfter.Notice_Requirement;
+    const know = TRIM.trainCountsBefore.Right_to_Know;
+    new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: ['Notice before trim', 'Notice after trim', 'Right_to_Know (unchanged)'],
+            datasets: [{
+                data: [before, after, know],
+                backgroundColor: ['#9dc3e6', '#0d6efd', '#198754'],
+                borderRadius: 3,
+                maxBarThickness: 46,
+            }],
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { right: 90 } },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => ` ${ctx.parsed.x.toLocaleString()} training passages  (${(ctx.parsed.x / know).toFixed(1)}x)`,
+                    },
+                },
+            },
+            scales: {
+                x: { beginAtZero: true, ticks: { callback: (v) => v.toLocaleString() }, grid: { color: '#e9edf2' } },
+                y: { ticks: { font: { size: 12 } }, grid: { display: false } },
+            },
+        },
+        plugins: [valueLabelPlugin((v) => `${v.toLocaleString()}  (${(v / know).toFixed(1)}x)`)],
+    });
+}
+
+function renderTrimModelChart() {
+    const canvas = el('trim-model-chart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    const plugin = valueLabelPlugin((v) => v.toFixed(4));
+    new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: MODEL_SCORES.map((m) => m.name),
+            datasets: [
+                {
+                    label: 'Main run (159 companies, nothing removed)',
+                    data: MODEL_SCORES.map((m) => m.f1),
+                    backgroundColor: '#1b4d89',
+                    borderRadius: 3,
+                    maxBarThickness: 40,
+                },
+                {
+                    label: 'Second run (239 companies, Notice trimmed)',
+                    data: TRIM.score,
+                    backgroundColor: '#e8a33d',
+                    borderRadius: 3,
+                    maxBarThickness: 40,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+                tooltip: { callbacks: { label: (ctx) => ` Macro F1: ${ctx.parsed.y.toFixed(4)}` } },
+            },
+            scales: {
+                y: { beginAtZero: true, max: 0.9, ticks: { callback: (v) => v.toFixed(2) }, grid: { color: '#e9edf2' } },
+                x: { ticks: { font: { size: 11 } }, grid: { display: false } },
+            },
+        },
+        plugins: [plugin],
+    });
+}
+
+function renderTrimPerLabelTable() {
+    const host = el('trim-per-label-table');
+    if (!host) return;
+    const head = `<thead class="table-light"><tr>
+        <th>Label</th><th>Test passages</th>
+        <th>LegalBERT</th><th>RoBERTa-large</th><th>Flan-T5-base</th>
+      </tr></thead>`;
+    const body = TRIM_PER_LABEL.map((r) => `<tr>
         <td><code class="small">${esc(r.label)}</code></td>
         <td>${r.support.toLocaleString()}</td>
         <td>${r.f1[0].toFixed(2)}</td>
@@ -444,6 +571,9 @@ async function loadExplainability() {
 
 document.addEventListener('DOMContentLoaded', () => {
     renderLabelChart();
+    renderTrimRatioChart();
+    renderTrimModelChart();
+    renderTrimPerLabelTable();
     const sharedMax = Math.max(...LABEL_TOTALS);
     ['train', 'val', 'test'].forEach((s) => renderMiniSplitChart(s, sharedMax));
     renderModelChart();
