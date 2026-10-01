@@ -22,6 +22,8 @@
     .split-bar > div { display: grid; place-items: center; color: #fff; font-size: .8rem; font-weight: 600; }
     .model-card .card-title small { font-weight: 400; }
     .section-lead { max-width: 68ch; }
+    .ca-map { display: block; height: auto; width: 100%; max-width: 440px; }
+    figure { max-width: 68ch; }
   </style>
 </head>
 <body>
@@ -86,6 +88,11 @@
     <p class="mb-3">This project tests whether AI models can do a first pass. I look for where a policy describes each right. I also show which words led to each decision. California was the first state with a law like this, and a growing number of states have passed their own. Tools like this could eventually help review policies at a much larger scale. This study is an early step.</p>
     <p class="mb-3">The same method could be used by a company's internal audit team to check its own policies. It could also give a regulator a way to look through many company policies for gaps.</p>
     <p class="mb-3">Asking ChatGPT the same question gives a different kind of answer. ChatGPT will usually give you a conclusion, but not a way to check how it got there. Saying "I asked ChatGPT" is not a finding. Here every step is written down and can be re-run. That covers the split, the seed, the score, and the words behind each decision. This is what makes the method more audit-ready.</p>
+    <figure class="my-4">
+      <img src="assets/ca-map.svg" width="1006" height="626" class="ca-map"
+           alt="Map of the contiguous United States. California is filled in dark blue; the other 47 states are light grey.">
+      <figcaption class="small text-muted mt-2">California, shown within the contiguous United States. Drawn from public-domain US Census Bureau state boundaries.</figcaption>
+    </figure>
       <p class="small text-muted mb-0">The tool identifies what a policy <em>says</em>. It does not judge whether a company follows the law.</p>
     </div>
   </section>
@@ -530,6 +537,7 @@
             <ul class="small mb-0 ps-3">
               <li class="mb-2"><a href="https://github.com/marcotcr/lime" target="_blank" rel="noopener">LIME</a> (word-by-word attribution, used with Flan-T5-base)</li>
               <li class="mb-2"><a href="https://huggingface.co/docs/transformers" target="_blank" rel="noopener">Hugging Face Transformers</a> (training &amp; tokenizers)</li>
+              <li class="mb-2"><a href="https://www.census.gov/geographies/mapping-files/time-series/geo/gazetteer-files.html" target="_blank" rel="noopener">US Census Bureau</a> state boundaries (public domain, source of the map above)</li>
               <li><a href="https://www.chartjs.org/" target="_blank" rel="noopener">Chart.js</a> &middot; <a href="https://getbootstrap.com/" target="_blank" rel="noopener">Bootstrap 5</a> (this page)</li>
             </ul>
           </div>
