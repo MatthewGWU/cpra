@@ -19,30 +19,6 @@ rights. Using the 40% document scale, the project:
 5. **Trains** LegalBERT, RoBERTa-large, and Flan-T5-base on the train split.
 6. **Tunes** one decision threshold per label on validation, for the two encoder models.
 
-## The second run: Notice trimmed
-
-`CPRA_60pct_TRIM_trainonly (2).ipynb` is a separate experiment shown on the site
-next to the main run. It exists to test what happens when the dominant
-`Notice_Requirement` label is less common in training.
-
-- Subsamples to **60%** of documents (239 companies, 14,451 passages), not 40%.
-- Splits first, then removes **60% of the `Notice_Requirement`-only training
-  passages**: 7,754 become 3,102, so training drops from 9,758 to 5,106 spans.
-- Validation (2,589) and test (2,104) are **not** touched, so they keep their
-  natural label mix.
-
-This closes the Notice gap in training from 9.4x the next-largest label down to
-3.8x, and all three models score higher. **Those two changes are confounded**:
-the second run also has more companies and a different test set (37 companies vs
-25), so the higher scores cannot be attributed to the trim alone. A clean test
-would trim at the same 159 companies and score both runs on the same test set.
-
-| Model | Main run (40%) | Second run (60%, Notice trimmed) |
-| --- | --- | --- |
-| LegalBERT | 0.7562 | 0.8373 |
-| RoBERTa-large | 0.7734 | 0.8483 |
-| Flan-T5-base | 0.7949 | 0.8404 |
-
 ## Results
 
 Macro F1 on the held-out test split:
@@ -52,11 +28,10 @@ Macro F1 on the held-out test split:
 | Flan-T5-base | 0.7949 |
 | RoBERTa-large | 0.7734 |
 | LegalBERT | 0.7562 |
-| Always Notice (no learning) | 0.147 |
-| Always everything (no learning) | 0.224 |
+| Simple rule (label everything Notice) | 0.1473 |
 
-Results come from a single run. Scores moved by up to 0.03 between runs, so the
-small gaps between the models do not show that one is better.
+Results come from a single run, so the small gaps between the models do not show
+that one is better.
 
 ## Repository ↔ website
 
@@ -72,11 +47,11 @@ notebook logic.
 | --- | --- |
 | `index.html` | The single-page site (Bootstrap 5 + Chart.js, CDN). |
 | `app.js` | Client-side logic: charts, per-label table, explainability cards, passage browser. |
-| `data/train.json`, `data/val.json`, `data/test.json` | The untrimmed JSON splits (browser-facing). |
+| `data/train.json`, `data/val.json`, `data/test.json` | The JSON splits (browser-facing). |
 | `export_dataset.py` | Reproduces those JSON splits from the raw dataset. |
 | `explainability/lime_samples.json` | Two current-run LIME examples with real per-word weights. |
 | `CPRA_40pct_CLEAN_(3).ipynb` | The main notebook: subsample, split, training, explainability. |
-| `CPRA_60pct_TRIM_trainonly (2).ipynb` | The second run: 60% of documents, `Notice_Requirement`-only training spans trimmed. |
+| `CPRA_60pct_TRIM_trainonly (2).ipynb` | Preliminary 60% run: different test companies, so not compared directly on the site. |
 
 ## Run locally
 

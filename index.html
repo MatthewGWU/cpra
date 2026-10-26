@@ -24,6 +24,13 @@
     .section-lead { max-width: 68ch; }
     .ca-map { display: block; height: auto; width: 100%; max-width: 440px; }
     figure { max-width: 68ch; }
+    .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: .4rem; }
+    .flow-box { flex: 1 1 140px; background: #eef4fb; border: 1px solid #cddcec; border-radius: .4rem; padding: .5rem .6rem; font-size: .8rem; display: grid; place-items: center; text-align: center; }
+    .flow-arrow { display: grid; place-items: center; color: #1b4d89; font-weight: 700; }
+    .math-item { border-top: 1px solid #e3e8ef; padding-top: .75rem; margin-top: .75rem; }
+    .math-item:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+    .math-formula { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: #f4f7fb; border: 1px solid #e3e8ef; border-radius: .35rem; padding: .4rem .6rem; font-size: .82rem; overflow-x: auto; }
+    @media (max-width: 575.98px) { .flow-arrow { display: none; } }
   </style>
 </head>
 <body>
@@ -40,11 +47,11 @@
     <div class="collapse navbar-collapse" id="nav">
       <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
         <li class="nav-item"><a class="nav-link" href="#why">Why</a></li>
-      <li class="nav-item"><a class="nav-link" href="#data">Data</a></li>
-      <li class="nav-item"><a class="nav-link" href="#notice">Notice</a></li>
-      <li class="nav-item"><a class="nav-link" href="#models">Models</a></li>
+        <li class="nav-item"><a class="nav-link" href="#questions">Questions</a></li>
+        <li class="nav-item"><a class="nav-link" href="#data">Data</a></li>
+        <li class="nav-item"><a class="nav-link" href="#models">How it works</a></li>
         <li class="nav-item"><a class="nav-link" href="#splits">Splits</a></li>
-        <li class="nav-item"><a class="nav-link" href="#numbers">Numbers</a></li>
+        <li class="nav-item"><a class="nav-link" href="#math">The math</a></li>
         <li class="nav-item"><a class="nav-link" href="#why-said">Reasons</a></li>
         <li class="nav-item"><a class="nav-link" href="#limitations">Limits</a></li>
         <li class="nav-item"><a class="nav-link" href="#explore">Explore</a></li>
@@ -87,7 +94,6 @@
     <p class="mb-3">Privacy policies are long and hard to read. California's privacy law, the CPRA, gives people rights such as deleting their data or stopping its sale. It also requires companies to describe those rights. Checking thousands of policies by hand is slow for regulators, researchers, and companies.</p>
     <p class="mb-3">This project tests whether AI models can do a first pass. I look for where a policy describes each right. I also show which words led to each decision. California was the first state with a law like this, and a growing number of states have passed their own. Tools like this could eventually help review policies at a much larger scale. This study is an early step.</p>
     <p class="mb-3">The same method could be used by a company's internal audit team to check its own policies. It could also give a regulator a way to look through many company policies for gaps.</p>
-    <p class="mb-3">Asking ChatGPT the same question gives a different kind of answer. ChatGPT will usually give you a conclusion, but not a way to check how it got there. Saying "I asked ChatGPT" is not a finding. Here every step is written down and can be re-run. That covers the split, the seed, the score, and the words behind each decision. This is what makes the method more audit-ready.</p>
     <figure class="my-4">
       <img src="assets/ca-map.svg" width="1006" height="626" class="ca-map"
            alt="Map of the contiguous United States. California is filled in dark blue; the other 47 states are light grey.">
@@ -95,6 +101,46 @@
     </figure>
       <p class="small text-muted mb-0">The tool identifies what a policy <em>says</em>. It does not judge whether a company follows the law.</p>
     </div>
+  </section>
+
+  <section id="questions" class="mb-5">
+    <h2 class="h4 mb-3">The research questions and hypotheses</h2>
+    <p class="section-lead mb-3">I asked three questions. Each one had a bar it had to beat before I called it supported.</p>
+
+    <div class="row g-3">
+      <div class="col-lg-4">
+        <div class="card h-100"><div class="card-body p-3">
+          <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+            <span class="fw-semibold">H1</span>
+            <span class="badge bg-success">Supported</span>
+          </div>
+          <p class="small mb-2">The models will score a macro F1 above <strong>0.15</strong>. That is the score of a simple rule that labels every passage as Notice.</p>
+          <p class="small text-muted mb-0"><strong>Result:</strong> all three scored 0.7562 to 0.7949.</p>
+        </div></div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card h-100"><div class="card-body p-3">
+          <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+            <span class="fw-semibold">H2</span>
+            <span class="badge bg-success">Supported</span>
+          </div>
+          <p class="small mb-2">RoBERTa-large and Flan-T5-base will score a higher macro F1 than LegalBERT.</p>
+          <p class="small text-muted mb-2"><strong>Result:</strong> RoBERTa-large 0.7734 and Flan-T5-base 0.7949 vs LegalBERT 0.7562 (1.7 and 3.9 percentage points higher). Supported in this run.</p>
+          <p class="small text-muted mb-0">This is a single run, so it does not prove one model is better.</p>
+        </div></div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card h-100"><div class="card-body p-3">
+          <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+            <span class="fw-semibold">H3</span>
+            <span class="badge bg-success">Supported</span>
+          </div>
+          <p class="small mb-2">Each model will score above <strong>0.88</strong> on Notice, which is the simple rule's score on that label. It will also score higher on Notice than on each of the five less common rights.</p>
+          <p class="small text-muted mb-0"><strong>Result:</strong> Notice was 0.96 to 0.97 for all three models. The best score any model got on the other five rights was 0.90.</p>
+        </div></div>
+      </div>
+    </div>
+    <p class="small text-muted mt-3 mb-0">Each hypothesis is judged on one run on the test set.</p>
   </section>
 
   <section id="data" class="mb-5">
@@ -152,105 +198,92 @@
     </div>
   </section>
 
-  <section id="notice" class="mb-5">
-    <h2 class="h4 mb-3">The Notice requirement</h2>
-    <p class="section-lead mb-3">Notice_Requirement appears about nine times more often than the next most common right. I ran a second experiment to see what happens when that gap is smaller.</p>
-
-    <div class="card mb-4">
-      <div class="card-header">Notice_Requirement compared with the next most common right</div>
-      <div class="card-body">
-        <div class="row g-3 align-items-center">
-          <div class="col-md-7">
-            <div class="position-relative" style="height: 190px;">
-              <canvas id="trim-ratio-chart" aria-label="Bar chart comparing the Notice requirement against the next most common right, before and after trimming"></canvas>
-            </div>
-          </div>
-          <div class="col-md-5">
-            <p class="small mb-2">Before the trim, Right_to_Know was the next most common right. Notice outnumbered it <strong>9.4 times</strong>.</p>
-            <p class="small mb-0">After the trim, Notice outnumbered it <strong>3.8 times</strong>. The gap is much smaller.</p>
-          </div>
-        </div>
-        <p class="small text-muted mb-0 mt-3">Counts are training passages that carry each label, in the second experiment. Only Notice passages were removed, so the other five bars are unchanged.</p>
-      </div>
-    </div>
-
-    <h3 class="h6 mb-2">What the second experiment changed</h3>
-    <div class="row g-3 mb-4">
-      <div class="col-md-6">
-        <div class="card h-100"><div class="card-body p-3">
-          <div class="card-title h6 mb-2">Main run</div>
-          <p class="small mb-1">159 companies, nothing removed.</p>
-          <p class="small mb-0 text-muted">Train 6,328 &middot; Validation 1,592 &middot; Test 1,720</p>
-        </div></div>
-      </div>
-      <div class="col-md-6">
-        <div class="card h-100"><div class="card-body p-3">
-          <div class="card-title h6 mb-2">Second run: Notice trimmed</div>
-          <p class="small mb-1">239 companies, 60% of Notice-only training passages removed.</p>
-          <p class="small mb-0 text-muted">Train 5,106 &middot; Validation 2,589 &middot; Test 2,104</p>
-        </div></div>
-      </div>
-    </div>
-    <p class="small section-lead mb-4">In the second run, 7,754 training passages carried only Notice_Requirement. I removed 4,652 of them at random and kept 3,102. Validation and test were not touched, so they keep their natural label mix.</p>
-
-    <div class="card mb-4">
-      <div class="card-header">Macro F1 on the test split, both runs</div>
-      <div class="card-body">
-        <div class="position-relative" style="height: 290px;">
-          <canvas id="trim-model-chart" aria-label="Grouped bar chart of macro F1 for the three models in both the main run and the trimmed run"></canvas>
-        </div>
-        <p class="small text-muted mb-0 mt-2">Each pair shows the same model in both runs. The trimmed run scores higher for all three models.</p>
-      </div>
-    </div>
-
-    <div class="accordion mb-4" id="trim-label-accordion">
-      <div class="accordion-item">
-        <h3 class="accordion-header" id="trim-label-head">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#trim-label-body" aria-expanded="false">Show test F1 per label in the second run</button>
-        </h3>
-        <div id="trim-label-body" class="accordion-collapse collapse" aria-labelledby="trim-label-head" data-bs-parent="#trim-label-accordion">
-          <div class="accordion-body p-0" id="trim-per-label-table"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="alert alert-warning mb-0">
-      <p class="small fw-semibold mb-1">Two things changed at once, so I cannot tell you which one caused the higher scores.</p>
-      <p class="small mb-0">The second run uses more companies (239 instead of 159), and it has a trimmed training set. It also scores on a different test set, with 37 companies instead of 25. More training data on its own could explain the improvement. A clean test would trim Notice in training at the same 159 companies as the main run. It would also score both runs on the same test set.</p>
-    </div>
-  </section>
-
   <section id="models" class="mb-5">
-    <h2 class="h4 mb-3">The three models</h2>
+    <h2 class="h4 mb-3">How the models work</h2>
     <div class="row g-3 mb-3">
       <div class="col-md-4">
         <div class="card model-card h-100"><div class="card-body p-3">
           <div class="card-title h6 mb-2">LegalBERT <small class="text-muted">(2020)</small></div>
-          <p class="small mb-2">A model that learned language from legal documents, such as legislation, court cases, and contracts.</p>
+          <p class="small mb-2">About <strong>110 million</strong> parameters. It reads text only (encoder only). It was trained on legal documents, such as legislation, court cases, and contracts.</p>
           <p class="small text-muted mb-0"><strong>Why I chose it:</strong> it's designed for legal text, so it's a natural reference point for a legal task.</p>
         </div></div>
       </div>
       <div class="col-md-4">
         <div class="card model-card h-100"><div class="card-body p-3">
           <div class="card-title h6 mb-2">RoBERTa-large <small class="text-muted">(2019)</small></div>
-          <p class="small mb-2">A widely used general-purpose model, about three times larger than LegalBERT. It is trained on general text, not legal text.</p>
+          <p class="small mb-2">About <strong>355 million</strong> parameters. It reads text only (encoder only). It was trained on general English, not legal text.</p>
           <p class="small text-muted mb-0"><strong>Why I chose it:</strong> to see how a strong general-purpose model does on the same task without legal training.</p>
         </div></div>
       </div>
       <div class="col-md-4">
         <div class="card model-card h-100"><div class="card-body p-3">
           <div class="card-title h6 mb-2">Flan-T5-base <small class="text-muted">(2022)</small></div>
-          <p class="small mb-2">A different kind of model. It writes its answer out as text instead of choosing from a fixed list of labels.</p>
+          <p class="small mb-2">About <strong>250 million</strong> parameters. It reads text <em>and</em> writes text (encoder-decoder). It was trained on 1,800+ instruction tasks.</p>
           <p class="small text-muted mb-0"><strong>Why I chose it:</strong> to include a different design, so the results aren't limited to one type of model.</p>
         </div></div>
       </div>
     </div>
+
+    <div class="card mb-3">
+      <div class="card-header">How a passage becomes a label</div>
+      <div class="card-body">
+        <p class="small fw-semibold mb-2">LegalBERT and RoBERTa-large</p>
+        <div class="flow mb-2">
+          <div class="flow-box">Passage</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">Model reads it</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">6 scores, one per right, each 0 to 1</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">Compare each score to its cutoff</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">Labels</div>
+        </div>
+        <p class="small text-muted mb-4">These models give a confidence score for each right. If the score is above that right's cutoff, the passage gets the label.</p>
+
+        <p class="small fw-semibold mb-2">Flan-T5-base</p>
+        <div class="flow mb-2">
+          <div class="flow-box">Instruction + passage</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">Model reads it</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">Model writes the label names as text</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">Keep only valid label names</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">Labels</div>
+        </div>
+        <p class="small text-muted mb-0">Flan-T5-base writes its answer, like "Right_to_Delete." Anything that isn't one of the six label names is ignored. Because it writes words instead of giving scores, it has no cutoffs and uses regular cross-entropy loss.</p>
+      </div>
+    </div>
+
     <p class="small text-muted section-lead mb-0">Because these models differ in size, design, and training, this study compares how they perform, not why one scores higher.</p>
   </section>
 
   <section id="splits" class="mb-5">
     <h2 class="h4 mb-3">Train, validation, and test</h2>
     <p class="section-lead mb-3">I split the 159 companies into three groups. The split is by company, not by passage, in the proportions 70 / 15 / 15.</p>
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm"><div class="card-body p-3">
+          <div class="badge bg-primary mb-2">Step 1 &middot; Train</div>
+          <p class="small mb-0">Models learn from <strong>111 companies</strong> (6,328 passages).</p>
+        </div></div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm"><div class="card-body p-3">
+          <div class="badge bg-secondary mb-2">Step 2 &middot; Validation</div>
+          <p class="small mb-0">Pick the best settings, best checkpoint and cutoffs using <strong>23 other companies</strong> (1,592 passages).</p>
+        </div></div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm"><div class="card-body p-3">
+          <div class="badge bg-success mb-2">Step 3 &middot; Test</div>
+          <p class="small mb-0">Grade once on <strong>25 companies</strong> the models never saw (1,720 passages).</p>
+        </div></div>
+      </div>
+    </div>
 
     <div class="split-bar mb-2" role="img" aria-label="Train 70 percent, validation 15 percent, test 15 percent">
       <div style="width:70%; background:#1b4d89;">Train 70% &middot; 111 companies</div>
@@ -294,15 +327,35 @@
 
     <p class="small text-muted mb-3">All three splits have the same label mix, because nothing was trimmed or rebalanced before splitting.</p>
 
+    <div class="card mb-4">
+      <div class="card-header">Passages that carry each label</div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered mb-2">
+            <thead class="table-light"><tr><th>Label</th><th>Train</th><th>Validation</th><th>Test</th></tr></thead>
+            <tbody>
+              <tr><td>Notice</td><td>5,016</td><td>1,321</td><td>1,362</td></tr>
+              <tr><td>Know</td><td>555</td><td>110</td><td>187</td></tr>
+              <tr><td>Opt out</td><td>408</td><td>88</td><td>101</td></tr>
+              <tr><td>Delete</td><td>248</td><td>62</td><td>76</td></tr>
+              <tr><td>Correct</td><td>167</td><td>41</td><td>45</td></tr>
+              <tr><td>Limit</td><td>96</td><td>11</td><td>16</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small text-muted mb-0">510 passages carry more than one label.</p>
+      </div>
+    </div>
+
     <div class="section-lead">
       <p class="small mb-2"><strong>Why split by company.</strong> Passages from one policy share wording, so a company is entirely in one split and never divided.</p>
       <p class="small mb-2"><strong>Why the test is used only once.</strong> Tuning on it would make the grade look better than it really is.</p>
-      <p class="small mb-0"><strong>Why the test set is never trimmed.</strong> It has to look like real privacy policies.</p>
+      <p class="small mb-0"><strong>Why it can't leak.</strong> Duplicates were removed before splitting, every company is in only one split, all choices were made on validation, and every random step uses seed 42.</p>
     </div>
   </section>
 
-  <section id="numbers" class="mb-5">
-    <h2 class="h4 mb-3">The numbers</h2>
+  <section id="math" class="mb-5">
+    <h2 class="h4 mb-3">The math</h2>
     <div class="section-lead mb-3">
       <p class="small mb-2"><strong>Precision</strong> is how often a flag is right. If the model flags 10 passages as Right_to_Delete and 8 really are, precision is 0.8. <a href="#gloss-precision" class="term-link" data-bs-toggle="tooltip" data-bs-title="Precision: of the passages the model flagged, how many were right. See the glossary.">Glossary</a></p>
       <p class="small mb-2"><strong>Recall</strong> is how much of a right the model finds. If 20 passages really are Right_to_Delete and the model flags 12, recall is 0.6. <a href="#gloss-recall" class="term-link" data-bs-toggle="tooltip" data-bs-title="Recall: of the passages that truly carry a right, how many the model found. See the glossary.">Glossary</a></p>
@@ -313,14 +366,15 @@
       <div class="card-header">Macro F1 on the test split</div>
       <div class="card-body">
         <div class="position-relative" style="height: 300px;">
-          <canvas id="model-chart" aria-label="Bar chart of macro F1 for the three models and two no-learning baselines"></canvas>
+          <canvas id="model-chart" aria-label="Bar chart of macro F1 for the three models and one simple rule"></canvas>
         </div>
-        <p class="small text-muted mb-0 mt-2">The two grey bars are strategies that do no learning at all. "Always Notice" assigns only the most common label to everything. "Always everything" assigns all six rights to everything. <a href="#gloss-baseline" class="term-link" data-bs-toggle="tooltip" data-bs-title="No-learning baseline: a simple rule that assigns labels without learning, used as a floor to compare against.">Glossary</a></p>
+        <p class="small text-muted mb-2 mt-2">The grey bar is a simple rule that does no learning: it labels every passage as Notice. <a href="#gloss-baseline" class="term-link" data-bs-toggle="tooltip" data-bs-title="No-learning baseline: a simple rule that assigns labels without learning, used as a floor to compare against.">Glossary</a></p>
+        <p class="small mb-0">Macro precision / recall: LegalBERT 0.77 / 0.76, RoBERTa-large 0.78 / 0.77, Flan-T5-base 0.87 / 0.75.</p>
       </div>
     </div>
 
     <div class="section-lead">
-      <p class="small mb-2">All three models scored close together, from 0.756 to 0.795, and far above the no-learning baselines.</p>
+      <p class="small mb-2">All three models scored close together, from 0.756 to 0.795, and far above the simple rule.</p>
       <p class="small mb-2">Flan-T5-base is the most cautious. It has the highest precision at 0.87 and a lower recall at 0.75, so it flags fewer passages overall.</p>
       <p class="small mb-3">Right_to_Know and Right_to_Limit_Sensitive were the hardest for every model.</p>
     </div>
@@ -338,10 +392,85 @@
         </div>
       </div>
     </div>
+
+    <div class="accordion mb-2" id="math-accordion">
+      <div class="accordion-item">
+        <h3 class="accordion-header" id="math-head">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#math-body" aria-expanded="false">Show the math</button>
+        </h3>
+        <div id="math-body" class="accordion-collapse collapse" aria-labelledby="math-head" data-bs-parent="#math-accordion">
+          <div class="accordion-body">
+
+            <div class="math-item">
+              <div class="fw-semibold small mb-1">1. Precision</div>
+              <div class="math-formula mb-2">Precision = TP / (TP + FP)</div>
+              <p class="small mb-1">Of everything the model flagged, how much was right.</p>
+              <p class="small text-muted mb-0">TP = correct flags, FP = wrong flags, FN = missed ones.</p>
+            </div>
+
+            <div class="math-item">
+              <div class="fw-semibold small mb-1">2. Recall</div>
+              <div class="math-formula mb-2">Recall = TP / (TP + FN)</div>
+              <p class="small mb-0">Of everything that was really there, how much the model found.</p>
+            </div>
+
+            <div class="math-item">
+              <div class="fw-semibold small mb-1">3. F1 score</div>
+              <div class="math-formula mb-2">F1 = 2 &times; Precision &times; Recall / (Precision + Recall)</div>
+              <p class="small mb-1">One score that balances the two. It's low if either one is low.</p>
+              <p class="small text-muted mb-0">Example: LegalBERT on Right to Delete had precision 0.82 and recall 0.91. F1 = 2 &times; 0.82 &times; 0.91 / (0.82 + 0.91) = 0.86.</p>
+            </div>
+
+            <div class="math-item">
+              <div class="fw-semibold small mb-1">4. Macro F1</div>
+              <div class="math-formula mb-2">Macro F1 = the average of the six F1 scores</div>
+              <p class="small mb-1">Every right counts the same, so a model can't score well just by getting Notice right.</p>
+              <p class="small text-muted mb-0">Example: Flan-T5-base's six F1s (0.97, 0.69, 0.90, 0.88, 0.89, 0.43) average to about 0.79.</p>
+            </div>
+
+            <div class="math-item">
+              <div class="fw-semibold small mb-1">5. Why the simple rule scores 0.1473</div>
+              <div class="math-formula mb-2">0.88 &divide; 6 = 0.1473</div>
+              <p class="small mb-0">Label everything Notice. Notice gets F1 0.88 (it catches every Notice passage, but 21% of the flags are wrong). The other five rights get 0, because it never predicts them.</p>
+            </div>
+
+            <div class="math-item">
+              <div class="fw-semibold small mb-1">6. Other F1 types in the paper</div>
+              <div class="math-formula mb-2">Micro F1 &middot; Weighted F1 &middot; Samples F1</div>
+              <p class="small mb-0">These give more weight to common labels. Macro F1 is the main score because all six rights matter equally under the law.</p>
+            </div>
+
+            <div class="math-item">
+              <div class="fw-semibold small mb-1">7. Class weight</div>
+              <div class="math-formula mb-2">Class weight = (passages without the label) &divide; (passages with the label)</div>
+              <p class="small mb-1">Rare rights count more during training. This uses the training set only.</p>
+              <p class="small text-muted mb-0">Example: Limit appears in 96 of 6,328 training passages. (6,328 &minus; 96) &divide; 96 = 64.92. Notice: (6,328 &minus; 5,016) &divide; 5,016 = 0.26.</p>
+            </div>
+
+            <div class="math-item">
+              <div class="fw-semibold small mb-1">8. Focal loss</div>
+              <div class="math-formula mb-2">L = &minus;(1 &minus; p<sub>t</sub>)<sup>&gamma;</sup> &middot; [w &middot; y &middot; log(p) + (1 &minus; y) &middot; log(1 &minus; p)], with &gamma; = 1.0</div>
+              <p class="small mb-1">Easy examples the model already gets right count less, so training focuses on the hard ones.</p>
+              <p class="small text-muted mb-0">Example: if the model is 90% sure and correct, that example counts only 0.1 as much (1 &minus; 0.9). If it's only 30% sure, it counts 0.7.</p>
+            </div>
+
+            <div class="math-item">
+              <div class="fw-semibold small mb-1">9. Score to label (cutoffs)</div>
+              <div class="math-formula mb-2">Score = sigmoid(output), from 0 to 1</div>
+              <p class="small mb-1">The model turns each right into a score from 0 to 1. If the score is above that right's cutoff, the passage gets the label.</p>
+              <p class="small text-muted mb-1">Example: LegalBERT gave a Right to Delete passage a score of 0.963. Its cutoff is 0.725, so it was labeled Right to Delete.</p>
+              <p class="small text-muted mb-0">Cutoffs were tested from 0.10 to 0.825 in steps of 0.025 on the validation set, one per right. The one with the best validation macro F1 was kept.</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section id="why-said" class="mb-5">
     <h2 class="h4 mb-2">Why a model said what it said</h2>
+    <p class="section-lead small mb-2">LegalBERT and RoBERTa-large were explained with SHAP. Flan-T5-base was explained with LIME, because it writes labels instead of giving scores. Both show which words pushed a decision.</p>
     <p class="section-lead small text-muted mb-3">These two examples show which words pushed a decision, using the <a href="#gloss-lime" class="term-link" data-bs-toggle="tooltip" data-bs-title="LIME: a tool that estimates which words pushed a model's decision up or down for a given label.">LIME</a> tool. Both passages really do carry the label being explained.</p>
     <div class="row g-3" id="explain-cards"></div>
     <p class="small text-muted mt-3 mb-0">Passages are shown word for word from the test split, with their original line breaks restored.</p>
@@ -350,14 +479,14 @@
   <section id="limitations" class="mb-5">
     <h2 class="h4 mb-3">Limitations</h2>
     <ul class="section-lead small">
-      <li class="mb-2">Results come from a single run. Scores moved by up to 0.03 between runs. So the small gaps between models do not show that one is better.</li>
+      <li class="mb-2">Results come from a single run, so the small gaps between models do not show that one is better.</li>
       <li class="mb-2">The models differ in size, design, and training settings, so the comparison does not show why one scored higher.</li>
       <li class="mb-2">All data comes from one dataset (C3PA). The models have not been tested on policies from other sources.</li>
-      <li class="mb-2">The second run changed two things at once: more companies and a trimmed training set. It also used a different test set. So its higher scores cannot be attributed to the trim alone.</li>
-      <li class="mb-2">Right_to_Limit_Sensitive has only 16 test passages in the main run, so its score is unstable.</li>
+      <li class="mb-2">Right_to_Limit_Sensitive has only 16 test passages, so its score is unstable.</li>
       <li class="mb-2">Some passages contain formatting leftovers (such as "\n" or "|||") and near-duplicates from the source data.</li>
       <li class="mb-0">I grouped C3PA's categories into these six labels myself.</li>
     </ul>
+    <p class="section-lead small mb-0">Future work: a preliminary run with more companies and fewer Notice passages in training scored about 0.84 to 0.85, but it used different test companies, so it can't be compared directly to these results.</p>
   </section>
 
   <section id="technical" class="mb-5">
@@ -383,18 +512,20 @@
               <table class="table table-sm table-bordered">
                 <thead class="table-light"><tr><th>Setting</th><th>LegalBERT</th><th>RoBERTa-large</th><th>Flan-T5-base</th></tr></thead>
                 <tbody>
-                  <tr><td>Learning rate</td><td>2e-05</td><td>2e-05</td><td>3e-04</td></tr>
-                  <tr><td>Epochs</td><td>2</td><td>2</td><td>5</td></tr>
+                  <tr><td>Learning rate</td><td>2e-5</td><td>2e-5</td><td>3e-4</td></tr>
+                  <tr><td>Epochs</td><td>2</td><td>Up to 6</td><td>5</td></tr>
+                  <tr><td>Batch size</td><td>8</td><td>4</td><td>8</td></tr>
                   <tr><td>Weight decay</td><td>0.01</td><td>0.01</td><td>0.01</td></tr>
-                  <tr><td>Dropout</td><td>0.2</td><td>0.2</td><td>n/a</td></tr>
-                  <tr><td>Focal gamma</td><td>1.0</td><td>1.0</td><td>n/a</td></tr>
-                  <tr><td>Train batch size</td><td>8</td><td>8</td><td>8</td></tr>
-                  <tr><td>Warmup steps</td><td>0</td><td>0</td><td>100</td></tr>
-                  <tr><td>Max sequence length</td><td>512</td><td>512</td><td>256</td></tr>
+                  <tr><td>Warmup</td><td>6% of steps</td><td>6% of steps</td><td>100 steps</td></tr>
+                  <tr><td>Early stopping</td><td>patience 3</td><td>patience 2</td><td>none</td></tr>
+                  <tr><td>Max length</td><td>512</td><td>256</td><td>256</td></tr>
+                  <tr><td>Dropout</td><td>0.2</td><td>0.2</td><td>default</td></tr>
+                  <tr><td>Loss</td><td>Focal loss (&gamma;=1.0) + class weights</td><td>Focal loss (&gamma;=1.0) + class weights</td><td>Cross entropy</td></tr>
+                  <tr><td>Seed</td><td>42</td><td>42</td><td>42</td></tr>
                 </tbody>
               </table>
             </div>
-            <p class="small text-muted">LegalBERT's settings were chosen from two candidates using the validation set only. LegalBERT ran at dropout 0.2, learning rate 2e-05, weight decay 0.01, 2 epochs, focal gamma 1.0. RoBERTa-large used the matching settings.</p>
+            <p class="small text-muted">LegalBERT's settings were picked from two options using the validation set only. RoBERTa-large used the same learning rate, dropout, weight decay and focal gamma, and two epoch options (2 or 6) were compared on validation; 6 was picked. Flan-T5-base used fixed settings.</p>
 
             <h4 class="h6 text-uppercase text-muted mb-2">Class weights and focal loss</h4>
             <p class="small">Two methods counter the label imbalance during training. <strong>Per-class weights</strong> multiply each label's loss by negatives divided by positives, so rare rights count more. <strong>Focal loss</strong> reduces the loss on passages the model already gets right, focusing training on the hard cases.</p>
@@ -411,37 +542,6 @@
                 </tbody>
               </table>
             </div>
-
-            <h4 class="h6 text-uppercase text-muted mb-2">The second run: Notice trimmed</h4>
-            <p class="small">The second run is a separate notebook, <code>CPRA_60pct_TRIM_trainonly (2).ipynb</code>. It follows the same steps, with two changes. It subsamples 60% of companies (239 instead of 159). After splitting, it removes 60% of the <code>Notice_Requirement</code>-only training passages (7,754 become 3,102, so training drops from 9,758 to 5,106). Validation (2,589) and test (2,104) are untouched and keep their natural label mix. Its thresholds were tuned the same way, on its own validation split.</p>
-            <div class="table-responsive mb-4">
-              <table class="table table-sm table-bordered">
-                <thead class="table-light"><tr><th>Label</th><th>Test passages</th><th>LegalBERT</th><th>RoBERTa-large</th></tr></thead>
-                <tbody>
-                  <tr><td><code>Notice_Requirement</code></td><td>1,636</td><td>0.425</td><td>0.100</td></tr>
-                  <tr><td><code>Right_to_Correct</code></td><td>67</td><td>0.500</td><td>0.400</td></tr>
-                  <tr><td><code>Right_to_Delete</code></td><td>89</td><td>0.650</td><td>0.275</td></tr>
-                  <tr><td><code>Right_to_Know</code></td><td>202</td><td>0.700</td><td>0.525</td></tr>
-                  <tr><td><code>Right_to_Limit_Sensitive</code></td><td>44</td><td>0.600</td><td>0.350</td></tr>
-                  <tr><td><code>Right_to_Opt_Out</code></td><td>141</td><td>0.625</td><td>0.550</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <p class="small text-muted">Training label counts for the second run, before and after the trim:</p>
-            <div class="table-responsive mb-4">
-              <table class="table table-sm table-bordered">
-                <thead class="table-light"><tr><th>Label</th><th>Train before</th><th>Train after</th><th>Validation</th><th>Test</th></tr></thead>
-                <tbody>
-                  <tr><td><code>Notice_Requirement</code></td><td>7,795</td><td>3,143</td><td>2,065</td><td>1,636</td></tr>
-                  <tr><td><code>Right_to_Correct</code></td><td>229</td><td>229</td><td>79</td><td>67</td></tr>
-                  <tr><td><code>Right_to_Delete</code></td><td>417</td><td>417</td><td>103</td><td>89</td></tr>
-                  <tr><td><code>Right_to_Know</code></td><td>833</td><td>833</td><td>235</td><td>202</td></tr>
-                  <tr><td><code>Right_to_Limit_Sensitive</code></td><td>118</td><td>118</td><td>41</td><td>44</td></tr>
-                  <tr><td><code>Right_to_Opt_Out</code></td><td>616</td><td>616</td><td>178</td><td>141</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <p class="small text-muted">Macro precision / recall in the second run: LegalBERT 0.8520 / 0.8301, RoBERTa-large 0.8428 / 0.8593, Flan-T5-base 0.8673 / 0.8186.</p>
 
             <h4 class="h6 text-uppercase text-muted mb-2">Thresholds</h4>
             <p class="small">A threshold is the probability above which a passage is given a label. For LegalBERT and RoBERTa-large I tuned one threshold per label on the validation set. I used the same rule for both. I tried every value from 0.10 to 0.825 in steps of 0.025. I kept the one with the best validation macro F1. Flan-T5-base writes label names as text, so it has no thresholds.</p>
@@ -468,8 +568,8 @@
               <li class="mb-0">The pipeline is reproducible from <code class="font-mono">CPRA_40pct_CLEAN_(3).ipynb</code> and <code class="font-mono">export_dataset.py</code>.</li>
             </ul>
 
-            <h4 class="h6 text-uppercase text-muted mb-2">No-learning baselines</h4>
-            <p class="small mb-0">Two strategies that do no learning, scored on the same test split: "Always Notice" assigns only the most common label to every passage and scores 0.147. "Always everything" assigns all six rights to every passage and scores 0.224.</p>
+            <h4 class="h6 text-uppercase text-muted mb-2">No-learning baseline</h4>
+            <p class="small mb-0">One strategy that does no learning, scored on the same test split: "Simple rule (label everything Notice)" assigns only the most common label to every passage and scores 0.1473.</p>
 
           </div>
         </div>
