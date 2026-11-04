@@ -332,8 +332,7 @@
 
                   <div class="extra-exp">
                     <div class="extra-exp-label">Additional experiment</div>
-                    <p class="small mb-2">Since Notice dominates the data, a preliminary second run tested what happens when it is less dominant. That run used 60% of the C3PA companies instead of 40%, and removed some Notice-only passages from the training set. It scored about 0.84 to 0.85 macro F1.</p>
-                    <p class="small mb-0">This is not directly comparable to the main results: it changed two things at once (more companies and less Notice), and it used a different set of test companies. So the higher scores cannot be credited to the trimming alone. Testing this as a controlled experiment is future work.</p>
+                    <p class="small mb-0">A preliminary run with more companies and less Notice in training scored about 0.84 to 0.85, but it changed two things at once and isn't directly comparable. See 'How the imbalance was handled' under the label chart for details.</p>
                   </div>
 
                   <h4 class="h6 fw-semibold mb-1 mt-3">What it means</h4>
@@ -533,7 +532,43 @@
           <canvas id="label-chart" aria-label="Bar chart of how many passages carry each of the six labels"></canvas>
         </div>
         <p class="small text-muted mb-0 mt-2">Counts are across all 159 companies. A passage can be counted more than once when it carries more than one label.</p>
-        <p class="small mb-0 mt-2">Notice_Requirement dominates because the law requires every policy to list the data it collects, shares, and sells. Those lists are long, so most of a policy's text is a data inventory.</p>
+        <p class="small mb-0 mt-2">Notice Requirement dominates because that is what privacy policies actually look like. The CPRA requires every policy to list the personal information a company collects, shares, and sells, and those lists are long. The rights sections, like how to delete or opt out, are usually just a few paragraphs. So this imbalance is real, not a flaw in the data.</p>
+
+        <div class="accordion mt-3" id="imbalance-accordion">
+          <div class="accordion-item">
+            <div class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#imbalance-body" aria-expanded="false" aria-controls="imbalance-body">How the imbalance was handled</button>
+            </div>
+            <div id="imbalance-body" class="accordion-collapse collapse">
+              <div class="accordion-body">
+
+                <h4 class="h6 fw-semibold mb-1">Why not just balance the data?</h4>
+                <p class="small mb-0">The validation and test sets were kept in their natural mix on purpose, so the scores reflect how the models would perform on real privacy policies. Instead of changing the data, the imbalance was handled during training and scoring.</p>
+
+                <h4 class="h6 fw-semibold mb-1 mt-3">Four ways the imbalance was handled</h4>
+                <ul class="small mb-2 ps-3">
+                  <li class="mb-1">Class weights: mistakes on rare rights count more during training. Right to Limit gets a weight of 64.92, while Notice gets 0.26.</li>
+                  <li class="mb-1">Focal loss: passages the model already gets right count less, so training focuses on the harder, rarer cases.</li>
+                  <li class="mb-1">A cutoff for each right: each right gets its own cutoff, tuned on validation, instead of one cutoff for all.</li>
+                  <li>Macro F1: every right counts equally in the main score, so a model can't look good by only learning Notice.</li>
+                </ul>
+                <p class="small text-muted mb-0">Class weights, focal loss, and cutoffs apply to LegalBERT and RoBERTa-large. Flan-T5-base writes label names, so it uses standard training.</p>
+
+                <div class="extra-exp">
+                  <div class="extra-exp-label">Additional experiment</div>
+                  <p class="small mb-2">To see what happens when Notice is less dominant, a preliminary second run was done. It used 60% of the C3PA companies instead of 40%, and removed some Notice-only passages from the training set only. Validation and test were not trimmed, so they kept the real-world mix. That run scored about 0.84 to 0.85 macro F1, compared with 0.76 to 0.79 in the main study.</p>
+                  <p class="small mb-0">Why it isn't reported as the main result: it changed two things at once (more companies and less Notice in training), and it was scored on a different set of test companies. So the higher score can't be credited to the trimming alone. It may come from simply having more data. Testing the trimming on its own, as a controlled experiment, is future work.</p>
+                </div>
+
+                <div class="plain-words">
+                  <div class="plain-words-label">In plain words</div>
+                  <p class="small mb-0">Most of a privacy policy is Notice, so the data is naturally imbalanced. I kept the test set in that real-world mix, and handled the imbalance with class weights, focal loss, separate cutoffs, and macro F1. I also tried a preliminary run with more companies and less Notice in training, which scored about 0.84 to 0.85. But it changed two things at once and used different test companies, so it points to future work, not a conclusion.</p>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -876,14 +911,35 @@
               </table>
             </div>
 
-            <h4 class="h6 text-uppercase text-muted mb-2">Checks against leakage</h4>
-            <ul class="small mb-3">
-              <li class="mb-1">Companies are the unit of splitting, so no company's passages appear in two splits.</li>
-              <li class="mb-1">Identical passages shared across policies are removed before splitting.</li>
-              <li class="mb-1">Thresholds and settings are chosen on validation only. The test split is used once, at the end.</li>
-              <li class="mb-1">Every random draw uses seed 42, so the data splits are reproduced exactly.</li>
-              <li class="mb-0">The pipeline is reproducible from <code class="font-mono">CPRA_40pct_CLEAN_(3).ipynb</code> and <code class="font-mono">export_dataset.py</code>.</li>
-            </ul>
+            <h4 class="h6 text-uppercase text-muted mb-2">Committee concerns and how leakage was prevented</h4>
+            <div class="table-responsive mb-3">
+              <table class="table table-sm table-bordered small">
+                <thead class="table-light"><tr><th>Concern</th><th>Before</th><th>After</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="fw-semibold">Overlap</td>
+                    <td>The same passage could appear in more than one group.</td>
+                    <td>992 duplicate passages were removed first. These were mostly template text copied word for word across companies' policies: standard cookie notices (such as 'Strictly Necessary Cookies – Always Active'), section headings like 'Information We Collect,' and standard rights sentences. About 73% were Notice passages. One copy of each was kept, so the text is still learned from, just once. Code checks confirm no company or identical passage is in more than one group. Common words like 'delete' or 'opt out' still appear in both training and testing, which is expected: leakage means the same passage appears in both, not the same words.</td>
+                  </tr>
+                  <tr>
+                    <td class="fw-semibold">A company in two groups</td>
+                    <td>Passages from one policy share wording, so one company could span groups.</td>
+                    <td>Companies are the unit of splitting, so no company's passages appear in two splits.</td>
+                  </tr>
+                  <tr>
+                    <td class="fw-semibold">Tuning on the test set</td>
+                    <td>Tuning on the test set would make the grade look better than it really is.</td>
+                    <td>Thresholds and settings are chosen on validation only. The test split is used once, at the end.</td>
+                  </tr>
+                  <tr>
+                    <td class="fw-semibold">Randomness</td>
+                    <td>A different random draw would produce a different split.</td>
+                    <td>Every random draw uses seed 42, so the data splits are reproduced exactly.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="small mb-3">The pipeline is reproducible from <code class="font-mono">CPRA_40pct_CLEAN_(3).ipynb</code> and <code class="font-mono">export_dataset.py</code>.</p>
 
             <h4 class="h6 text-uppercase text-muted mb-2">No-learning baseline</h4>
             <p class="small mb-0">One strategy that does no learning, scored on the same test split: "Simple rule (label everything Notice)" assigns only the most common label to every passage and scores 0.1473.</p>
