@@ -38,6 +38,8 @@
     .key-terms { background: #f4f6f8; border: 1px solid #e3e8ef; border-radius: .4rem; padding: .75rem .9rem; }
     .accordion-sm .accordion-button { font-size: .85rem; padding: .5rem .75rem; }
     .accordion-sm .accordion-body { padding: .75rem; }
+    .extra-exp { background: #eef4fb; border-left: 4px solid #1b4d89; border-radius: .35rem; padding: .75rem .85rem; margin-top: 1rem; }
+    .extra-exp-label { font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #1b4d89; margin-bottom: .35rem; }
     .why-table thead th, .why-table td { white-space: normal; }
     .why-table { font-size: .8rem; }
     #questions .why-table th, #questions .why-table td { padding: .25rem .25rem; }
@@ -269,8 +271,83 @@
             <span class="fw-semibold">H3</span>
             <span class="badge bg-success">Supported</span>
           </div>
-          <p class="small mb-2">Each model will score above <strong>0.88</strong> on Notice, which is the simple rule's score on that label. It will also score higher on Notice than on each of the five less common rights.</p>
+          <p class="small text-muted mb-2">RQ3: How will the selected models perform against the highest common category, Notice Requirement compared to the rarer categories of consumer rights?</p>
+          <p class="small mb-2">H3: It is projected that each model will achieve an F1 score on Notice Requirement above <strong>0.88</strong>; which is the score of the simple rule on that label, and higher than on each of the five less common classes in the test evaluation.</p>
           <p class="small text-muted mb-0"><strong>Result:</strong> Notice was 0.96 to 0.97 for all three models. The best score any model got on the other five rights was 0.90.</p>
+
+          <div class="accordion mt-3" id="h3-why-accordion">
+            <div class="accordion-item">
+              <h3 class="accordion-header" id="h3-why-head">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#h3-why-body" aria-expanded="false" aria-controls="h3-why-body">Why this bar?</button>
+              </h3>
+              <div id="h3-why-body" class="accordion-collapse collapse" aria-labelledby="h3-why-head">
+                <div class="accordion-body">
+
+                  <h4 class="h6 fw-semibold mb-1">Where does 0.88 come from?</h4>
+                  <p class="small mb-2">It comes from the same 'what if' test used for H1: what if a model just answered 'Notice' for every passage?</p>
+                  <p class="small mb-2">On Notice, that rule gets every real Notice passage, but it also wrongly labels everything else as Notice. Combining precision and recall gives it an F1 of 0.88.</p>
+                  <p class="small mb-0">So 0.88 is the bar for Notice. To beat it, a model has to do more than say 'Notice' every time. It also has to recognize when a passage is not Notice.</p>
+
+                  <h4 class="h6 fw-semibold mb-1 mt-3">Why Notice was expected to score highest</h4>
+                  <p class="small mb-2">Notice has far more training data than any other right, about 9 times more than the next one. This imbalance reflects real privacy policies: most of a policy is lists of the personal information a company collects, shares, and sells, which the CPRA requires companies to disclose. The rights sections are usually just a few paragraphs.</p>
+                  <div class="table-responsive">
+                    <table class="table table-sm table-bordered small mb-0 why-table">
+                      <thead class="table-light">
+                        <tr><th>Category</th><th>Training passages</th></tr>
+                      </thead>
+                      <tbody>
+                        <tr><td class="fw-semibold">Notice</td><td class="fw-semibold">5,016</td></tr>
+                        <tr><td>Right to Know</td><td>555</td></tr>
+                        <tr><td>Right to Opt Out</td><td>408</td></tr>
+                        <tr><td>Right to Delete</td><td>248</td></tr>
+                        <tr><td>Right to Correct</td><td>167</td></tr>
+                        <tr><td>Right to Limit</td><td>96</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <h4 class="h6 fw-semibold mb-1 mt-3">What happened</h4>
+                  <div class="table-responsive">
+                    <table class="table table-sm table-bordered small mb-2 why-table">
+                      <thead class="table-light">
+                        <tr><th>Model</th><th>Notice</th><th>Beat 0.88?</th><th>Best of the other five</th><th>Notice highest?</th></tr>
+                      </thead>
+                      <tbody>
+                        <tr><td>LegalBERT</td><td>0.96</td><td>Yes</td><td>0.90 (Opt Out)</td><td>Yes</td></tr>
+                        <tr><td>RoBERTa-large</td><td>0.96</td><td>Yes</td><td>0.88 (Delete)</td><td>Yes</td></tr>
+                        <tr><td>Flan-T5-base</td><td>0.97</td><td>Yes</td><td>0.90 (Delete)</td><td>Yes</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="small mb-0">Both parts of H3 hold for all three models.</p>
+
+                  <h4 class="h6 fw-semibold mb-1 mt-3">Data didn't explain everything</h4>
+                  <ul class="small mb-2 ps-3">
+                    <li class="mb-1">Right to Know had 555 training passages but scored only 0.65 to 0.69. Its passages describe the types of personal information a company collects, which can look a lot like Notice passages, so the models sometimes confused the two.</li>
+                    <li class="mb-1">Right to Correct had only 167 training passages but scored 0.76 to 0.88.</li>
+                    <li>Right to Limit scored lowest (0.40 to 0.45), but it had only 16 test passages, so its score is the least reliable.</li>
+                  </ul>
+                  <p class="small mb-0">So more data helps, but how distinct a right's wording is also matters. Right to Know and Right to Limit would benefit most from human review.</p>
+
+                  <div class="extra-exp">
+                    <div class="extra-exp-label">Additional experiment</div>
+                    <p class="small mb-2">Since Notice dominates the data, a preliminary second run tested what happens when it is less dominant. That run used 60% of the C3PA companies instead of 40%, and removed some Notice-only passages from the training set. It scored about 0.84 to 0.85 macro F1.</p>
+                    <p class="small mb-0">This is not directly comparable to the main results: it changed two things at once (more companies and less Notice), and it used a different set of test companies. So the higher scores cannot be credited to the trimming alone. Testing this as a controlled experiment is future work.</p>
+                  </div>
+
+                  <h4 class="h6 fw-semibold mb-1 mt-3">What it means</h4>
+                  <p class="small mb-0">The models are most dependable on Notice and the clearly worded rights, like Right to Delete and Right to Opt Out. The imbalance in the data is real, not a flaw in the dataset, because it reflects how privacy policies are actually written. In practice, a compliance reviewer should check Right to Know and Right to Limit most closely.</p>
+
+                  <div class="plain-words">
+                    <div class="plain-words-label">In plain words</div>
+                    <p class="small mb-0">Notice is most of what a privacy policy says, so it has the most training data, and the models scored highest on it, 0.96 to 0.97, well above the 0.88 'what if' bar. But more data didn't explain everything: Right to Know looks a lot like Notice and scored lower. I also tried a preliminary run with more companies and less Notice, which scored about 0.84 to 0.85, but it changed two things at once, so it's future work, not a result.</p>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div></div>
       </div>
     </div>
