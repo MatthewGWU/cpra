@@ -44,7 +44,8 @@
     .why-table { font-size: .8rem; }
     #questions .why-table th, #questions .why-table td { padding: .25rem .25rem; }
     #questions .row:has(.accordion-collapse.show) .card,
-    #models .row:has(.accordion-collapse.show) .card { height: auto !important; }
+    #models .row:has(.accordion-collapse.show) .card,
+    #splits .row:has(.accordion-collapse.show) .card { height: auto !important; }
     @media (max-width: 575.98px) { .flow-arrow { display: none; } }
   </style>
 </head>
@@ -578,6 +579,19 @@
           <div class="position-relative mt-2" style="height: 130px;">
             <canvas id="mini-train" aria-label="Label counts in the train split"></canvas>
           </div>
+
+          <div class="accordion mt-3" id="train-detail">
+            <div class="accordion-item">
+              <div class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#train-detail-body" aria-expanded="false" aria-controls="train-detail-body">More detail</button>
+              </div>
+              <div id="train-detail-body" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                  <p class="small mb-0">Each model reads a passage along with its correct labels, makes a guess, and compares it to the right answer. After each small batch of passages (8 at a time, or 4 for RoBERTa-large), it adjusts itself to make fewer mistakes. One full pass through all 6,328 passages is an epoch: LegalBERT trained for 2, RoBERTa-large up to 6, and Flan-T5-base for 5. Class weights and focal loss are applied here so rare rights count more. The models never see validation or test passages during training.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div></div>
       </div>
       <div class="col-md-4">
@@ -588,6 +602,19 @@
           <div class="position-relative mt-2" style="height: 130px;">
             <canvas id="mini-val" aria-label="Label counts in the validation split"></canvas>
           </div>
+
+          <div class="accordion mt-3" id="val-detail">
+            <div class="accordion-item">
+              <div class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#val-detail-body" aria-expanded="false" aria-controls="val-detail-body">More detail</button>
+              </div>
+              <div id="val-detail-body" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                  <p class="small mb-0">The models are never trained on these passages. Validation is only used to make choices: after each epoch, the best-scoring version of each model is kept; settings are compared (two setups for LegalBERT, 2 vs. 6 epochs for RoBERTa-large); and each right's cutoff is chosen by trying values from 0.10 to 0.825. Because choices are made here, the final model is indirectly fitted to validation, which is why a separate test set is still needed.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div></div>
       </div>
       <div class="col-md-4">
@@ -597,6 +624,19 @@
           <div class="small mb-1"><strong>25</strong> companies &middot; <strong>1,720</strong> passages</div>
           <div class="position-relative mt-2" style="height: 130px;">
             <canvas id="mini-test" aria-label="Label counts in the test split"></canvas>
+          </div>
+
+          <div class="accordion mt-3" id="test-detail">
+            <div class="accordion-item">
+              <div class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#test-detail-body" aria-expanded="false" aria-controls="test-detail-body">More detail</button>
+              </div>
+              <div id="test-detail-body" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                  <p class="small mb-0">After every choice was locked in, each model was run on these 25 companies one time. Every result reported on this site comes from that single pass. Nothing was chosen on the test set, and nothing was changed after seeing the results.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div></div>
       </div>
