@@ -41,7 +41,7 @@
     "labels": [
       "Right_to_Delete"
     ],
-    "note": "This passage is labeled Right_to_Delete in the dataset, and the model agreed. The top word is delete. Most of the passage is a list of exceptions, and those words push the model away from the label.",
+    "note": "This passage is labeled Right_to_Delete in the dataset, and the model agreed. The top word is 'delete.' Common words like 'on' and 'have' also carried weight, and 'by' pushed slightly away from the label.",
     "lime": {
       "Right_to_Delete": [
         {
