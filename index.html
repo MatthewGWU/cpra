@@ -33,10 +33,14 @@
     .plain-words { background: #fff8e1; border-left: 4px solid #d4a017; border-radius: .35rem; padding: .75rem .85rem; margin-top: 1rem; }
     .plain-words-label { font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #8a6d1a; margin-bottom: .35rem; }
     .plain-words p { font-style: italic; }
+    .why-not { background: #f1f3f5; border-left: 4px solid #adb5bd; border-radius: .35rem; padding: .75rem .85rem; margin-top: 1rem; }
+    .why-not-label { font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #5c636a; margin-bottom: .35rem; }
+    .key-terms { background: #f4f6f8; border: 1px solid #e3e8ef; border-radius: .4rem; padding: .75rem .9rem; }
     .why-table thead th, .why-table td { white-space: normal; }
-    #h1-why-body .why-table { font-size: .8rem; }
-    #h1-why-body .why-table th, #h1-why-body .why-table td { padding: .25rem .25rem; }
-    #questions .row:has(.accordion-collapse.show) .card { height: auto !important; }
+    .why-table { font-size: .8rem; }
+    #questions .why-table th, #questions .why-table td { padding: .25rem .25rem; }
+    #questions .row:has(.accordion-collapse.show) .card,
+    #models .row:has(.accordion-collapse.show) .card { height: auto !important; }
     @media (max-width: 575.98px) { .flow-arrow { display: none; } }
   </style>
 </head>
@@ -55,8 +59,8 @@
       <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
         <li class="nav-item"><a class="nav-link" href="#why">Why</a></li>
         <li class="nav-item"><a class="nav-link" href="#questions">Questions</a></li>
-        <li class="nav-item"><a class="nav-link" href="#data">Data</a></li>
         <li class="nav-item"><a class="nav-link" href="#models">How it works</a></li>
+        <li class="nav-item"><a class="nav-link" href="#data">Data</a></li>
         <li class="nav-item"><a class="nav-link" href="#splits">Splits</a></li>
         <li class="nav-item"><a class="nav-link" href="#math">The math</a></li>
         <li class="nav-item"><a class="nav-link" href="#why-said">Reasons</a></li>
@@ -188,11 +192,64 @@
         <div class="card h-100"><div class="card-body p-3">
           <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
             <span class="fw-semibold">H2</span>
-            <span class="badge bg-success">Supported</span>
+            <span class="badge bg-success">Supported in this run</span>
           </div>
-          <p class="small mb-2">RoBERTa-large and Flan-T5-base will score a higher macro F1 than LegalBERT.</p>
-          <p class="small text-muted mb-2"><strong>Result:</strong> RoBERTa-large 0.7734 and Flan-T5-base 0.7949 vs LegalBERT 0.7562 (1.7 and 3.9 percentage points higher). Supported in this run.</p>
+          <p class="small text-muted mb-2">RQ2: When looking at classifying CPRA Consumer Rights from Company's privacy policies, what is the difference between LegalBERT, RoBERTa-large, and Flan-T5's macro F1 performance?</p>
+          <p class="small mb-2">H2: RoBERTa-large and Flan-T5 are both projected to outperform LegalBERT in terms of macro F1 score on the test data.</p>
+          <p class="small text-muted mb-2"><strong>Result:</strong> RoBERTa-large 0.7734 and Flan-T5-base 0.7949 vs LegalBERT 0.7562 (1.7 and 3.9 percentage points higher).</p>
           <p class="small text-muted mb-0">This is a single run, so it does not prove one model is better.</p>
+
+          <div class="accordion mt-3" id="h2-why-accordion">
+            <div class="accordion-item">
+              <h3 class="accordion-header" id="h2-why-head">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#h2-why-body" aria-expanded="false" aria-controls="h2-why-body">Why this was expected</button>
+              </h3>
+              <div id="h2-why-body" class="accordion-collapse collapse" aria-labelledby="h2-why-head">
+                <div class="accordion-body">
+
+                  <h4 class="h6 fw-semibold mb-1">One legal model vs. two general models</h4>
+                  <p class="small mb-0">LegalBERT was trained on legal text. RoBERTa-large and Flan-T5-base were trained on general text. A common belief is that legal models do better on legal tasks. H2 tests whether that holds for CPRA privacy policies.</p>
+
+                  <h4 class="h6 fw-semibold mb-1 mt-3">Why the general models were expected to score higher</h4>
+                  <ul class="small mb-0 ps-3">
+                    <li class="mb-1">Prior research: in the LexGLUE legal benchmark (Chalkidis et al., 2022), RoBERTa-large was competitive with, and could surpass, LegalBERT.</li>
+                    <li class="mb-1">RoBERTa-large: about 3.2 times larger than LegalBERT, and an improved version of the BERT design LegalBERT is built on.</li>
+                    <li>Flan-T5-base: a different design that reads and writes text, trained on over 1,800 instruction tasks.</li>
+                  </ul>
+
+                  <h4 class="h6 fw-semibold mb-1 mt-3">What happened</h4>
+                  <div class="table-responsive">
+                    <table class="table table-sm table-bordered small mb-2 why-table">
+                      <thead class="table-light">
+                        <tr><th>Model</th><th>Type</th><th>Macro F1</th><th>vs. LegalBERT</th></tr>
+                      </thead>
+                      <tbody>
+                        <tr><td>LegalBERT</td><td>Legal</td><td>0.7562</td><td>&ndash;</td></tr>
+                        <tr><td>RoBERTa-large</td><td>General</td><td>0.7734</td><td>+1.7 points</td></tr>
+                        <tr><td>Flan-T5-base</td><td>General</td><td>0.7949</td><td>+3.9 points</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="small mb-0">LegalBERT still scored highest on one right, Right to Opt Out (0.90).</p>
+
+                  <h4 class="h6 fw-semibold mb-1 mt-3">What it does not show</h4>
+                  <p class="small mb-0">The gaps are small, come from one run, and the models differ in size and design. So this does not show which model is better, or why.</p>
+
+                  <div class="why-not">
+                    <div class="why-not-label">Why not ChatGPT?</div>
+                    <p class="small mb-0">Chatbot models like GPT can answer in any words they choose and often make up legal facts: one study found they hallucinate on legal questions 58&ndash;88% of the time (Dahl et al., 2024). This study used models trained on labeled CPRA examples that can only answer with the six CPRA categories, so every decision can be scored, rerun, and checked.</p>
+                  </div>
+
+                  <div class="plain-words">
+                    <div class="plain-words-label">In plain words</div>
+                    <p class="small mb-0">Prior research found larger general models like RoBERTa-large can match or beat LegalBERT, so I expected the two general models to score higher. They did, by 1.7 and 3.9 points. But that's one run with different-sized models, so I'm not claiming one is better. LegalBERT actually scored highest on Right to Opt Out.</p>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div></div>
       </div>
       <div class="col-lg-4">
@@ -207,6 +264,134 @@
       </div>
     </div>
     <p class="small text-muted mt-3 mb-0">Each hypothesis is judged on one run on the test set.</p>
+  </section>
+
+  <section id="models" class="mb-5">
+    <h2 class="h4 mb-3">How the models work</h2>
+
+    <div class="key-terms mb-3">
+      <p class="small fw-semibold mb-1">Key terms</p>
+      <ul class="small mb-0 ps-3">
+        <li class="mb-1">Parameters: the internal settings a model adjusts while it learns. More parameters generally means a bigger model that can capture more patterns.</li>
+        <li class="mb-1">Pretraining: the general reading a model did before this study, on a large amount of text.</li>
+        <li class="mb-1">Fine-tuning: the training done in this study, where each model learned the six CPRA categories from 6,328 labeled passages.</li>
+        <li class="mb-1">Encoder-only: reads a passage and gives a score for each category.</li>
+        <li>Encoder-decoder: reads a passage and writes an answer as text.</li>
+      </ul>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <div class="card model-card h-100"><div class="card-body p-3">
+          <div class="card-title h6 mb-2">LegalBERT <small class="text-muted">(2020)</small></div>
+          <p class="small mb-2">About <strong>110 million</strong> parameters. It reads text only (encoder only). It was trained on legal documents, such as legislation, court cases, and contracts.</p>
+          <p class="small text-muted mb-0"><strong>Why I chose it:</strong> it's designed for legal text, so it's a natural reference point for a legal task.</p>
+
+          <div class="accordion mt-3" id="legalbert-detail">
+            <div class="accordion-item">
+              <div class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#legalbert-detail-body" aria-expanded="false" aria-controls="legalbert-detail-body">More detail</button>
+              </div>
+              <div id="legalbert-detail-body" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                  <p class="small mb-2"><strong>Who made it:</strong> researchers at the Athens University of Economics and Business.</p>
+                  <p class="small mb-2"><strong>History:</strong> built on BERT, a model Google released in 2018. LegalBERT is BERT pretrained from scratch on 12 GB of English legal text, including legislation, court cases, and contracts.</p>
+                  <p class="small mb-2"><strong>Size:</strong> about 110 million parameters (12 layers).</p>
+                  <p class="small mb-2"><strong>How it was used here:</strong> fine-tuned on the CPRA training set to give a score for each of the six categories. Each category has its own cutoff, chosen on the validation set.</p>
+                  <p class="small mb-0"><strong>Why it was chosen:</strong> it represents the common belief that a model pretrained on legal text is needed for strong results on legal tasks. It is the legal-domain reference point the other two models are compared against.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div></div>
+      </div>
+      <div class="col-md-4">
+        <div class="card model-card h-100"><div class="card-body p-3">
+          <div class="card-title h6 mb-2">RoBERTa-large <small class="text-muted">(2019)</small></div>
+          <p class="small mb-2">About <strong>355 million</strong> parameters. It reads text only (encoder only). It was trained on general English, not legal text.</p>
+          <p class="small text-muted mb-0"><strong>Why I chose it:</strong> to see how a strong general-purpose model does on the same task without legal training.</p>
+
+          <div class="accordion mt-3" id="roberta-detail">
+            <div class="accordion-item">
+              <div class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#roberta-detail-body" aria-expanded="false" aria-controls="roberta-detail-body">More detail</button>
+              </div>
+              <div id="roberta-detail-body" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                  <p class="small mb-2"><strong>Who made it:</strong> Facebook AI Research (now Meta).</p>
+                  <p class="small mb-2"><strong>History:</strong> an improved version of BERT, the same design LegalBERT is built on. It made three changes: it removed a training step that hurt performance (next sentence prediction), it hid different words each time it trained (dynamic masking), and it trained on 160 GB of general English text, ten times more than BERT's 16 GB.</p>
+                  <p class="small mb-2"><strong>Size:</strong> about 355 million parameters (24 layers), about 3.2 times larger than LegalBERT.</p>
+                  <p class="small mb-2"><strong>How it was used here:</strong> set up the same way as LegalBERT, giving a score for each of the six categories with its own validation-tuned cutoff.</p>
+                  <p class="small mb-0"><strong>Why it was chosen:</strong> it is a strong general-purpose model with no legal pretraining. In the LexGLUE legal benchmark (Chalkidis et al., 2022), it was competitive with, and could surpass, LegalBERT.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div></div>
+      </div>
+      <div class="col-md-4">
+        <div class="card model-card h-100"><div class="card-body p-3">
+          <div class="card-title h6 mb-2">Flan-T5-base <small class="text-muted">(2022)</small></div>
+          <p class="small mb-2">About <strong>250 million</strong> parameters. It reads text <em>and</em> writes text (encoder-decoder). It was trained on 1,800+ instruction tasks.</p>
+          <p class="small text-muted mb-0"><strong>Why I chose it:</strong> to include a different design, so the results aren't limited to one type of model.</p>
+
+          <div class="accordion mt-3" id="flan-detail">
+            <div class="accordion-item">
+              <div class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flan-detail-body" aria-expanded="false" aria-controls="flan-detail-body">More detail</button>
+              </div>
+              <div id="flan-detail-body" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                  <p class="small mb-2"><strong>Who made it:</strong> Google.</p>
+                  <p class="small mb-2"><strong>History:</strong> built on T5, which treats every task as text in, text out. 'Flan' means it was further trained on over 1,800 instruction tasks, such as classification, question answering, summarization, and translation, so it is good at following instructions.</p>
+                  <p class="small mb-2"><strong>Size:</strong> about 250 million parameters, split across an encoder (which reads) and a decoder (which writes). That makes it smaller than RoBERTa-large but larger than LegalBERT.</p>
+                  <p class="small mb-2"><strong>How it was used here:</strong> each passage was given to it as an instruction, and it wrote back the matching label names. Only the six valid CPRA label names were kept, so it could not give open-ended answers. Because it writes words instead of giving scores, it has no cutoffs and uses standard cross-entropy loss instead of focal loss.</p>
+                  <p class="small mb-0"><strong>Why it was chosen:</strong> to include a different kind of model, so the results are not limited to versions of BERT.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div></div>
+      </div>
+    </div>
+
+    <p class="small text-muted section-lead mb-3">All three models were trained on the same data, with the same split and the same seed, and all tuning was done on the validation set. They differ in size, design, and settings, so this study compares how they perform, not why one scores higher.</p>
+
+    <div class="card mb-3">
+      <div class="card-header">How a passage becomes a label</div>
+      <div class="card-body">
+        <p class="small fw-semibold mb-2">LegalBERT and RoBERTa-large</p>
+        <div class="flow mb-2">
+          <div class="flow-box">Passage</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">Model reads it</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">6 scores, one per right, each 0 to 1</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">Compare each score to its cutoff</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">Labels</div>
+        </div>
+        <p class="small text-muted mb-4">These models give a confidence score for each right. If the score is above that right's cutoff, the passage gets the label.</p>
+
+        <p class="small fw-semibold mb-2">Flan-T5-base</p>
+        <div class="flow mb-2">
+          <div class="flow-box">Instruction + passage</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">Model reads it</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">Model writes the label names as text</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">Keep only valid label names</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">Labels</div>
+        </div>
+        <p class="small text-muted mb-0">Flan-T5-base writes its answer, like "Right_to_Delete." Anything that isn't one of the six label names is ignored. Because it writes words instead of giving scores, it has no cutoffs and uses regular cross-entropy loss.</p>
+      </div>
+    </div>
   </section>
 
   <section id="data" class="mb-5">
@@ -262,68 +447,6 @@
         <p class="small mb-0 mt-2">Notice_Requirement dominates because the law requires every policy to list the data it collects, shares, and sells. Those lists are long, so most of a policy's text is a data inventory.</p>
       </div>
     </div>
-  </section>
-
-  <section id="models" class="mb-5">
-    <h2 class="h4 mb-3">How the models work</h2>
-    <div class="row g-3 mb-3">
-      <div class="col-md-4">
-        <div class="card model-card h-100"><div class="card-body p-3">
-          <div class="card-title h6 mb-2">LegalBERT <small class="text-muted">(2020)</small></div>
-          <p class="small mb-2">About <strong>110 million</strong> parameters. It reads text only (encoder only). It was trained on legal documents, such as legislation, court cases, and contracts.</p>
-          <p class="small text-muted mb-0"><strong>Why I chose it:</strong> it's designed for legal text, so it's a natural reference point for a legal task.</p>
-        </div></div>
-      </div>
-      <div class="col-md-4">
-        <div class="card model-card h-100"><div class="card-body p-3">
-          <div class="card-title h6 mb-2">RoBERTa-large <small class="text-muted">(2019)</small></div>
-          <p class="small mb-2">About <strong>355 million</strong> parameters. It reads text only (encoder only). It was trained on general English, not legal text.</p>
-          <p class="small text-muted mb-0"><strong>Why I chose it:</strong> to see how a strong general-purpose model does on the same task without legal training.</p>
-        </div></div>
-      </div>
-      <div class="col-md-4">
-        <div class="card model-card h-100"><div class="card-body p-3">
-          <div class="card-title h6 mb-2">Flan-T5-base <small class="text-muted">(2022)</small></div>
-          <p class="small mb-2">About <strong>250 million</strong> parameters. It reads text <em>and</em> writes text (encoder-decoder). It was trained on 1,800+ instruction tasks.</p>
-          <p class="small text-muted mb-0"><strong>Why I chose it:</strong> to include a different design, so the results aren't limited to one type of model.</p>
-        </div></div>
-      </div>
-    </div>
-
-    <div class="card mb-3">
-      <div class="card-header">How a passage becomes a label</div>
-      <div class="card-body">
-        <p class="small fw-semibold mb-2">LegalBERT and RoBERTa-large</p>
-        <div class="flow mb-2">
-          <div class="flow-box">Passage</div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-box">Model reads it</div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-box">6 scores, one per right, each 0 to 1</div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-box">Compare each score to its cutoff</div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-box">Labels</div>
-        </div>
-        <p class="small text-muted mb-4">These models give a confidence score for each right. If the score is above that right's cutoff, the passage gets the label.</p>
-
-        <p class="small fw-semibold mb-2">Flan-T5-base</p>
-        <div class="flow mb-2">
-          <div class="flow-box">Instruction + passage</div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-box">Model reads it</div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-box">Model writes the label names as text</div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-box">Keep only valid label names</div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-box">Labels</div>
-        </div>
-        <p class="small text-muted mb-0">Flan-T5-base writes its answer, like "Right_to_Delete." Anything that isn't one of the six label names is ignored. Because it writes words instead of giving scores, it has no cutoffs and uses regular cross-entropy loss.</p>
-      </div>
-    </div>
-
-    <p class="small text-muted section-lead mb-0">Because these models differ in size, design, and training, this study compares how they perform, not why one scores higher.</p>
   </section>
 
   <section id="splits" class="mb-5">
