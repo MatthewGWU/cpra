@@ -37,6 +37,11 @@
     .why-not-label { font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #5c636a; margin-bottom: .35rem; }
     .key-terms { background: #f4f6f8; border: 1px solid #e3e8ef; border-radius: .4rem; padding: .75rem .9rem; }
     .summary-box { background: #f4f6f8; border-radius: .4rem; padding: .75rem .9rem; }
+    .pipeline-group-label { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #1b4d89; margin: 1.5rem 0 .75rem; }
+    .pipeline-group-label:first-child { margin-top: 0; }
+    .pipeline-card { border-left: 3px solid #1b4d89; background: #fff; border-radius: .35rem; padding: .75rem .9rem; margin-bottom: .25rem; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+    .pipeline-step-num { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; background: #1b4d89; color: #fff; border-radius: 50%; font-size: .75rem; font-weight: 700; flex-shrink: 0; }
+    .pipeline-arrow-v { text-align: center; color: #1b4d89; font-size: .9rem; line-height: 1; margin: .1rem 0; opacity: .5; }
     .accordion-sm .accordion-button { font-size: .85rem; padding: .5rem .75rem; }
     .accordion-sm .accordion-body { padding: .75rem; }
     .extra-exp { background: #eef4fb; border-left: 4px solid #1b4d89; border-radius: .35rem; padding: .75rem .85rem; margin-top: 1rem; }
@@ -1024,77 +1029,197 @@
   </section>
 
   <section id="technical" class="mb-5">
-    <h2 class="h4 mb-3">Technical details</h2>
-    <div class="accordion" id="technical-accordion">
+    <h2 class="h4 mb-3">The full pipeline, step by step</h2>
+
+    <div class="pipeline-group-label">Preparing the data</div>
+
+    <div class="pipeline-card">
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="pipeline-step-num">1</span>
+        <span class="fw-semibold">Start with C3PA</span>
+      </div>
+      <p class="small mb-0">C3PA is a public dataset of real company privacy policies, labeled by trained legal annotators (law students). It covers <strong>400</strong> companies, with <strong>45,121</strong> labeled pieces of text across <strong>13</strong> categories.</p>
+    </div>
+    <div class="pipeline-arrow-v">&darr;</div>
+
+    <div class="pipeline-card">
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="pipeline-step-num">2</span>
+        <span class="fw-semibold">Match the labels to the CPRA</span>
+      </div>
+      <p class="small mb-0">Ten of C3PA's 13 categories were grouped into the <strong>6</strong> CPRA categories used in this study. For example, what data a company collects, shares, or sells, plus updates to the policy, all became Notice Requirement. The other 3 (methods to exercise rights, Nondiscrimination, and 'Other') were set aside. <strong>39,627</strong> labeled pieces remain.</p>
+    </div>
+    <div class="pipeline-arrow-v">&darr;</div>
+
+    <div class="pipeline-card">
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="pipeline-step-num">3</span>
+        <span class="fw-semibold">Combine repeats within each policy</span>
+      </div>
+      <p class="small mb-0">Sometimes the same text in one policy was tagged more than once. Those repeats were merged into one passage carrying all of its labels, so nothing is counted twice. Some passages describe more than one right, which makes this a multi-label task. <strong>26,740</strong> passages.</p>
+    </div>
+    <div class="pipeline-arrow-v">&darr;</div>
+
+    <div class="pipeline-card">
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="pipeline-step-num">4</span>
+        <span class="fw-semibold">Remove duplicates across companies</span>
+      </div>
+      <p class="small mb-0">Template text, like standard cookie notices and section headings, appeared word for word in many companies' policies. One copy of each was kept and the rest were removed, so the same text can't end up in both training and testing. <strong>992</strong> duplicates removed, leaving <strong>25,748</strong> passages from <strong>399</strong> companies. (One company dropped out because none of its text fell under the 6 categories.)</p>
+    </div>
+    <div class="pipeline-arrow-v">&darr;</div>
+
+    <div class="pipeline-card">
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="pipeline-step-num">5</span>
+        <span class="fw-semibold">Take a 40% sample</span>
+      </div>
+      <p class="small mb-0">Due to computing limits, <strong>40%</strong> of the companies were randomly selected, using seed 42 so the sample is the same every run. <strong>159</strong> companies (92 data brokers and 67 websites), <strong>9,640</strong> passages. Using the full dataset is future work.</p>
+    </div>
+    <div class="pipeline-arrow-v">&darr;</div>
+
+    <div class="pipeline-card">
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="pipeline-step-num">6</span>
+        <span class="fw-semibold">Split by company</span>
+      </div>
+      <p class="small mb-0">The 159 companies were split <strong>70 / 15 / 15</strong>, so every company's passages stay in one group. Training: <strong>111</strong> companies (<strong>6,328</strong> passages). Validation: <strong>23</strong> companies (<strong>1,592</strong>). Test: <strong>25</strong> companies (<strong>1,720</strong>). Code checks confirm no company or identical passage appears in more than one group.</p>
+    </div>
+
+    <div class="pipeline-group-label">Training and choosing</div>
+
+    <div class="pipeline-card">
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="pipeline-step-num">7</span>
+        <span class="fw-semibold">Train the three models</span>
+      </div>
+      <p class="small mb-2">LegalBERT, RoBERTa-large, and Flan-T5-base each learned from the same <strong>6,328</strong> training passages and their correct labels. To handle the imbalance, LegalBERT and RoBERTa-large used class weights (rare rights count more) and focal loss (easy passages count less). Flan-T5-base writes label names, so it used standard cross-entropy. Each model's settings were set individually, since each is a different size and design.</p>
+
+      <div class="accordion" id="step7-accordion">
+        <div class="accordion-item">
+          <div class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#step7-settings-body" aria-expanded="false">Training settings</button>
+          </div>
+          <div id="step7-settings-body" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <div class="table-responsive">
+                <table class="table table-sm table-bordered small">
+                  <thead class="table-light"><tr><th>Setting</th><th>LegalBERT</th><th>RoBERTa-large</th><th>Flan-T5-base</th></tr></thead>
+                  <tbody>
+                    <tr><td>Learning rate</td><td>2e-5</td><td>2e-5</td><td>3e-4</td></tr>
+                    <tr><td>Epochs</td><td>2</td><td>Up to 6</td><td>5</td></tr>
+                    <tr><td>Batch size</td><td>8</td><td>4</td><td>8</td></tr>
+                    <tr><td>Weight decay</td><td>0.01</td><td>0.01</td><td>0.01</td></tr>
+                    <tr><td>Warmup</td><td>6% of steps</td><td>6% of steps</td><td>100 steps</td></tr>
+                    <tr><td>Early stopping</td><td>patience 3</td><td>patience 2</td><td>none</td></tr>
+                    <tr><td>Max length</td><td>512</td><td>256</td><td>256</td></tr>
+                    <tr><td>Dropout</td><td>0.2</td><td>0.2</td><td>default</td></tr>
+                    <tr><td>Loss</td><td>Focal loss (&gamma;=1.0) + class weights</td><td>Focal loss (&gamma;=1.0) + class weights</td><td>Cross entropy</td></tr>
+                    <tr><td>Seed</td><td>42</td><td>42</td><td>42</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="small text-muted mb-0">Two candidate setups were compared on validation for LegalBERT and for RoBERTa-large. Flan-T5-base used fixed settings.</p>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item mt-2">
+          <div class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#step7-weights-body" aria-expanded="false">Class weights</button>
+          </div>
+          <div id="step7-weights-body" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <div class="table-responsive">
+                <table class="table table-sm table-bordered small">
+                  <thead class="table-light"><tr><th>Label</th><th>Per-class weight</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>Notice_Requirement</code></td><td>0.26</td></tr>
+                    <tr><td><code>Right_to_Know</code></td><td>10.40</td></tr>
+                    <tr><td><code>Right_to_Opt_Out</code></td><td>14.51</td></tr>
+                    <tr><td><code>Right_to_Delete</code></td><td>24.52</td></tr>
+                    <tr><td><code>Right_to_Correct</code></td><td>36.89</td></tr>
+                    <tr><td><code>Right_to_Limit_Sensitive</code></td><td>64.92</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="small text-muted mb-0">Weight = passages without the label &divide; passages with the label, from the training set only.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pipeline-arrow-v">&darr;</div>
+
+    <div class="pipeline-card">
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="pipeline-step-num">8</span>
+        <span class="fw-semibold">Make every choice on validation</span>
+      </div>
+      <p class="small mb-2">The models are never trained on the <strong>1,592</strong> validation passages. Validation is only used to make choices: the best-scoring version of each model is kept (LegalBERT and RoBERTa-large stop automatically once they stop improving), the better of the two candidate setups is kept, and each right's cutoff is chosen by trying values from <strong>0.10</strong> to <strong>0.825</strong>. Nothing is chosen on the test set.</p>
+
+      <div class="accordion" id="step8-accordion">
+        <div class="accordion-item">
+          <div class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#step8-thresholds-body" aria-expanded="false">Thresholds (cutoffs per right)</button>
+          </div>
+          <div id="step8-thresholds-body" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <p class="small text-muted mb-2">A threshold is the probability above which a passage is given a label. For LegalBERT and RoBERTa-large I tuned one threshold per label on the validation set. I used the same rule for both. I tried every value from 0.10 to 0.825 in steps of 0.025. I kept the one with the best validation macro F1. Flan-T5-base writes label names as text, so it has no thresholds.</p>
+              <div class="table-responsive">
+                <table class="table table-sm table-bordered small">
+                  <thead class="table-light"><tr><th>Label</th><th>LegalBERT</th><th>RoBERTa-large</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>Notice_Requirement</code></td><td>0.400</td><td>0.100</td></tr>
+                    <tr><td><code>Right_to_Correct</code></td><td>0.500</td><td>0.750</td></tr>
+                    <tr><td><code>Right_to_Delete</code></td><td>0.725</td><td>0.725</td></tr>
+                    <tr><td><code>Right_to_Know</code></td><td>0.825</td><td>0.800</td></tr>
+                    <tr><td><code>Right_to_Limit_Sensitive</code></td><td>0.425</td><td>0.575</td></tr>
+                    <tr><td><code>Right_to_Opt_Out</code></td><td>0.475</td><td>0.800</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline-group-label">Testing and explaining</div>
+
+    <div class="pipeline-card">
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="pipeline-step-num">9</span>
+        <span class="fw-semibold">Test once</span>
+      </div>
+      <p class="small mb-0">With everything locked in, each model was run on the <strong>25</strong> unseen test companies (<strong>1,720</strong> passages) one time. Every result on this site comes from that single pass, and nothing was changed afterward.</p>
+    </div>
+    <div class="pipeline-arrow-v">&darr;</div>
+
+    <div class="pipeline-card">
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="pipeline-step-num">10</span>
+        <span class="fw-semibold">Score the results</span>
+      </div>
+      <p class="small mb-0">Each model's labels were compared with the correct answers to get precision, recall, and F1 for each right, then averaged into macro F1. The models scored <strong>0.7562</strong> to <strong>0.7949</strong> macro F1, compared with <strong>0.15</strong> for the 'what if' rule that labels everything Notice.</p>
+    </div>
+    <div class="pipeline-arrow-v">&darr;</div>
+
+    <div class="pipeline-card">
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="pipeline-step-num">11</span>
+        <span class="fw-semibold">Explain selected decisions</span>
+      </div>
+      <p class="small mb-0">SHAP (LegalBERT and RoBERTa-large) and LIME (Flan-T5-base) were run on selected test passages to show which words pushed each decision. These are examples, not proof that the models understand the law.</p>
+    </div>
+
+    <div class="accordion mt-4" id="committee-concerns-accordion">
       <div class="accordion-item">
-        <h3 class="accordion-header" id="tech-head">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#tech-body" aria-expanded="false">Show pipeline, settings, and checks</button>
-        </h3>
-        <div id="tech-body" class="accordion-collapse collapse" aria-labelledby="tech-head" data-bs-parent="#technical-accordion">
+        <div class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#committee-concerns-body" aria-expanded="false">Committee concerns and how leakage was prevented</button>
+        </div>
+        <div id="committee-concerns-body" class="accordion-collapse collapse">
           <div class="accordion-body">
-
-            <h4 class="h6 text-uppercase text-muted mb-2">Pipeline, in order</h4>
-            <ol class="small mb-4">
-              <li>Group raw expert annotations into <code>(document, text)</code> passages and merge duplicate rows: 45,121 rows become 26,740 passages.</li>
-              <li>Deduplicate so each sentence appears once. Identical boilerplate shared across policies (992 passages) is removed, leaving 25,748 passages across 399 documents.</li>
-              <li>Subsample to 40% of documents at random with seed 42, giving 159 documents and 9,640 passages.</li>
-              <li>Split by document 70 / 15 / 15 with seed 42.</li>
-            </ol>
-
-            <h4 class="h6 text-uppercase text-muted mb-2">Training settings</h4>
-            <div class="table-responsive mb-4">
-              <table class="table table-sm table-bordered">
-                <thead class="table-light"><tr><th>Setting</th><th>LegalBERT</th><th>RoBERTa-large</th><th>Flan-T5-base</th></tr></thead>
-                <tbody>
-                  <tr><td>Learning rate</td><td>2e-5</td><td>2e-5</td><td>3e-4</td></tr>
-                  <tr><td>Epochs</td><td>2</td><td>Up to 6</td><td>5</td></tr>
-                  <tr><td>Batch size</td><td>8</td><td>4</td><td>8</td></tr>
-                  <tr><td>Weight decay</td><td>0.01</td><td>0.01</td><td>0.01</td></tr>
-                  <tr><td>Warmup</td><td>6% of steps</td><td>6% of steps</td><td>100 steps</td></tr>
-                  <tr><td>Early stopping</td><td>patience 3</td><td>patience 2</td><td>none</td></tr>
-                  <tr><td>Max length</td><td>512</td><td>256</td><td>256</td></tr>
-                  <tr><td>Dropout</td><td>0.2</td><td>0.2</td><td>default</td></tr>
-                  <tr><td>Loss</td><td>Focal loss (&gamma;=1.0) + class weights</td><td>Focal loss (&gamma;=1.0) + class weights</td><td>Cross entropy</td></tr>
-                  <tr><td>Seed</td><td>42</td><td>42</td><td>42</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <p class="small text-muted">LegalBERT's settings were picked from two options using the validation set only. RoBERTa-large used the same learning rate, dropout, weight decay and focal gamma, and two epoch options (2 or 6) were compared on validation; 6 was picked. Flan-T5-base used fixed settings.</p>
-
-            <h4 class="h6 text-uppercase text-muted mb-2">Class weights and focal loss</h4>
-            <p class="small">Two methods counter the label imbalance during training. <strong>Per-class weights</strong> multiply each label's loss by negatives divided by positives, so rare rights count more. <strong>Focal loss</strong> reduces the loss on passages the model already gets right, focusing training on the hard cases.</p>
-            <div class="table-responsive mb-4">
-              <table class="table table-sm table-bordered">
-                <thead class="table-light"><tr><th>Label</th><th>Per-class weight</th></tr></thead>
-                <tbody>
-                  <tr><td><code>Notice_Requirement</code></td><td>0.26</td></tr>
-                  <tr><td><code>Right_to_Know</code></td><td>10.40</td></tr>
-                  <tr><td><code>Right_to_Opt_Out</code></td><td>14.51</td></tr>
-                  <tr><td><code>Right_to_Delete</code></td><td>24.52</td></tr>
-                  <tr><td><code>Right_to_Correct</code></td><td>36.89</td></tr>
-                  <tr><td><code>Right_to_Limit_Sensitive</code></td><td>64.92</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <h4 class="h6 text-uppercase text-muted mb-2">Thresholds</h4>
-            <p class="small">A threshold is the probability above which a passage is given a label. For LegalBERT and RoBERTa-large I tuned one threshold per label on the validation set. I used the same rule for both. I tried every value from 0.10 to 0.825 in steps of 0.025. I kept the one with the best validation macro F1. Flan-T5-base writes label names as text, so it has no thresholds.</p>
-            <div class="table-responsive mb-4">
-              <table class="table table-sm table-bordered">
-                <thead class="table-light"><tr><th>Label</th><th>LegalBERT</th><th>RoBERTa-large</th></tr></thead>
-                <tbody>
-                  <tr><td><code>Notice_Requirement</code></td><td>0.400</td><td>0.100</td></tr>
-                  <tr><td><code>Right_to_Correct</code></td><td>0.500</td><td>0.750</td></tr>
-                  <tr><td><code>Right_to_Delete</code></td><td>0.725</td><td>0.725</td></tr>
-                  <tr><td><code>Right_to_Know</code></td><td>0.825</td><td>0.800</td></tr>
-                  <tr><td><code>Right_to_Limit_Sensitive</code></td><td>0.425</td><td>0.575</td></tr>
-                  <tr><td><code>Right_to_Opt_Out</code></td><td>0.475</td><td>0.800</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <h4 class="h6 text-uppercase text-muted mb-2">Committee concerns and how leakage was prevented</h4>
-            <div class="table-responsive mb-3">
+            <div class="table-responsive">
               <table class="table table-sm table-bordered small">
                 <thead class="table-light"><tr><th>Concern</th><th>Before</th><th>After</th></tr></thead>
                 <tbody>
@@ -1121,15 +1246,17 @@
                 </tbody>
               </table>
             </div>
-            <p class="small mb-3">The pipeline is reproducible from <code class="font-mono">CPRA_40pct_CLEAN_(3).ipynb</code> and <code class="font-mono">export_dataset.py</code>.</p>
-
-            <h4 class="h6 text-uppercase text-muted mb-2">No-learning baseline</h4>
-            <p class="small mb-0">One strategy that does no learning, scored on the same test split: "Simple rule (label everything Notice)" assigns only the most common label to every passage and scores 0.1473.</p>
-
           </div>
         </div>
       </div>
     </div>
+
+    <div class="plain-words mt-3">
+      <div class="plain-words-label">In plain words</div>
+      <p class="small mb-0">I started with C3PA's labeled privacy policies from 400 companies, matched the labels to 6 CPRA categories, merged repeats, and removed duplicate template text. Then I took a 40% sample of 159 companies and split them by company into training, validation, and test. The models learned on training, every choice was made on validation, and the test set was used once. Finally, I scored the results with macro F1 and used SHAP and LIME to show which words drove the decisions.</p>
+    </div>
+
+    <p class="small text-muted mt-2 mb-0">Reproducible from <code class="font-mono">CPRA_40pct_CLEAN.ipynb</code>, with seed 42 for every random step.</p>
   </section>
 
   <section id="explore" class="mb-5">
