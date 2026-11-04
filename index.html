@@ -695,7 +695,29 @@
             </tbody>
           </table>
         </div>
-        <p class="small text-muted mb-0">510 passages carry more than one label.</p>
+        <div class="accordion mt-3 mb-3" id="multilabel-accordion">
+          <div class="accordion-item">
+            <div class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#multilabel-body" aria-expanded="false" aria-controls="multilabel-body">Why the columns add up to more than the passage count</button>
+            </div>
+            <div id="multilabel-body" class="accordion-collapse collapse">
+              <div class="accordion-body">
+                <p class="small mb-2">Some passages describe more than one right at once, so they carry more than one label. For example: 'In addition, the CCPA provides you the right to access and delete Personal Data for California residents.' That one sentence covers both the Right to Know (access) and the Right to Delete, so it carries both labels.</p>
+
+                <p class="small mb-2">How this is handled:</p>
+                <ul class="small mb-2 ps-3">
+                  <li class="mb-1">Labeling: each passage gets every right it describes, instead of being forced into one.</li>
+                  <li class="mb-1">The models: each model makes six separate yes-or-no decisions for every passage, one per right. This is called multi-label classification.</li>
+                  <li class="mb-1">Counting: a passage with two labels is counted once for each label, so each column adds up to slightly more than its passage count. For example, the test set has 1,787 labels across 1,720 passages.</li>
+                  <li>Scoring: each right is graded on its own, so a model gets credit for every right it correctly finds.</li>
+                </ul>
+
+                <p class="small mb-0">199 passages in these splits carry more than one label, about 2% (510 in the full cleaned dataset, before sampling). Most passages describe just one right.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="small text-muted mb-0">Right to Limit has only 11 validation and 16 test passages, so its cutoff and score are the least reliable of the six rights.</p>
       </div>
     </div>
 
@@ -712,6 +734,39 @@
       <p class="small mb-2"><strong>Precision</strong> is how often a flag is right. If the model flags 10 passages as Right_to_Delete and 8 really are, precision is 0.8. <a href="#gloss-precision" class="term-link" data-bs-toggle="tooltip" data-bs-title="Precision: of the passages the model flagged, how many were right. See the glossary.">Glossary</a></p>
       <p class="small mb-2"><strong>Recall</strong> is how much of a right the model finds. If 20 passages really are Right_to_Delete and the model flags 12, recall is 0.6. <a href="#gloss-recall" class="term-link" data-bs-toggle="tooltip" data-bs-title="Recall: of the passages that truly carry a right, how many the model found. See the glossary.">Glossary</a></p>
       <p class="small mb-3"><strong>F1</strong> is a single score from 0 to 1 that balances precision and recall. It is not a percentage of correct answers. <strong>Macro F1</strong> averages that score across all six rights. Each right counts equally. That stops a model from scoring well just by getting the common label right. <a href="#gloss-macro" class="term-link" data-bs-toggle="tooltip" data-bs-title="Macro F1: the average of the six per-label F1 scores, giving every right equal weight. See the glossary.">Glossary</a></p>
+    </div>
+
+    <div class="accordion mb-3" id="math-dropdown-1">
+      <div class="accordion-item">
+        <div class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#math-dropdown-1-body" aria-expanded="false">Why these metrics, and not accuracy?</button>
+        </div>
+        <div id="math-dropdown-1-body" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            <p class="small mb-0">Accuracy is misleading when one category dominates. Take the 'what if' rule that labels every passage as Notice: for each passage it says 'yes' to Notice and 'no' to the other five rights. Because most passages aren't Delete, Opt Out, Correct, Know, or Limit, those 'no' answers are usually right. Graded by accuracy, that rule would score roughly 92%, even though it never finds a single passage for five of the six rights. Macro F1 gives the same rule 0.15, which shows the truth. That's why this study uses precision, recall, and macro F1 (see Sections 2.4 and 3.6 of the paper).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion mb-3" id="math-dropdown-2">
+      <div class="accordion-item">
+        <div class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#math-dropdown-2-body" aria-expanded="false">From passage to score, step by step</button>
+        </div>
+        <div id="math-dropdown-2-body" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            <ol class="small mb-2 ps-3">
+              <li class="mb-2">The model reads a passage and gives a score from 0 to 1 for each of the six rights (for example, Right to Delete: 0.963). Flan-T5-base instead writes the label names directly.</li>
+              <li class="mb-2">Each right has its own cutoff, chosen on validation. If the score passes it, the passage gets that label (for example, LegalBERT's Delete cutoff is 0.725, so 0.963 means yes).</li>
+              <li class="mb-2">Each label is compared to the correct answer: a correct label (true positive), a false alarm (false positive), or a miss (false negative).</li>
+              <li class="mb-2">Those counts give precision, recall, and F1 for each right.</li>
+              <li class="mb-0">The six F1 scores are averaged into macro F1, the main score.</li>
+            </ol>
+            <p class="small mb-0">Note: during training, the models learn from a different measure called loss (focal loss with class weights, so rare rights count more). F1 is the grade at the end; loss is how the models learn along the way.</p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="card mb-3">
