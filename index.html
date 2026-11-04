@@ -143,11 +143,11 @@
                   <p class="small mb-2">Most of the test set is Notice Requirement (1,362 of 1,720 passages). So what if a model just answered 'Notice' every time, without learning anything else?</p>
                   <p class="small mb-2">That 'what if' was run on the real test set:</p>
                   <ul class="small mb-2 ps-3">
-                    <li class="mb-1">Notice: it catches every Notice passage (recall 1.00), but about 21% of its Notice labels are wrong (precision 0.79). Combined, that's an F1 of 0.88.</li>
-                    <li class="mb-1">The other five rights: it never predicts them. Score: 0 each.</li>
-                    <li>Average of all six: 0.88 &divide; 6 = 0.15.</li>
+                    <li class="mb-1">Notice: it gets every real Notice passage, but it also wrongly labels everything else as Notice. Combining precision and recall gives it an F1 of 0.88.</li>
+                    <li class="mb-1">The other five rights: it never predicts them, so it scores 0 on each.</li>
+                    <li>Overall: the average of all six is 0.88 &divide; 6 = 0.15.</li>
                   </ul>
-                  <p class="small mb-0">That's the bar. To show they learned, the models had to beat 0.15.</p>
+                  <p class="small mb-0">That's the bar. To show they actually learned, the models had to score higher than 0.15.</p>
 
                   <h4 class="h6 fw-semibold mb-1 mt-3">How the models did</h4>
                   <div class="table-responsive">
