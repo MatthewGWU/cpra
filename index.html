@@ -36,6 +36,8 @@
     .why-not { background: #f1f3f5; border-left: 4px solid #adb5bd; border-radius: .35rem; padding: .75rem .85rem; margin-top: 1rem; }
     .why-not-label { font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #5c636a; margin-bottom: .35rem; }
     .key-terms { background: #f4f6f8; border: 1px solid #e3e8ef; border-radius: .4rem; padding: .75rem .9rem; }
+    .accordion-sm .accordion-button { font-size: .85rem; padding: .5rem .75rem; }
+    .accordion-sm .accordion-body { padding: .75rem; }
     .why-table thead th, .why-table td { white-space: normal; }
     .why-table { font-size: .8rem; }
     #questions .why-table th, #questions .why-table td { padding: .25rem .25rem; }
@@ -136,28 +138,20 @@
               <div id="h1-why-body" class="accordion-collapse collapse" aria-labelledby="h1-why-head">
                 <div class="accordion-body">
 
-                  <h4 class="h6 fw-semibold mb-1">How the score is built</h4>
-                  <ol class="small mb-2 ps-3">
-                    <li class="mb-1">Precision and recall (for each right): precision asks, of the passages the model labeled with a right, how many were correct? Recall asks, of the passages that truly have that right, how many did the model find?</li>
-                    <li class="mb-1">F1 (for each right): combines precision and recall into one score from 0 to 1. Either one alone can be gamed (labeling everything gives perfect recall; labeling almost nothing gives high precision), so F1 is only high when a model does both well.</li>
-                    <li>Macro F1 (overall): the average of the six F1 scores, one per right, each counting equally. Under the CPRA every right matters the same, and averaging equally keeps a model from looking good by only learning the common Notice category.</li>
-                  </ol>
-                  <p class="small fw-semibold mb-0">Precision + Recall &rarr; F1 for each right &rarr; Average of the six F1s = Macro F1</p>
-
-                  <h4 class="h6 fw-semibold mb-1 mt-3">The 'what if' behind 0.15</h4>
-                  <p class="small mb-2">Notice Requirement makes up most of the test set: 1,362 of the 1,720 passages. That raises a fair question: what if a model just answered 'Notice' every time, without learning anything else? Would it still look good?</p>
-                  <p class="small mb-2">To find out, that 'what if' was run as a simple rule on the real test set, labeling all 1,720 passages as Notice:</p>
+                  <h4 class="h6 fw-semibold mb-1">Where does 0.15 come from?</h4>
+                  <p class="small mb-2">It comes from a 'what if' test.</p>
+                  <p class="small mb-2">Most of the test set is Notice Requirement (1,362 of 1,720 passages). So what if a model just answered 'Notice' every time, without learning anything else?</p>
+                  <p class="small mb-2">That 'what if' was run on the real test set:</p>
                   <ul class="small mb-2 ps-3">
-                    <li class="mb-1">On Notice: precision is 0.79 (1,362 of 1,720 labels correct) and recall is 1.00 (it finds every Notice passage), giving an F1 of 0.88.</li>
-                    <li class="mb-1">On the other five rights: it never predicts them, so it scores 0 on each.</li>
-                    <li>Average of all six (macro F1): 0.88 &divide; 6 = 0.15.</li>
+                    <li class="mb-1">Notice: it catches every Notice passage (recall 1.00), but about 21% of its Notice labels are wrong (precision 0.79). Combined, that's an F1 of 0.88.</li>
+                    <li class="mb-1">The other five rights: it never predicts them. Score: 0 each.</li>
+                    <li>Average of all six: 0.88 &divide; 6 = 0.15.</li>
                   </ul>
-                  <p class="small mb-0">So 0.15 is the bar. A model has to beat it to show it learned more than just 'Notice.'</p>
+                  <p class="small mb-0">That's the bar. To show they learned, the models had to beat 0.15.</p>
 
-                  <h4 class="h6 fw-semibold mb-1 mt-3">What each model scored on every right</h4>
-                  <p class="small text-muted mb-2">F1 on the test set.</p>
+                  <h4 class="h6 fw-semibold mb-1 mt-3">How the models did</h4>
                   <div class="table-responsive">
-                    <table class="table table-sm table-bordered small mb-0 why-table">
+                    <table class="table table-sm table-bordered small mb-2 why-table">
                       <thead class="table-light">
                         <tr><th>Right</th><th>Simple rule ("what if")</th><th>LegalBERT</th><th>RoBERTa-large</th><th>Flan-T5-base</th></tr>
                       </thead>
@@ -172,13 +166,30 @@
                       </tbody>
                     </table>
                   </div>
-
-                  <h4 class="h6 fw-semibold mb-1 mt-3">What it shows</h4>
-                  <p class="small mb-0">The 'what if' rule scores 0 on five rights. All three models scored real results on every right, averaging 0.76 to 0.79, about five times higher. This shows they learned all six categories, not just Notice.</p>
+                  <p class="small mb-0">The 'what if' rule scores 0 on five rights. The models scored on every right, averaging 0.76 to 0.79, about five times higher.</p>
 
                   <div class="plain-words">
                     <div class="plain-words-label">In plain words</div>
-                    <p class="small mb-0">Notice makes up most of the test set, so I asked: what if a model just said 'Notice' for every passage? I ran that on the real test set. It finds every Notice passage but mislabels the rest, giving an F1 of 0.88 on Notice, and it scores 0 on the other five rights. Averaged over all six, that's 0.15. My models scored 0.76 to 0.79, because they actually learned the other rights, not just Notice.</p>
+                    <p class="small mb-0">Most passages are Notice, so I asked: what if a model just said 'Notice' every time? That scores 0.88 on Notice and 0 on everything else, so 0.15 overall. My models scored 0.76 to 0.79, so they learned all six rights, not just Notice.</p>
+                  </div>
+
+                  <div class="accordion accordion-sm mt-3" id="macro-f1-accordion">
+                    <div class="accordion-item">
+                      <div class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#macro-f1-body" aria-expanded="false" aria-controls="macro-f1-body">What is macro F1?</button>
+                      </div>
+                      <div id="macro-f1-body" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                          <ul class="small mb-2 ps-3">
+                            <li class="mb-1">Precision: of the passages the model labeled with a right, how many were correct?</li>
+                            <li class="mb-1">Recall: of the passages that truly have that right, how many did the model find?</li>
+                            <li class="mb-1">F1: combines precision and recall into one score from 0 to 1, for each right.</li>
+                            <li>Macro F1: the average of the six F1 scores, each right counting equally.</li>
+                          </ul>
+                          <p class="small fw-semibold mb-0">Precision + Recall &rarr; F1 for each right &rarr; Average of the six = Macro F1</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                 </div>
