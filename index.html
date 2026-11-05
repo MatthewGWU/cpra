@@ -60,7 +60,18 @@
     #models .row:has(.accordion-collapse.show) .card,
     #splits .row:has(.accordion-collapse.show) .card { height: auto !important; }
     @media (max-width: 575.98px) { .flow-arrow { display: none; } }
-  </style>
+  
+    .range-chart { position: relative; height: 80px; margin: 1.5rem 0 .5rem; }
+    .range-chart-row { position: relative; height: 30px; margin-bottom: 10px; }
+    .range-chart-band { position: absolute; height: 24px; top: 3px; border-radius: 3px; }
+    .range-band-navy { background: #1b4d89; }
+    .range-band-gold { background: repeating-linear-gradient(45deg, #d4a017, #d4a017 10px, #e6b832 10px, #e6b832 20px); }
+    .range-chart-axis { position: absolute; bottom: 0; left: 0; right: 0; height: 20px; border-top: 1px solid #dee2e6; }
+    .range-chart-tick { position: absolute; bottom: 0; transform: translateX(-50%); font-size: .7rem; color: #6c757d; }
+    .range-chart-label { position: absolute; left: 0; top: 50%; transform: translateY(-50%); font-size: .75rem; width: 200px; text-align: right; padding-right: 10px; }
+    .orange-box { background: #fff3cd; border-left: 4px solid #fd7e14; border-radius: .35rem; padding: .75rem .85rem; margin-top: 1rem; }
+    .orange-box-label { font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #fd7e14; margin-bottom: .35rem; }
+</style>
 </head>
 <body>
 
@@ -345,7 +356,7 @@
 
                   <div class="extra-exp">
                     <div class="extra-exp-label">Additional experiment</div>
-                    <p class="small mb-0">A preliminary run with more companies and less Notice in training scored about 0.84 to 0.85, but it changed two things at once and isn't directly comparable. See 'How the imbalance was handled' under the label chart for details.</p>
+                    <p class="small mb-0">A preliminary run with more companies and less Notice in training scored about 0.84 to 0.85, but it changed two things at once and isn't directly comparable. See 'A preliminary experiment' under the label chart.</p>
                   </div>
 
                   <h4 class="h6 fw-semibold mb-1 mt-3">What it means</h4>
@@ -569,8 +580,7 @@
 
                 <div class="extra-exp">
                   <div class="extra-exp-label">Additional experiment</div>
-                  <p class="small mb-2">To see what happens when Notice is less dominant, a preliminary second run was done. It used 60% of the C3PA companies instead of 40%, and removed some Notice-only passages from the training set only. Validation and test were not trimmed, so they kept the real-world mix. That run scored about 0.84 to 0.85 macro F1, compared with 0.76 to 0.79 in the main study.</p>
-                  <p class="small mb-0">Why it isn't reported as the main result: it changed two things at once (more companies and less Notice in training), and it was scored on a different set of test companies. So the higher score can't be credited to the trimming alone. It may come from simply having more data. Testing the trimming on its own, as a controlled experiment, is future work.</p>
+                  <p class="small mb-0">A preliminary run tested what happens with less Notice in training. See 'A preliminary experiment' just below.</p>
                 </div>
 
                 <div class="plain-words">
@@ -581,6 +591,58 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">A preliminary experiment: what if Notice were less dominant?</div>
+      <div class="card-body">
+        <p class="small mb-2">The question: Notice makes up most of the data. Would the models do better on the rarer rights if they saw less Notice during training?</p>
+        <p class="small mb-3">What was done: a preliminary second run used <strong>60% of the C3PA companies</strong> instead of 40%, and removed some Notice passages from the <strong>training set only</strong>. Validation and test were not trimmed, so they kept the real-world mix.</p>
+
+        <div class="table-responsive mb-4">
+          <table class="table table-sm table-bordered small">
+            <thead class="committee-header"><tr><th></th><th>Main study</th><th>Preliminary run</th></tr></thead>
+            <tbody>
+              <tr><td class="fw-semibold">Companies used</td><td>40% of C3PA (159)</td><td class="table-warning">60% of C3PA</td></tr>
+              <tr><td class="fw-semibold">Notice in training</td><td>All kept</td><td class="table-warning">Some removed</td></tr>
+              <tr><td class="fw-semibold">Test companies</td><td>25 companies</td><td class="table-warning">A different set of companies</td></tr>
+              <tr><td class="fw-semibold">Macro F1</td><td>0.76 to 0.79</td><td class="table-warning">About 0.84 to 0.85</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="range-chart">
+          <div class="range-chart-row">
+            <div class="range-chart-label">Main study (reported results)</div>
+            <div class="range-chart-band range-band-navy" style="left: 76%; width: 3%;"></div>
+          </div>
+          <div class="range-chart-row">
+            <div class="range-chart-label">Preliminary run (not comparable)</div>
+            <div class="range-chart-band range-band-gold" style="left: 84%; width: 1%;"></div>
+          </div>
+          <div class="range-chart-axis">
+            <div class="range-chart-tick" style="left: 0%;">0</div>
+            <div class="range-chart-tick" style="left: 20%;">0.2</div>
+            <div class="range-chart-tick" style="left: 40%;">0.4</div>
+            <div class="range-chart-tick" style="left: 60%;">0.6</div>
+            <div class="range-chart-tick" style="left: 80%;">0.8</div>
+            <div class="range-chart-tick" style="left: 100%;">1.0</div>
+          </div>
+        </div>
+        <p class="small text-muted mb-3">Bars show the range of macro F1 across the three models. Main study: 0.76–0.79. Preliminary run: about 0.84–0.85.</p>
+
+        <div class="orange-box">
+          <div class="orange-box-label">Why this is not a result</div>
+          <p class="small mb-0">The preliminary run changed two things at once: more companies and less Notice in training. It was also scored on a different set of test companies. So the higher score cannot be credited to trimming Notice; it may simply come from having more data. It is not directly comparable to the main results.</p>
+        </div>
+
+        <p class="small mt-3 mb-3">What it means: both the imbalance and the amount of data are worth testing. The next step is a controlled experiment that trims Notice while keeping the same companies and the same test set, so only one thing changes (Section 5.4).</p>
+
+        <div class="plain-words">
+          <div class="plain-words-label">In plain words</div>
+          <p class="small mb-0">I tried a quick test with more companies and less Notice in training, and it scored about 0.84 to 0.85. But I changed two things at once and used different test companies, so I can't say the trimming caused it. It points to a controlled experiment as future work, not a conclusion.</p>
         </div>
       </div>
     </div>
