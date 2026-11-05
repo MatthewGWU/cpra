@@ -145,6 +145,7 @@ function renderLabelChart() {
             }],
         },
         options: {
+            devicePixelRatio: window.devicePixelRatio || 1,
             indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
@@ -177,6 +178,7 @@ function renderMiniSplitChart(split, maxShared) {
             }],
         },
         options: {
+            devicePixelRatio: window.devicePixelRatio || 1,
             indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
@@ -210,6 +212,7 @@ function renderModelChart() {
             }],
         },
         options: {
+            devicePixelRatio: window.devicePixelRatio || 1,
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
