@@ -273,7 +273,18 @@
               <div id="h3-why-body" class="accordion-collapse collapse" aria-labelledby="h3-why-head">
                 <div class="accordion-body">
                   <h4 class="h6 fw-semibold mb-1">Where 0.88 comes from</h4>
-                  <p class="small mb-2">The same 'what if' rule from H1 scores 0.88 on Notice. To beat it, a model has to recognize when a passage is not Notice.</p>
+                  <p class="small mb-2">It's the same 'what if' rule from H1: label every passage as Notice.</p>
+                  <div class="table-responsive mb-2">
+                    <table class="table table-sm table-bordered small">
+                      <thead class="committee-header"><tr><th>Step</th><th>What happens</th><th>Score</th></tr></thead>
+                      <tbody>
+                        <tr><td class="fw-semibold">Recall</td><td>The test set has 1,362 real Notice passages. The rule labels everything Notice, so it catches all of them.</td><td>1,362 ÷ 1,362 = 1.00</td></tr>
+                        <tr><td class="fw-semibold">Precision</td><td>It labels all 1,720 passages as Notice, but only 1,362 really are. The other 358 are wrong.</td><td>1,362 ÷ 1,720 = 0.79</td></tr>
+                        <tr><td class="fw-semibold">F1</td><td>Combine the two.</td><td>2 × 0.79 × 1.00 ÷ (0.79 + 1.00) = 0.88</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="small mb-0">So 0.88 is what a model scores on Notice without learning anything. To beat it, a model has to recognize when a passage is not Notice. All three models scored 0.96 to 0.97.</p>
 
                   <h4 class="h6 fw-semibold mb-1">Why Notice was expected to score highest</h4>
                   <p class="small mb-2">Notice has far more training passages than any other right, about 9 times more than the next one (5,016 vs. 555). This mirrors real privacy policies, which spend most of their text listing the personal information collected, shared, and sold.</p>
@@ -1067,7 +1078,62 @@
         <span class="pipeline-step-num">2</span>
         <span class="fw-semibold">Match the labels to the CPRA</span>
       </div>
-      <p class="small mb-0">Ten of C3PA's 13 categories were grouped into the <strong>6</strong> CPRA categories used in this study. For example, what data a company collects, shares, or sells, plus updates to the policy, all became Notice Requirement. The other 3 (methods to exercise rights, Nondiscrimination, and 'Other') were set aside. <strong>39,627</strong> labeled pieces remain.</p>
+      <p class="small mb-2">C3PA has 13 categories. Ten were matched to the 6 CPRA categories used in this study, and 3 were excluded because they are not consumer rights under the CPRA. <strong>39,627</strong> labeled rows remain (5,494 rows were excluded).</p>
+
+      <div class="accordion mt-2" id="step2-accordion">
+        <div class="accordion-item">
+          <div class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#step2-body" aria-expanded="false">How the 13 categories became 6, and why</button>
+          </div>
+          <div id="step2-body" class="accordion-collapse collapse">
+            <div class="accordion-body">
+
+              <h4 class="h6 fw-semibold mb-1">Why some categories were combined</h4>
+              <p class="small mb-2">Some CPRA requirements overlap in the law. Notice Requirement (§1798.100) requires a company to tell consumers, up front, what personal information it collects, and whether it sells or shares it. Right to Know (§§1798.110 and 1798.115) lets consumers ask for that same kind of information. The content is similar; the difference is who starts it: the company tells (Notice) or the consumer asks (Right to Know).</p>
+              <p class="small mb-2">So C3PA's four categories that describe what a company discloses about its data practices became Notice Requirement, and its two categories describing a consumer's right to request that information became Right to Know.</p>
+
+              <h4 class="h6 fw-semibold mb-1">Table 3.2: How each C3PA category was mapped</h4>
+              <div class="table-responsive mb-2">
+                <table class="table table-sm table-bordered small">
+                  <thead class="committee-header"><tr><th>C3PA category</th><th>Rows</th><th>CPRA category</th></tr></thead>
+                  <tbody>
+                    <tr><td>Categories of personal information collected</td><td>13,782</td><td>Notice Requirement</td></tr>
+                    <tr><td>Categories of personal information shared / disclosed</td><td>9,740</td><td>Notice Requirement</td></tr>
+                    <tr><td>Categories of personal information sold</td><td>5,192</td><td>Notice Requirement</td></tr>
+                    <tr><td>Updated privacy policy</td><td>1,996</td><td>Notice Requirement</td></tr>
+                    <tr><td>Right to Know: personal information collected</td><td>2,180</td><td>Right to Know</td></tr>
+                    <tr><td>Right to Know: personal information sold / shared</td><td>1,505</td><td>Right to Know</td></tr>
+                    <tr><td>Right to Opt Out of sale</td><td>2,073</td><td>Right to Opt Out</td></tr>
+                    <tr><td>Right to Delete</td><td>1,687</td><td>Right to Delete</td></tr>
+                    <tr><td>Right to Correct</td><td>1,006</td><td>Right to Correct</td></tr>
+                    <tr><td>Right to Limit use of personal information</td><td>466</td><td>Right to Limit Sensitive Data</td></tr>
+                    <tr style="background: #f1f3f5;"><td style="color: #6c757d;">Methods to exercise rights</td><td style="color: #6c757d;">3,965</td><td style="color: #6c757d;">Excluded</td></tr>
+                    <tr style="background: #f1f3f5;"><td style="color: #6c757d;">Right to Nondiscrimination</td><td style="color: #6c757d;">1,035</td><td style="color: #6c757d;">Excluded</td></tr>
+                    <tr style="background: #f1f3f5;"><td style="color: #6c757d;">Others</td><td style="color: #6c757d;">494</td><td style="color: #6c757d;">Excluded</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="small text-muted mb-2">Mapped: 39,627 rows. Excluded: 5,494 rows. Total: 45,121.</p>
+
+              <h4 class="h6 fw-semibold mb-1">Why 3 categories were excluded</h4>
+              <ul class="small mb-2 ps-3">
+                <li class="mb-1">Methods to exercise rights: describes how to submit a request (a form, an email, a phone number), not a right itself.</li>
+                <li class="mb-1">Right to Nondiscrimination: rarely the focus of CPRA enforcement on its own; it usually appears alongside other rights.</li>
+                <li>Others: text that does not match any CPRA consumer right.</li>
+              </ul>
+
+              <h4 class="h6 fw-semibold mb-1">CPRA items not studied</h4>
+              <p class="small mb-2">Right to Access overlaps with Right to Know, and C3PA has no separate category for it. Data Portability and Nondiscrimination rarely appear in enforcement as their own violation. Risk Assessment is an internal company process, not usually described in privacy policies (Section 3.1).</p>
+
+              <div class="plain-words">
+                <div class="plain-words-label">In plain words</div>
+                <p class="small mb-0">C3PA's labels didn't line up one-to-one with the CPRA, so I matched each one to the CPRA section it describes. Where the law overlaps, like a company telling you what it collects (Notice) versus you asking for it (Right to Know), I grouped by who starts it. Categories that aren't consumer rights were left out.</p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="pipeline-arrow-v">&darr;</div>
 
