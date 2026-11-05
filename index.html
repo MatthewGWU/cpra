@@ -287,7 +287,7 @@
           <p class="small text-muted mb-2">RQ3: How will the selected models perform against the highest common category, Notice Requirement compared to the rarer categories of consumer rights?</p>
           <p class="small mb-2">H3: It is projected that each model will achieve an F1 score on Notice Requirement above <strong>0.88</strong>; which is the score of the simple rule on that label, and higher than on each of the five less common classes in the test evaluation.</p>
           <p class="small text-muted mb-1"><strong>Result:</strong> Notice scored 0.96 to 0.97 for all three models. The best score on any other right was 0.90.</p>
-          <p class="small text-muted mb-0">0.88 is the 'what if' rule's score on Notice (see H1).</p>
+          <p class="small text-muted mb-0">0.88 is the 'what if' rule's grade on one subject, Notice. The 0.15 in H1 is its overall average across all six rights.</p>
 
           <div class="accordion mt-3" id="h3-why-accordion">
             <div class="accordion-item">
@@ -296,22 +296,39 @@
               </h3>
               <div id="h3-why-body" class="accordion-collapse collapse" aria-labelledby="h3-why-head">
                 <div class="accordion-body">
+                  <h4 class="h6 fw-semibold mb-1">0.88 vs. 0.15: one subject vs. the overall average</h4>
+                  <p class="small mb-2">Think of the 'what if' rule (label every passage as Notice) as a report card with six subjects:</p>
+                  <div class="table-responsive mb-2">
+                    <table class="table table-sm table-bordered small">
+                      <thead class="committee-header"><tr><th>Right</th><th>Simple rule's score</th></tr></thead>
+                      <tbody>
+                        <tr><td class="fw-semibold">Notice</td><td class="fw-semibold">0.88</td></tr>
+                        <tr><td>Right to Know</td><td>0</td></tr>
+                        <tr><td>Right to Opt Out</td><td>0</td></tr>
+                        <tr><td>Right to Delete</td><td>0</td></tr>
+                        <tr><td>Right to Correct</td><td>0</td></tr>
+                        <tr><td>Right to Limit</td><td>0</td></tr>
+                        <tr><td class="fw-semibold">Average of all six (macro F1)</td><td class="fw-semibold">0.88 &divide; 6 = 0.15</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="small mb-3">0.88 is its grade on one subject, Notice, which H3 uses. 0.15 is its overall average, which H1 uses. The five zeros pull the average down.</p>
+
                   <h4 class="h6 fw-semibold mb-1">Where 0.88 comes from</h4>
-                  <p class="small mb-2">It's the same 'what if' rule from H1: label every passage as Notice.</p>
                   <div class="table-responsive mb-2">
                     <table class="table table-sm table-bordered small">
                       <thead class="committee-header"><tr><th>Step</th><th>What happens</th><th>Score</th></tr></thead>
                       <tbody>
-                        <tr><td class="fw-semibold">Recall</td><td>The test set has 1,362 real Notice passages. The rule labels everything Notice, so it catches all of them.</td><td>1,362 ÷ 1,362 = 1.00</td></tr>
-                        <tr><td class="fw-semibold">Precision</td><td>It labels all 1,720 passages as Notice, but only 1,362 really are. The other 358 are wrong.</td><td>1,362 ÷ 1,720 = 0.79</td></tr>
-                        <tr><td class="fw-semibold">F1</td><td>Combine the two.</td><td>2 × 0.79 × 1.00 ÷ (0.79 + 1.00) = 0.88</td></tr>
+                        <tr><td class="fw-semibold">Recall</td><td>The test set has 1,362 real Notice passages. The rule labels everything Notice, so it catches all of them.</td><td>1,362 &divide; 1,362 = 1.00</td></tr>
+                        <tr><td class="fw-semibold">Precision</td><td>It labels all 1,720 passages as Notice, but only 1,362 really are. The other 358 are wrong.</td><td>1,362 &divide; 1,720 = 0.79</td></tr>
+                        <tr><td class="fw-semibold">F1 (Notice only)</td><td>Combine the two.</td><td>2 &times; 0.79 &times; 1.00 &divide; 1.79 = 0.88</td></tr>
                       </tbody>
                     </table>
                   </div>
-                  <p class="small mb-0">So 0.88 is what a model scores on Notice without learning anything. To beat it, a model has to recognize when a passage is not Notice. All three models scored 0.96 to 0.97.</p>
+                  <p class="small mb-3">So 0.88 is what you get on Notice without learning anything. To beat it, a model must recognize when a passage is NOT Notice. All three models scored 0.96 to 0.97.</p>
 
                   <h4 class="h6 fw-semibold mb-1">Why Notice was expected to score highest</h4>
-                  <p class="small mb-2">Notice has far more training passages than any other right, about 9 times more than the next one (5,016 vs. 555). This mirrors real privacy policies, which spend most of their text listing the personal information collected, shared, and sold.</p>
+                  <p class="small mb-3">Notice has about 9 times more training passages than the next right (5,016 vs. 555). This mirrors real privacy policies, which spend most of their text listing the personal information collected, shared, and sold.</p>
 
                   <h4 class="h6 fw-semibold mb-1">What happened</h4>
                   <div class="table-responsive">
@@ -326,7 +343,20 @@
                       </tbody>
                     </table>
                   </div>
-                  <p class="small mb-2">Both parts of H3 hold for all three models. More data did not explain everything: Right to Know had 555 training passages but scored only 0.65 to 0.69.</p>
+                  <p class="small mb-3">Both parts of H3 hold for all three models.</p>
+
+                  <h4 class="h6 fw-semibold mb-1">Why more data isn't the whole story</h4>
+                  <p class="small mb-2">If data were the only factor, Right to Know (555 training passages) would beat Right to Correct (167). It didn't:</p>
+                  <div class="table-responsive mb-2">
+                    <table class="table table-sm table-bordered small">
+                      <thead class="committee-header"><tr><th>Right</th><th>Training passages</th><th>F1</th></tr></thead>
+                      <tbody>
+                        <tr><td>Right to Know</td><td>555</td><td>0.65 to 0.69</td></tr>
+                        <tr><td>Right to Correct</td><td>167</td><td>0.76 to 0.88</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="small mb-2"><strong>Why:</strong> in the CPRA, Notice and Right to Know cover the same kind of information (what personal data is collected, sold, or shared). The difference is only who starts it: the company tells (Notice) or the consumer asks (Right to Know). So their passages sound alike, and the models often missed Right to Know: recall was only 0.52 to 0.63, even though precision was 0.74 to 0.86. Right to Correct has distinct wording ('correct inaccurate information'), so it was easier to recognize (Section 4.4).</p>
 
                   <p class="small mb-0"><a href="#data">See the full label counts in How common each label is.</a></p>
                 </div>
