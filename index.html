@@ -781,61 +781,72 @@
         </tbody>
       </table>
     </div>
-    <p class="small text-muted mb-1">Macro F1: the F1 for each of the six rights, averaged so every right counts equally.</p>
-    <p class="small text-muted mb-1">Precision: of the rights the model assigned, how many were correct.</p>
-    <p class="small text-muted mb-2">Recall: of the real rights in the passages, how many the model found.</p>
-    <p class="small text-muted mb-3">Results come from a single run on the test set (1,720 passages, 25 companies).</p>
+    <div class="card mb-3">
+      <div class="card-header">Why precision, recall, and macro F1</div>
+      <div class="card-body">
+        <p class="small mb-2">These three are the main metrics. Each answers a different question, and each matters for compliance.</p>
+        <div class="table-responsive mb-2">
+          <table class="table table-sm table-bordered small">
+            <thead class="committee-header"><tr><th>Metric</th><th>What it measures</th><th>Why it matters in practice</th></tr></thead>
+            <tbody>
+              <tr><td class="fw-semibold">Precision</td><td>Of the rights the model assigned, how many were correct.</td><td>Low precision means false alarms: a compliance team spends time checking obligations that aren't there.</td></tr>
+              <tr><td class="fw-semibold">Recall</td><td>Of the real rights in the passages, how many the model found.</td><td>Low recall means missed obligations, which leaves an organization open to regulatory risk.</td></tr>
+              <tr><td class="fw-semibold">Macro F1 <small class="text-muted fw-normal">(primary)</small></td><td>The F1 for each of the six rights, averaged so every right counts equally. F1 combines precision and recall and is high only when both are high.</td><td>Every CPRA right matters, so a model can't score well by only finding Notice, the most common one.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small text-muted mb-1">Both false alarms and missed obligations create risk, so the study reports both precision and recall, and uses macro F1 as the main score (Section 4.3).</p>
+        <p class="small text-muted mb-0">Results come from a single run on the test set (1,720 passages, 25 companies).</p>
+      </div>
+    </div>
 
     <h3 class="h6 fw-semibold mb-2">Questions about the results and metrics</h3>
-    <div class="accordion mb-3" id="qa-accordion">
+    <div class="accordion mb-3" id="qa-grouped-accordion">
 
       <div class="accordion-item">
         <div class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-1-body" aria-expanded="false"><strong>Which model is best?</strong></button>
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-group-1-body" aria-expanded="false"><strong>Comparing the models</strong></button>
         </div>
-        <div id="qa-1-body" class="accordion-collapse collapse">
+        <div id="qa-group-1-body" class="accordion-collapse collapse">
           <div class="accordion-body">
-            <p class="small mb-2">The study compares the models; it was not designed to pick a best one. Flan-T5-base scored highest in this run (0.7949), but:</p>
-            <ul class="small mb-2 ps-3">
-              <li class="mb-1">It is a single run, and the gaps could change with a different company split or seed (Section 4.3).</li>
-              <li class="mb-1">The gaps are small: 3.9 points (Flan-T5-base) and 1.7 points (RoBERTa-large) above LegalBERT. With only 16 Limit test passages, one passage can move recall by about six points.</li>
-              <li class="mb-1">The models differ in size, design, and training settings, so the cause of the gap can't be isolated.</li>
-              <li>Each model led on something different: LegalBERT on Opt Out, RoBERTa-large on Limit, Flan-T5-base on Correct, Delete, and Know.</li>
-            </ul>
-            <p class="small mb-0"><strong>Takeaway:</strong> the general-purpose models scored slightly higher than LegalBERT in this run, which supports H2.</p>
+            <p class="small mb-1"><strong>Q: Which model is best?</strong></p>
+            <p class="small mb-2">The study compares the models; it was not designed to pick a best one. Flan-T5-base scored highest in this run (0.7949), but it is a single run, the gaps are small (3.9 and 1.7 points above LegalBERT), and the models differ in size, design, and training settings, so the cause can't be isolated. Each model led on something different: LegalBERT on Opt Out, RoBERTa-large on Limit, Flan-T5-base on Correct, Delete, and Know. The general-purpose models scored slightly higher than LegalBERT in this run, which supports H2.</p>
+            <hr class="my-2">
+            <p class="small mb-1"><strong>Q: Are the differences between models meaningful?</strong></p>
+            <p class="small mb-2">Not on their own. No significance test was run, and this is one run. The gaps could change with a different company split or seed (Section 4.3). Repeating the runs is future work, which is why H2 is "supported in this run."</p>
+            <hr class="my-2">
+            <p class="small mb-1"><strong>Q: Why is validation F1 higher than test F1?</strong></p>
+            <p class="small mb-0">Settings and cutoffs were chosen on validation, so validation scores are slightly inflated. The test set was used once on companies never used in any decision, so it is the honest number, and it is the one reported (Section 4.3).</p>
           </div>
         </div>
       </div>
 
       <div class="accordion-item mt-2">
         <div class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-2-body" aria-expanded="false"><strong>Why does Flan-T5-base have the highest precision but the lowest recall?</strong></button>
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-group-2-body" aria-expanded="false"><strong>Precision questions</strong></button>
         </div>
-        <div id="qa-2-body" class="accordion-collapse collapse">
+        <div id="qa-group-2-body" class="accordion-collapse collapse">
           <div class="accordion-body">
-            <p class="small mb-2">LegalBERT and RoBERTa-large give a score for each right, and a cutoff decides yes or no. Flan-T5-base writes out the names of the rights it finds, so it only labels a right when it generates that name. That makes it cautious: when it flags a right it is usually correct (precision 0.8722), but it leaves out some real ones (recall 0.7518). The paper describes this as a conservative approach that tries to prevent false positives (Section 4.3).</p>
-            <p class="small mb-0"><strong>Example:</strong> on Limit, its precision was 0.71 but its recall only 0.31. It was mostly correct when it flagged Limit, but missed most of the 16 real Limit passages.</p>
+            <p class="small mb-1"><strong>Q: A model has high precision. Does that mean it finds most of the CPRA rights in a policy?</strong></p>
+            <p class="small mb-2">Not necessarily. High precision means that when the model predicts a right, it is usually correct. It doesn't say how many real ones it missed. That's what recall measures. That's why both are evaluated, with F1 combining the two.</p>
+            <p class="small mb-2">Example: a model with 95% precision but 40% recall is usually correct, but misses 60% of the real passages. A real case from this study: Flan-T5-base on Limit had precision 0.71 but recall 0.31, so it was mostly correct when it flagged Limit but missed most of the 16 real Limit passages.</p>
+            <hr class="my-2">
+            <p class="small mb-1"><strong>Q: Why does Flan-T5-base have the highest precision but the lowest recall?</strong></p>
+            <p class="small mb-0">LegalBERT and RoBERTa-large give a score for each right, and a cutoff decides yes or no. Flan-T5-base writes out the names of the rights it finds, so it only labels a right when it generates that name. That makes it cautious: usually correct when it flags a right (precision 0.8722), but it leaves out some real ones (recall 0.7518). The paper describes this as a conservative approach that tries to prevent false positives (Section 4.3).</p>
           </div>
         </div>
       </div>
 
       <div class="accordion-item mt-2">
         <div class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-3-body" aria-expanded="false"><strong>Why does RoBERTa-large have the highest recall?</strong></button>
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-group-3-body" aria-expanded="false"><strong>Recall questions</strong></button>
         </div>
-        <div id="qa-3-body" class="accordion-collapse collapse">
+        <div id="qa-group-3-body" class="accordion-collapse collapse">
           <div class="accordion-body">
-            <p class="small mb-2">Its recall (0.7662) is only slightly higher than LegalBERT's (0.7559) and Flan-T5-base's (0.7518). It found the most real Right to Know passages of the three models (recall 0.63). The study did not test what caused the difference; RoBERTa-large is larger and was trained with different settings, so any of these could play a part.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="accordion-item mt-2">
-        <div class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-4-body" aria-expanded="false"><strong>Why is recall lower than precision for every model?</strong></button>
-        </div>
-        <div id="qa-4-body" class="accordion-collapse collapse">
-          <div class="accordion-body">
+            <p class="small mb-1"><strong>Q: Why does RoBERTa-large have the highest recall?</strong></p>
+            <p class="small mb-2">Its recall (0.7662) is only slightly higher than LegalBERT's (0.7559) and Flan-T5-base's (0.7518). It found the most real Right to Know passages of the three (recall 0.63). The study did not test what caused this; RoBERTa-large is larger and was trained with different settings, so any of these could play a part.</p>
+            <hr class="my-2">
+            <p class="small mb-1"><strong>Q: Why is recall lower than precision for every model?</strong></p>
             <p class="small mb-0">Macro recall was 0.75 to 0.77, a little below precision. The paper notes this could come from high cutoffs on some rights and from Flan-T5-base's cautious approach. Recall was lowest on Limit (16 test passages) and Right to Know, which overlaps with Notice (Section 4.3).</p>
           </div>
         </div>
@@ -843,43 +854,17 @@
 
       <div class="accordion-item mt-2">
         <div class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-5-body" aria-expanded="false"><strong>Are the differences between models meaningful?</strong></button>
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-group-4-body" aria-expanded="false"><strong>Macro F1 questions</strong></button>
         </div>
-        <div id="qa-5-body" class="accordion-collapse collapse">
+        <div id="qa-group-4-body" class="accordion-collapse collapse">
           <div class="accordion-body">
-            <p class="small mb-0">Not on their own. No significance test was run, and this is one run. The paper states the gaps could change with a different company split or seed. Repeating the runs is future work. That is why H2 is marked "supported in this run."</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="accordion-item mt-2">
-        <div class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-6-body" aria-expanded="false"><strong>Which rights were hardest, and why?</strong></button>
-        </div>
-        <div id="qa-6-body" class="accordion-collapse collapse">
-          <div class="accordion-body">
-            <p class="small mb-0">Limit (F1 0.40 to 0.45) and Right to Know (0.65 to 0.69) were hardest for every model. Limit has the fewest examples: 96 training and 16 test passages. Right to Know had 555 training passages but still scored low, because its wording overlaps with Notice. These are the rights where human review is most needed (Section 4.4).</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="accordion-item mt-2">
-        <div class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-7-body" aria-expanded="false"><strong>Why macro F1 and not accuracy?</strong></button>
-        </div>
-        <div id="qa-7-body" class="accordion-collapse collapse">
-          <div class="accordion-body">
-            <p class="small mb-0">Notice makes up most of the passages. The simple rule that labels everything Notice would look accurate, yet it never finds five of the six rights. Its macro F1 is only 0.1473, which shows the truth. Macro F1 gives each right an equal share, so a model only scores well if it handles the rare rights too (Sections 2.4 and 3.6).</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="accordion-item mt-2">
-        <div class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-8-body" aria-expanded="false"><strong>Why do weighted and micro F1 look higher (0.91 to 0.93)?</strong></button>
-        </div>
-        <div id="qa-8-body" class="accordion-collapse collapse">
-          <div class="accordion-body">
+            <p class="small mb-1"><strong>Q: Why macro F1 and not accuracy?</strong></p>
+            <p class="small mb-2">Notice makes up most of the passages. The simple rule that labels everything Notice would look accurate, yet it never finds five of the six rights. Its macro F1 is only 0.1473. Macro F1 gives each right an equal share, so a model only scores well if it handles the rare rights too (Sections 2.4 and 3.6).</p>
+            <hr class="my-2">
+            <p class="small mb-1"><strong>Q: Doesn't averaging into macro F1 hide a weak category, like 0.40 next to 0.95?</strong></p>
+            <p class="small mb-2">It can hide differences between individual categories. That is why precision, recall, and F1 are also reported for each CPRA category (Tables 4.2 to 4.5). For example, Limit was the lowest for every model (0.40 to 0.45). Macro F1 is still stricter than the other averages: because every category counts equally, a weak category pulls it down. In weighted F1, Notice would mostly hide that weakness.</p>
+            <hr class="my-2">
+            <p class="small mb-1"><strong>Q: Why do weighted and micro F1 look higher (0.91 to 0.93)?</strong></p>
             <p class="small mb-0">They count every label the same, so Notice, which is most of the labels, dominates them. They mostly reflect how well Notice was found. Macro F1 is stricter, so it is the primary score.</p>
           </div>
         </div>
@@ -887,11 +872,13 @@
 
       <div class="accordion-item mt-2">
         <div class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-9-body" aria-expanded="false"><strong>Why is validation F1 higher than test F1?</strong></button>
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-group-5-body" aria-expanded="false"><strong>Per-right questions</strong></button>
         </div>
-        <div id="qa-9-body" class="accordion-collapse collapse">
+        <div id="qa-group-5-body" class="accordion-collapse collapse">
           <div class="accordion-body">
-            <p class="small mb-0">Settings and cutoffs were chosen on validation, so validation scores are slightly inflated. The test set was used once on companies never used in any decision, so it is the honest number, and it is the one reported (Section 4.3).</p>
+            <p class="small mb-2"><strong>Q: Which rights were hardest, and why?</strong></p>
+            <p class="small mb-0">Limit (F1 0.40 to 0.45) and Right to Know (0.65 to 0.69) were hardest for every model. Limit has the fewest examples: 96 training and 16 test passages. Right to Know had 555 training passages but still scored low, because its wording overlaps with Notice. These are the rights where human review is most needed (Section 4.4).</p>
+            <p class="small mt-2 mb-0"><a href="#per-label-body2">See the score for each right.</a></p>
           </div>
         </div>
       </div>
@@ -1188,6 +1175,62 @@
     </div>
 
     <p class="small text-muted mt-3 mb-0">Passages are shown word for word from the test split, with their original line breaks restored.</p>
+  </section>
+
+  <section id="future-work" class="mb-5">
+    <h2 class="h4 mb-3">Future work</h2>
+    <p class="section-lead small mb-3">Next steps that build on this study (Section 5.4).</p>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <div class="card h-100"><div class="card-body p-3">
+          <div class="fw-semibold small mb-2">Use all of C3PA</div>
+          <p class="small mb-0">This study used 40% of companies. Using all of them gives more test passages, especially for rare rights like Limit, and more reliable scores.</p>
+        </div></div>
+      </div>
+      <div class="col-md-6">
+        <div class="card h-100"><div class="card-body p-3">
+          <div class="fw-semibold small mb-2">Controlled comparison</div>
+          <p class="small mb-0">Run each model several times with different seeds and the same settings, to see whether the gaps between models hold and how much legal pretraining actually helps.</p>
+        </div></div>
+      </div>
+      <div class="col-md-6">
+        <div class="card h-100"><div class="card-body p-3">
+          <div class="fw-semibold small mb-2">Full privacy policies</div>
+          <p class="small mb-0">Run whole policies through the models, including ones outside C3PA, to see how they classify the policies organizations actually post.</p>
+        </div></div>
+      </div>
+      <div class="col-md-6">
+        <div class="card h-100"><div class="card-body p-3">
+          <div class="fw-semibold small mb-2">Other state laws</div>
+          <p class="small mb-0">At least 23 states have comprehensive privacy laws with rights similar to the CPRA's. The same label mapping approach could be applied to them.</p>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="accordion mb-3">
+      <div class="accordion-item">
+        <div class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#future-work-qa-body" aria-expanded="false">Questions about future work</button>
+        </div>
+        <div id="future-work-qa-body" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            <p class="small mb-1"><strong>Q: How would this extend to other states?</strong></p>
+            <p class="small mb-2">The same label-mapping approach could be reused: match each dataset category to the state law's sections, as was done for the CPRA. Many privacy policies already include state-specific sections, so the same policies could be labeled for other states. The open question is whether a model trained on CPRA data carries over, or whether each state's wording needs its own labeled data (Section 5.4).</p>
+            <hr class="my-2">
+            <p class="small mb-1"><strong>Q: How much work would that take?</strong></p>
+            <p class="small mb-2">The pipeline itself (mapping, grouping, deduplication, company split, training, and evaluation) can be reused as is. The main work is mapping each state's rights and checking that the labels fit, which needs legal review. If a state's rights differ too much from the CPRA, new labeled examples would be needed.</p>
+            <hr class="my-2">
+            <p class="small mb-1"><strong>Q: Which model would you recommend to a company?</strong></p>
+            <p class="small mb-2">The study doesn't name a single best model; the gaps are small and come from one run. The choice depends on the priority. If false alarms are the bigger cost, Flan-T5-base had the highest precision. If missing a right is the bigger risk, RoBERTa-large had the highest recall. LegalBERT is the smallest of the three. In every case, the output supports a human reviewer rather than replacing one, especially for Right to Know and Limit.</p>
+            <hr class="my-2">
+            <p class="small mb-1"><strong>Q: What would you do first?</strong></p>
+            <p class="small mb-0">A controlled experiment: the same companies, the same test set, and the same settings, changing one thing at a time, such as trimming Notice in training. The preliminary 60% run suggested this is worth testing, but it changed two things at once, so it isn't a conclusion.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </section>
 
   <section id="limitations" class="mb-5">
