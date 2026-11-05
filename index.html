@@ -765,33 +765,171 @@
     </div>
   </section>
 
-  <section id="math" class="mb-5">
-    <h2 class="h4 mb-3">The math</h2>
-    <div class="section-lead mb-3">
-      <p class="small mb-2"><strong>Precision</strong> is how often a flag is right. If the model flags 10 passages as Right_to_Delete and 8 really are, precision is 0.8. <a href="#gloss-precision" class="term-link" data-bs-toggle="tooltip" data-bs-title="Precision: of the passages the model flagged, how many were right. See the glossary.">Glossary</a></p>
-      <p class="small mb-2"><strong>Recall</strong> is how much of a right the model finds. If 20 passages really are Right_to_Delete and the model flags 12, recall is 0.6. <a href="#gloss-recall" class="term-link" data-bs-toggle="tooltip" data-bs-title="Recall: of the passages that truly carry a right, how many the model found. See the glossary.">Glossary</a></p>
-      <p class="small mb-3"><strong>F1</strong> is a single score from 0 to 1 that balances precision and recall. It is not a percentage of correct answers. <strong>Macro F1</strong> averages that score across all six rights. Each right counts equally. That stops a model from scoring well just by getting the common label right. <a href="#gloss-macro" class="term-link" data-bs-toggle="tooltip" data-bs-title="Macro F1: the average of the six per-label F1 scores, giving every right equal weight. See the glossary.">Glossary</a></p>
-    </div>
+    <section id="math" class="mb-5">
+    <h2 class="h4 mb-3">Results: how the models scored</h2>
 
-    <div class="accordion mb-3" id="math-dropdown-1">
+    <p class="section-lead mb-3" style="font-size:1.05rem;">All three models scored close together on 25 unseen companies (macro F1 0.7562 to 0.7949), far above the simple rule (0.1473).</p>
+
+    <h3 class="h6 fw-semibold mb-2">At a glance</h3>
+    <div class="table-responsive mb-2">
+      <table class="table table-sm table-bordered small">
+        <thead class="committee-header"><tr><th>Model</th><th style="background:#fff8e1;">Macro F1</th><th>Precision</th><th>Recall</th><th>What it means</th></tr></thead>
+        <tbody>
+          <tr><td class="fw-semibold">LegalBERT <small class="text-muted fw-normal">(legal-domain)</small></td><td style="background:#fff8e1;" class="fw-semibold">0.7562</td><td>0.7738</td><td>0.7559</td><td>Balanced: precision and recall are about equal. Highest score on Opt Out (0.90).</td></tr>
+          <tr><td class="fw-semibold">RoBERTa-large <small class="text-muted fw-normal">(general)</small></td><td style="background:#fff8e1;" class="fw-semibold">0.7734</td><td>0.7835</td><td>0.7662</td><td>Highest recall: it found slightly more of the real rights. Highest score on Limit (0.45).</td></tr>
+          <tr><td class="fw-semibold">Flan-T5-base <small class="text-muted fw-normal">(general)</small></td><td style="background:#fff8e1;" class="fw-semibold">0.7949</td><td>0.8722</td><td>0.7518</td><td>Highest precision, lowest recall: usually correct when it flags a right, but misses a few more. Highest on Correct, Delete, and Know.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small text-muted mb-1">Macro F1: the F1 for each of the six rights, averaged so every right counts equally.</p>
+    <p class="small text-muted mb-1">Precision: of the rights the model assigned, how many were correct.</p>
+    <p class="small text-muted mb-2">Recall: of the real rights in the passages, how many the model found.</p>
+    <p class="small text-muted mb-3">Results come from a single run on the test set (1,720 passages, 25 companies).</p>
+
+    <h3 class="h6 fw-semibold mb-2">Questions you may be asked</h3>
+    <div class="accordion mb-3" id="qa-accordion">
+
       <div class="accordion-item">
         <div class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#math-dropdown-1-body" aria-expanded="false">Why these metrics, and not accuracy?</button>
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-1-body" aria-expanded="false"><strong>Which model is best?</strong></button>
         </div>
-        <div id="math-dropdown-1-body" class="accordion-collapse collapse">
+        <div id="qa-1-body" class="accordion-collapse collapse">
           <div class="accordion-body">
-            <p class="small mb-0">Accuracy is misleading when one category dominates. Take the 'what if' rule that labels every passage as Notice: for each passage it says 'yes' to Notice and 'no' to the other five rights. Because most passages aren't Delete, Opt Out, Correct, Know, or Limit, those 'no' answers are usually right. Graded by accuracy, that rule would score roughly 92%, even though it never finds a single passage for five of the six rights. Macro F1 gives the same rule 0.15, which shows the truth. That's why this study uses precision, recall, and macro F1 (see Sections 2.4 and 3.6 of the paper).</p>
+            <p class="small mb-2">The study compares the models; it was not designed to pick a best one. Flan-T5-base scored highest in this run (0.7949), but:</p>
+            <ul class="small mb-2 ps-3">
+              <li class="mb-1">It is a single run, and the gaps could change with a different company split or seed (Section 4.3).</li>
+              <li class="mb-1">The gaps are small: 3.9 points (Flan-T5-base) and 1.7 points (RoBERTa-large) above LegalBERT. With only 16 Limit test passages, one passage can move recall by about six points.</li>
+              <li class="mb-1">The models differ in size, design, and training settings, so the cause of the gap can't be isolated.</li>
+              <li>Each model led on something different: LegalBERT on Opt Out, RoBERTa-large on Limit, Flan-T5-base on Correct, Delete, and Know.</li>
+            </ul>
+            <p class="small mb-0"><strong>Takeaway:</strong> the general-purpose models scored slightly higher than LegalBERT in this run, which supports H2.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item mt-2">
+        <div class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-2-body" aria-expanded="false"><strong>Why does Flan-T5-base have the highest precision but the lowest recall?</strong></button>
+        </div>
+        <div id="qa-2-body" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            <p class="small mb-2">LegalBERT and RoBERTa-large give a score for each right, and a cutoff decides yes or no. Flan-T5-base writes out the names of the rights it finds, so it only labels a right when it generates that name. That makes it cautious: when it flags a right it is usually correct (precision 0.8722), but it leaves out some real ones (recall 0.7518). The paper describes this as a conservative approach that tries to prevent false positives (Section 4.3).</p>
+            <p class="small mb-0"><strong>Example:</strong> on Limit, its precision was 0.71 but its recall only 0.31. It was mostly correct when it flagged Limit, but missed most of the 16 real Limit passages.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item mt-2">
+        <div class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-3-body" aria-expanded="false"><strong>Why does RoBERTa-large have the highest recall?</strong></button>
+        </div>
+        <div id="qa-3-body" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            <p class="small mb-2">Its recall (0.7662) is only slightly higher than LegalBERT's (0.7559) and Flan-T5-base's (0.7518). It found the most real Right to Know passages of the three models (recall 0.63). The study did not test what caused the difference; RoBERTa-large is larger and was trained with different settings, so any of these could play a part.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item mt-2">
+        <div class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-4-body" aria-expanded="false"><strong>Why is recall lower than precision for every model?</strong></button>
+        </div>
+        <div id="qa-4-body" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            <p class="small mb-0">Macro recall was 0.75 to 0.77, a little below precision. The paper notes this could come from high cutoffs on some rights and from Flan-T5-base's cautious approach. Recall was lowest on Limit (16 test passages) and Right to Know, which overlaps with Notice (Section 4.3).</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item mt-2">
+        <div class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-5-body" aria-expanded="false"><strong>Are the differences between models meaningful?</strong></button>
+        </div>
+        <div id="qa-5-body" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            <p class="small mb-0">Not on their own. No significance test was run, and this is one run. The paper states the gaps could change with a different company split or seed. Repeating the runs is future work. That is why H2 is marked "supported in this run."</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item mt-2">
+        <div class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-6-body" aria-expanded="false"><strong>Which rights were hardest, and why?</strong></button>
+        </div>
+        <div id="qa-6-body" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            <p class="small mb-0">Limit (F1 0.40 to 0.45) and Right to Know (0.65 to 0.69) were hardest for every model. Limit has the fewest examples: 96 training and 16 test passages. Right to Know had 555 training passages but still scored low, because its wording overlaps with Notice. These are the rights where human review is most needed (Section 4.4).</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item mt-2">
+        <div class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-7-body" aria-expanded="false"><strong>Why macro F1 and not accuracy?</strong></button>
+        </div>
+        <div id="qa-7-body" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            <p class="small mb-0">Notice makes up most of the passages. The simple rule that labels everything Notice would look accurate, yet it never finds five of the six rights. Its macro F1 is only 0.1473, which shows the truth. Macro F1 gives each right an equal share, so a model only scores well if it handles the rare rights too (Sections 2.4 and 3.6).</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item mt-2">
+        <div class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-8-body" aria-expanded="false"><strong>Why do weighted and micro F1 look higher (0.91 to 0.93)?</strong></button>
+        </div>
+        <div id="qa-8-body" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            <p class="small mb-0">They count every label the same, so Notice, which is most of the labels, dominates them. They mostly reflect how well Notice was found. Macro F1 is stricter, so it is the primary score.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item mt-2">
+        <div class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qa-9-body" aria-expanded="false"><strong>Why is validation F1 higher than test F1?</strong></button>
+        </div>
+        <div id="qa-9-body" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            <p class="small mb-0">Settings and cutoffs were chosen on validation, so validation scores are slightly inflated. The test set was used once on companies never used in any decision, so it is the honest number, and it is the one reported (Section 4.3).</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <h3 class="h6 fw-semibold mb-2">Macro F1 chart</h3>
+    <div class="card mb-3">
+      <div class="card-header">Macro F1 on the test split</div>
+      <div class="card-body">
+        <div class="position-relative" style="height: 300px;">
+          <canvas id="model-chart" aria-label="Bar chart of macro F1 for the three models and one simple rule"></canvas>
+        </div>
+        <p class="small text-muted mb-2 mt-2">The grey bar is a simple rule that does no learning: it labels every passage as Notice. <a href="#gloss-baseline" class="term-link" data-bs-toggle="tooltip" data-bs-title="No-learning baseline: a simple rule that assigns labels without learning, used as a floor to compare against.">Glossary</a></p>
+        <p class="small mb-0">Macro precision / recall: LegalBERT 0.77 / 0.76, RoBERTa-large 0.78 / 0.77, Flan-T5-base 0.87 / 0.75.</p>
+      </div>
+    </div>
+
+    <div class="accordion mb-2">
+      <div class="accordion-item">
+        <div class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#per-label-body2" aria-expanded="false">Score for each right</button>
+        </div>
+        <div id="per-label-body2" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            <p class="small text-muted">F1 score per right on the test split. "Passages" is how many test passages truly carry that right.</p>
+            <div class="table-responsive" id="per-label-table"></div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="accordion mb-3" id="math-dropdown-2">
+    <div class="accordion mb-2">
       <div class="accordion-item">
         <div class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#math-dropdown-2-body" aria-expanded="false">From passage to score, step by step</button>
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#passage-body" aria-expanded="false">From passage to score, step by step</button>
         </div>
-        <div id="math-dropdown-2-body" class="accordion-collapse collapse">
+        <div id="passage-body" class="accordion-collapse collapse">
           <div class="accordion-body">
             <ol class="small mb-2 ps-3">
               <li class="mb-2">The model reads a passage and gives a score from 0 to 1 for each of the six rights (for example, Right to Delete: 0.963). Flan-T5-base instead writes the label names directly.</li>
@@ -805,46 +943,18 @@
         </div>
       </div>
     </div>
-
-    <div class="card mb-3">
-      <div class="card-header">Macro F1 on the test split</div>
-      <div class="card-body">
-        <div class="position-relative" style="height: 300px;">
-          <canvas id="model-chart" aria-label="Bar chart of macro F1 for the three models and one simple rule"></canvas>
-        </div>
-        <p class="small text-muted mb-2 mt-2">The grey bar is a simple rule that does no learning: it labels every passage as Notice. <a href="#gloss-baseline" class="term-link" data-bs-toggle="tooltip" data-bs-title="No-learning baseline: a simple rule that assigns labels without learning, used as a floor to compare against.">Glossary</a></p>
-        <p class="small mb-0">Macro precision / recall: LegalBERT 0.77 / 0.76, RoBERTa-large 0.78 / 0.77, Flan-T5-base 0.87 / 0.75.</p>
-      </div>
-    </div>
-
-    <div class="section-lead">
-      <p class="small mb-2">All three models scored close together, from 0.756 to 0.795, and far above the simple rule.</p>
-      <p class="small mb-2">Flan-T5-base is the most cautious. It has the highest precision at 0.87 and a lower recall at 0.75, so it flags fewer passages overall.</p>
-      <p class="small mb-3">Right_to_Know and Right_to_Limit_Sensitive were the hardest for every model.</p>
-    </div>
-
-    <div class="accordion mb-2" id="per-label-accordion">
-      <div class="accordion-item">
-        <h3 class="accordion-header" id="per-label-head">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#per-label-body" aria-expanded="false">Show details</button>
-        </h3>
-        <div id="per-label-body" class="accordion-collapse collapse" aria-labelledby="per-label-head" data-bs-parent="#per-label-accordion">
-          <div class="accordion-body">
-            <p class="small text-muted">F1 score per right on the test split. "Passages" is how many test passages truly carry that right.</p>
-            <div class="table-responsive" id="per-label-table"></div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="accordion mb-2" id="math-accordion">
+    <div class="accordion mb-2">
       <div class="accordion-item">
-        <h3 class="accordion-header" id="math-head">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#math-body" aria-expanded="false">Show the math</button>
-        </h3>
-        <div id="math-body" class="accordion-collapse collapse" aria-labelledby="math-head" data-bs-parent="#math-accordion">
+        <div class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#math-body2" aria-expanded="false">Show the math</button>
+        </div>
+        <div id="math-body2" class="accordion-collapse collapse">
           <div class="accordion-body">
-
             <div class="math-item">
               <div class="fw-semibold small mb-1">1. Precision</div>
               <div class="math-formula mb-2">Precision = TP / (TP + FP)</div>
@@ -905,11 +1015,11 @@
               <p class="small text-muted mb-1">Example: LegalBERT gave a Right to Delete passage a score of 0.963. Its cutoff is 0.725, so it was labeled Right to Delete.</p>
               <p class="small text-muted mb-0">Cutoffs were tested from 0.10 to 0.825 in steps of 0.025 on the validation set, one per right. The one with the best validation macro F1 was kept.</p>
             </div>
-
           </div>
         </div>
       </div>
     </div>
+
   </section>
 
   <section id="why-said" class="mb-5">
