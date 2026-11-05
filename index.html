@@ -520,14 +520,10 @@
                 </ul>
                 <p class="small text-muted mb-0">Class weights, focal loss, and cutoffs apply to LegalBERT and RoBERTa-large. Flan-T5-base writes label names, so it uses standard training.</p>
 
-                <div class="extra-exp">
-                  <div class="extra-exp-label">Additional experiment</div>
-                  <p class="small mb-0">A preliminary run tested what happens with less Notice in training. See 'A preliminary experiment' just below.</p>
-                </div>
 
                 <div class="plain-words">
                   <div class="plain-words-label">In plain words</div>
-                  <p class="small mb-0">Most of a privacy policy is Notice, so the data is naturally imbalanced. I kept the test set in that real-world mix, and handled the imbalance with class weights, focal loss, separate cutoffs, and macro F1. I also tried a preliminary run with more companies and less Notice in training, which scored about 0.84 to 0.85. But it changed two things at once and used different test companies, so it points to future work, not a conclusion.</p>
+                  <p class="small mb-0">The data is mostly Notice, because real privacy policies are. The test set was kept in that real mix, and the imbalance was handled four ways: class weights, focal loss, a separate cutoff for each right, and macro F1 as the main score. A preliminary run with less Notice in training scored higher, but it changed two things at once: more companies (60% instead of 40%) and less Notice in training. So the higher score can't be credited to the trimming alone, and it's future work. See 'A preliminary experiment' just below.</p>
                 </div>
 
               </div>
@@ -540,72 +536,26 @@
     <div class="card">
       <div class="card-header">A preliminary experiment: what if Notice were less dominant?</div>
       <div class="card-body">
-        <p class="small mb-2">The question: Notice makes up most of the data. Would the models do better on the rarer rights if they saw less Notice during training?</p>
-        <p class="small mb-3">What was done: a preliminary second run used <strong>60% of the C3PA companies</strong> instead of 40%, and removed 60% of the passages labeled only Notice from the <strong>training set only</strong>. Validation and test were not trimmed, so they kept the real-world mix.</p>
+        <p class="small mb-3">What was done: a second, preliminary run used 60% of C3PA companies (239) instead of 40%, and removed 60% of the Notice-only passages from training only (7,754 → 3,102). Validation and test were not trimmed.</p>
 
-        <div class="table-responsive mb-3">
+        <div class="table-responsive mb-2">
           <table class="table table-sm table-bordered small">
-            <thead class="committee-header"><tr><th></th><th>Main study</th><th>Preliminary run</th></tr></thead>
+            <thead class="committee-header"><tr><th>Macro F1</th><th>Main study (40%)</th><th style="background:#fff8e1;">Preliminary run (60%)</th></tr></thead>
             <tbody>
-              <tr><td class="fw-semibold">Companies used</td><td>40% of C3PA (159)</td><td class="table-warning">60% of C3PA (239)</td></tr>
-              <tr><td class="fw-semibold">Notice in training</td><td>All kept</td><td class="table-warning">60% of Notice-only passages removed (7,754 → 3,102)</td></tr>
-              <tr><td class="fw-semibold">Test companies</td><td>25 companies</td><td class="table-warning">A different set of companies</td></tr>
-              <tr><td class="fw-semibold">Macro F1</td><td>0.7562 to 0.7949</td><td class="table-warning">0.8373 to 0.8483</td></tr>
+              <tr><td class="fw-semibold">LegalBERT</td><td>0.7562</td><td style="background:#fff8e1;">0.8373</td></tr>
+              <tr><td class="fw-semibold">RoBERTa-large</td><td>0.7734</td><td style="background:#fff8e1;">0.8483</td></tr>
+              <tr><td class="fw-semibold">Flan-T5-base</td><td>0.7949</td><td style="background:#fff8e1;">0.8404</td></tr>
             </tbody>
           </table>
         </div>
-        <p class="small text-muted mb-3">Only passages labeled Notice alone were removed. Passages with Notice plus another right were kept, so no rarer-right examples were lost.</p>
-
-        <div class="grouped-bar-chart">
-          <h5 class="h6 fw-semibold mb-3">Macro F1 by model</h5>
-          <div class="bar-row">
-            <div class="bar-label">LegalBERT</div>
-            <div class="bar-container">
-              <div class="bar-group" style="left: 0;">
-                <div class="bar"><div class="bar-fill bar-navy" style="height: 75.62px;"><div class="bar-value">0.7562</div></div></div>
-                <div class="bar"><div class="bar-fill bar-gold" style="height: 83.73px;"><div class="bar-value">0.8373</div></div></div>
-              </div>
-            </div>
-          </div>
-          <div class="bar-row">
-            <div class="bar-label">RoBERTa-large</div>
-            <div class="bar-container">
-              <div class="bar-group" style="left: 0;">
-                <div class="bar"><div class="bar-fill bar-navy" style="height: 77.34px;"><div class="bar-value">0.7734</div></div></div>
-                <div class="bar"><div class="bar-fill bar-gold" style="height: 84.83px;"><div class="bar-value">0.8483</div></div></div>
-              </div>
-            </div>
-          </div>
-          <div class="bar-row">
-            <div class="bar-label">Flan-T5-base</div>
-            <div class="bar-container">
-              <div class="bar-group" style="left: 0;">
-                <div class="bar"><div class="bar-fill bar-navy" style="height: 79.49px;"><div class="bar-value">0.7949</div></div></div>
-                <div class="bar"><div class="bar-fill bar-gold" style="height: 84.04px;"><div class="bar-value">0.8404</div></div></div>
-              </div>
-            </div>
-          </div>
-          <div class="bar-axis">
-            <span>0</span><span>0.2</span><span>0.4</span><span>0.6</span><span>0.8</span><span>1.0</span>
-          </div>
-          <div class="bar-legend">
-            <div class="legend-item"><div class="legend-color" style="background: #1b4d89;"></div> Main study</div>
-            <div class="legend-item"><div class="legend-color" style="background: repeating-linear-gradient(45deg, #d4a017, #d4a017 8px, #e6b832 8px, #e6b832 16px);"></div> Preliminary run (not comparable)</div>
-          </div>
-        </div>
-        <p class="small text-muted mb-3">Macro F1 for each model. The paper reports the preliminary run as about 0.84 to 0.85 (Section 5.4); the exact scores come from that run's notebook. The two runs used different companies and test sets, so the bars are not a direct comparison.</p>
+        <p class="small text-muted mb-3">The paper reports the preliminary run as about 0.84 to 0.85 (Section 5.4); exact scores are from that run's notebook.</p>
 
         <div class="orange-box">
           <div class="orange-box-label">Why this is not a result</div>
-          <p class="small mb-0">The preliminary run changed two things at once: more companies and less Notice in training. It was also scored on a different set of test companies. So the higher score cannot be credited to trimming Notice; it may simply come from having more data. It is not directly comparable to the main results.</p>
+          <p class="small mb-0">Two things changed at once: more companies (60% instead of 40%) and less Notice in training. It also used different test companies. If two things change and the score goes up, you can't tell which one caused it; more data alone can raise scores. So the higher scores can't be credited to trimming Notice.</p>
         </div>
 
-        <p class="small mt-3 mb-3">What it means: both the imbalance and the amount of data are worth testing. The next step is a controlled experiment that trims Notice while keeping the same companies and the same test set, so only one thing changes (Section 5.4).</p>
-
-        <div class="plain-words">
-          <div class="plain-words-label">In plain words</div>
-          <p class="small mb-0">I tried a quick test with more companies and less Notice in training, and macro F1 rose to about 0.84 to 0.85. But I changed two things at once and used different test companies, so I can't say the trimming caused it. It points to a controlled experiment as future work, not a conclusion.</p>
-        </div>
+        <p class="small mt-3 mb-0"><strong>Takeaway:</strong> the next step is a controlled test that trims Notice while keeping the same companies and the same test set, so only one thing changes (future work).</p>
       </div>
     </div>
   </section>
