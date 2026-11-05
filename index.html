@@ -157,9 +157,9 @@
     </div>
   </section>
 
-  <section id="questions" class="mb-5">
+    <section id="questions" class="mb-5">
     <h2 class="h4 mb-3">The research questions and hypotheses</h2>
-    <p class="section-lead mb-3">I asked three questions. Each one had a bar it had to beat before I called it supported.</p>
+    <p class="section-lead mb-3">Three questions, each with a bar the models had to beat before the hypothesis was called supported.</p>
 
     <div class="row g-3">
       <div class="col-lg-4">
@@ -168,72 +168,38 @@
             <span class="fw-semibold">H1</span>
             <span class="badge bg-success">Supported</span>
           </div>
-          <p class="small text-muted mb-2">RQ1: Can supervised NLP classify CPRA consumer rights in company privacy policies?</p>
-          <p class="small mb-2">The models will score a macro F1 above <strong>0.15</strong>, the score of a simple rule that labels every passage as Notice.</p>
-          <p class="small text-muted mb-0"><strong>Result:</strong> all three scored 0.7562 to 0.7949.</p>
+          <p class="small text-muted mb-2">RQ1: Can supervised NLP be used to automatically classify CPRA Consumer Rights from Company's privacy policies?</p>
+          <p class="small mb-2">Supervised NLP can be used by leveraging CPRA Privacy Policies to achieve a macro F1 score above <strong>0.15</strong> on the test data, which is the score of a simple rule that labels every passage as Notice Requirement.</p>
+          <p class="small text-muted mb-1"><strong>Result:</strong> All three models scored 0.7562 to 0.7949.</p>
+          <p class="small text-muted mb-0">0.15 is what a 'what if' rule scores by labeling everything Notice.</p>
 
           <div class="accordion mt-3" id="h1-why-accordion">
             <div class="accordion-item">
               <h3 class="accordion-header" id="h1-why-head">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#h1-why-body" aria-expanded="false" aria-controls="h1-why-body">Why this bar?</button>
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#h1-why-body" aria-expanded="false" aria-controls="h1-why-body">Where does 0.15 come from?</button>
               </h3>
               <div id="h1-why-body" class="accordion-collapse collapse" aria-labelledby="h1-why-head">
                 <div class="accordion-body">
+                  <p class="small mb-2"><strong>Why this rule:</strong> Notice is the most common label, so the easiest way to look good without learning is to always answer 'Notice.' Research on imbalanced data warns that models can lean on the most common label this way, so this rule sets the floor any real model must beat.</p>
 
-                  <h4 class="h6 fw-semibold mb-1">Where does 0.15 come from?</h4>
-                  <p class="small mb-2">It comes from a 'what if' test.</p>
-                  <p class="small mb-2">Most of the test set is Notice Requirement (1,362 of 1,720 passages). So what if a model just answered 'Notice' every time, without learning anything else?</p>
-                  <p class="small mb-2">That 'what if' was run on the real test set:</p>
-                  <ul class="small mb-2 ps-3">
-                    <li class="mb-1">Notice: it gets every real Notice passage, but it also wrongly labels everything else as Notice. Combining precision and recall gives it an F1 of 0.88.</li>
-                    <li class="mb-1">The other five rights: it never predicts them, so it scores 0 on each.</li>
-                    <li>Overall: the average of all six is 0.88 &divide; 6 = 0.15.</li>
-                  </ul>
-                  <p class="small mb-0">That's the bar. To show they actually learned, the models had to score higher than 0.15.</p>
-
-                  <h4 class="h6 fw-semibold mb-1 mt-3">How the models did</h4>
-                  <div class="table-responsive">
-                    <table class="table table-sm table-bordered small mb-2 why-table">
-                      <thead class="table-light">
-                        <tr><th>Right</th><th>Simple rule ("what if")</th><th>LegalBERT</th><th>RoBERTa-large</th><th>Flan-T5-base</th></tr>
-                      </thead>
-                      <tbody>
-                        <tr><td>Notice</td><td class="table-light">0.88</td><td>0.96</td><td>0.96</td><td>0.97</td></tr>
-                        <tr><td>Right to Know</td><td class="table-light">0</td><td>0.65</td><td>0.68</td><td>0.69</td></tr>
-                        <tr><td>Right to Opt Out</td><td class="table-light">0</td><td>0.90</td><td>0.83</td><td>0.89</td></tr>
-                        <tr><td>Right to Delete</td><td class="table-light">0</td><td>0.86</td><td>0.88</td><td>0.90</td></tr>
-                        <tr><td>Right to Correct</td><td class="table-light">0</td><td>0.76</td><td>0.84</td><td>0.88</td></tr>
-                        <tr><td>Right to Limit</td><td class="table-light">0</td><td>0.40</td><td>0.45</td><td>0.43</td></tr>
-                        <tr><td class="fw-semibold">Average (macro F1)</td><td class="table-light fw-semibold">0.15</td><td class="fw-semibold">0.7562</td><td class="fw-semibold">0.7734</td><td class="fw-semibold">0.7949</td></tr>
-                      </tbody>
-                    </table>
+                  <div style="background: #f1f3f5; border-left: 4px solid #1b4d89; border-radius: .35rem; padding: .75rem .85rem; margin-bottom: 1rem;">
+                    <div style="font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #1b4d89; margin-bottom: .35rem;">If someone asks</div>
+                    <p class="small mb-0">This is a standard starting point in machine learning, often called a majority-class baseline. Notice is the most common label, so always guessing it is the easiest way to score without learning. Beating it shows the models learned the rarer rights too, not just Notice.</p>
                   </div>
-                  <p class="small mb-0">The 'what if' rule scores 0 on five rights. The models scored on every right, averaging 0.76 to 0.79, about five times higher.</p>
+
+                  <ul class="small mb-2 ps-3">
+                    <li class="mb-1">What if a model just answered 'Notice' for every passage, without learning anything?</li>
+                    <li class="mb-1">On Notice, it gets every real Notice passage but also mislabels everything else, so its F1 is 0.88.</li>
+                    <li class="mb-1">On the other five rights, it never predicts them, so it scores 0 on each.</li>
+                    <li>Average of all six: 0.88 &divide; 6 = 0.15.</li>
+                  </ul>
 
                   <div class="plain-words">
                     <div class="plain-words-label">In plain words</div>
-                    <p class="small mb-0">Most passages are Notice, so I asked: what if a model just said 'Notice' every time? That scores 0.88 on Notice and 0 on everything else, so 0.15 overall. My models scored 0.76 to 0.79, so they learned all six rights, not just Notice.</p>
+                    <p class="small mb-2">A rule that only says 'Notice' scores 0.15. The models scored 0.76 to 0.79, so they learned all six rights, not just Notice.</p>
                   </div>
 
-                  <div class="accordion accordion-sm mt-3" id="macro-f1-accordion">
-                    <div class="accordion-item">
-                      <div class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#macro-f1-body" aria-expanded="false" aria-controls="macro-f1-body">What is macro F1?</button>
-                      </div>
-                      <div id="macro-f1-body" class="accordion-collapse collapse">
-                        <div class="accordion-body">
-                          <ul class="small mb-2 ps-3">
-                            <li class="mb-1">Precision: of the passages the model labeled with a right, how many were correct?</li>
-                            <li class="mb-1">Recall: of the passages that truly have that right, how many did the model find?</li>
-                            <li class="mb-1">F1: combines precision and recall into one score from 0 to 1, for each right.</li>
-                            <li>Macro F1: the average of the six F1 scores, each right counting equally.</li>
-                          </ul>
-                          <p class="small fw-semibold mb-0">Precision + Recall &rarr; F1 for each right &rarr; Average of the six = Macro F1</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
+                  <p class="small mt-2 mb-0"><a href="#per-label-body">See every right's score in Per-label results.</a></p>
                 </div>
               </div>
             </div>
@@ -249,7 +215,7 @@
           </div>
           <p class="small text-muted mb-2">RQ2: When looking at classifying CPRA Consumer Rights from Company's privacy policies, what is the difference between LegalBERT, RoBERTa-large, and Flan-T5's macro F1 performance?</p>
           <p class="small mb-2">H2: RoBERTa-large and Flan-T5 are both projected to outperform LegalBERT in terms of macro F1 score on the test data.</p>
-          <p class="small text-muted mb-2"><strong>Result:</strong> RoBERTa-large 0.7734 and Flan-T5-base 0.7949 vs LegalBERT 0.7562 (1.7 and 3.9 percentage points higher).</p>
+          <p class="small text-muted mb-1"><strong>Result:</strong> RoBERTa-large 0.7734 and Flan-T5-base 0.7949 vs. LegalBERT 0.7562 (1.7 and 3.9 points higher).</p>
           <p class="small text-muted mb-0">This is a single run, so it does not prove one model is better.</p>
 
           <div class="accordion mt-3" id="h2-why-accordion">
@@ -259,18 +225,10 @@
               </h3>
               <div id="h2-why-body" class="accordion-collapse collapse" aria-labelledby="h2-why-head">
                 <div class="accordion-body">
+                  <h4 class="h6 fw-semibold mb-1">Why expected</h4>
+                  <p class="small mb-2">In the LexGLUE legal benchmark, RoBERTa-large was competitive with LegalBERT and could surpass it (Chalkidis et al., 2022). RoBERTa-large is about 3.2 times larger. Flan-T5-base is a different design, trained on over 1,800 instruction tasks.</p>
 
-                  <h4 class="h6 fw-semibold mb-1">One legal model vs. two general models</h4>
-                  <p class="small mb-0">LegalBERT was trained on legal text. RoBERTa-large and Flan-T5-base were trained on general text. A common belief is that legal models do better on legal tasks. H2 tests whether that holds for CPRA privacy policies.</p>
-
-                  <h4 class="h6 fw-semibold mb-1 mt-3">Why the general models were expected to score higher</h4>
-                  <ul class="small mb-0 ps-3">
-                    <li class="mb-1">Prior research: in the LexGLUE legal benchmark (Chalkidis et al., 2022), RoBERTa-large was competitive with, and could surpass, LegalBERT.</li>
-                    <li class="mb-1">RoBERTa-large: about 3.2 times larger than LegalBERT, and an improved version of the BERT design LegalBERT is built on.</li>
-                    <li>Flan-T5-base: a different design that reads and writes text, trained on over 1,800 instruction tasks.</li>
-                  </ul>
-
-                  <h4 class="h6 fw-semibold mb-1 mt-3">What happened</h4>
+                  <h4 class="h6 fw-semibold mb-1">What happened</h4>
                   <div class="table-responsive">
                     <table class="table table-sm table-bordered small mb-2 why-table">
                       <thead class="table-light">
@@ -283,21 +241,12 @@
                       </tbody>
                     </table>
                   </div>
-                  <p class="small mb-0">LegalBERT still scored highest on one right, Right to Opt Out (0.90).</p>
+                  <p class="small mb-2">LegalBERT still scored highest on one right, Opt Out (0.90).</p>
 
-                  <h4 class="h6 fw-semibold mb-1 mt-3">What it does not show</h4>
-                  <p class="small mb-0">The gaps are small, come from one run, and the models differ in size and design. So this does not show which model is better, or why.</p>
+                  <h4 class="h6 fw-semibold mb-1">What it does not show</h4>
+                  <p class="small mb-2">The gaps are small, come from one run, and the models differ in size and design, so this does not show which model is better, or why.</p>
 
-                  <div class="why-not">
-                    <div class="why-not-label">Why not ChatGPT?</div>
-                    <p class="small mb-0">Chatbots like ChatGPT can answer in any words and often make up legal facts when simply asked: one study found they hallucinate on legal questions 58&ndash;88% of the time (Dahl et al., 2024). GPT can also be fine-tuned, but it is a closed model: it can't be downloaded or inspected, and its versions can change over time. This study used open models that could be fully controlled, explained, and rerun. It also tested a model that writes its answers, Flan-T5-base, in an open version. Fine-tuning a frontier model like GPT is future work.</p>
-                  </div>
-
-                  <div class="plain-words">
-                    <div class="plain-words-label">In plain words</div>
-                    <p class="small mb-0">Prior research found larger general models like RoBERTa-large can match or beat LegalBERT, so I expected the two general models to score higher. They did, by 1.7 and 3.9 points. But that's one run with different-sized models, so I'm not claiming one is better. LegalBERT actually scored highest on Right to Opt Out.</p>
-                  </div>
-
+                  <p class="small mb-0"><a href="#models">Why not ChatGPT? See the models section.</a></p>
                 </div>
               </div>
             </div>
@@ -313,7 +262,8 @@
           </div>
           <p class="small text-muted mb-2">RQ3: How will the selected models perform against the highest common category, Notice Requirement compared to the rarer categories of consumer rights?</p>
           <p class="small mb-2">H3: It is projected that each model will achieve an F1 score on Notice Requirement above <strong>0.88</strong>; which is the score of the simple rule on that label, and higher than on each of the five less common classes in the test evaluation.</p>
-          <p class="small text-muted mb-0"><strong>Result:</strong> Notice was 0.96 to 0.97 for all three models. The best score any model got on the other five rights was 0.90.</p>
+          <p class="small text-muted mb-1"><strong>Result:</strong> Notice scored 0.96 to 0.97 for all three models. The best score on any other right was 0.90.</p>
+          <p class="small text-muted mb-0">0.88 is the 'what if' rule's score on Notice (see H1).</p>
 
           <div class="accordion mt-3" id="h3-why-accordion">
             <div class="accordion-item">
@@ -322,31 +272,13 @@
               </h3>
               <div id="h3-why-body" class="accordion-collapse collapse" aria-labelledby="h3-why-head">
                 <div class="accordion-body">
+                  <h4 class="h6 fw-semibold mb-1">Where 0.88 comes from</h4>
+                  <p class="small mb-2">The same 'what if' rule from H1 scores 0.88 on Notice. To beat it, a model has to recognize when a passage is not Notice.</p>
 
-                  <h4 class="h6 fw-semibold mb-1">Where does 0.88 come from?</h4>
-                  <p class="small mb-2">It comes from the same 'what if' test used for H1: what if a model just answered 'Notice' for every passage?</p>
-                  <p class="small mb-2">On Notice, that rule gets every real Notice passage, but it also wrongly labels everything else as Notice. Combining precision and recall gives it an F1 of 0.88.</p>
-                  <p class="small mb-0">So 0.88 is the bar for Notice. To beat it, a model has to do more than say 'Notice' every time. It also has to recognize when a passage is not Notice.</p>
+                  <h4 class="h6 fw-semibold mb-1">Why Notice was expected to score highest</h4>
+                  <p class="small mb-2">Notice has far more training passages than any other right, about 9 times more than the next one (5,016 vs. 555). This mirrors real privacy policies, which spend most of their text listing the personal information collected, shared, and sold.</p>
 
-                  <h4 class="h6 fw-semibold mb-1 mt-3">Why Notice was expected to score highest</h4>
-                  <p class="small mb-2">Notice has far more training data than any other right, about 9 times more than the next one. This imbalance reflects real privacy policies: most of a policy is lists of the personal information a company collects, shares, and sells, which the CPRA requires companies to disclose. The rights sections are usually just a few paragraphs.</p>
-                  <div class="table-responsive">
-                    <table class="table table-sm table-bordered small mb-0 why-table">
-                      <thead class="table-light">
-                        <tr><th>Category</th><th>Training passages</th></tr>
-                      </thead>
-                      <tbody>
-                        <tr><td class="fw-semibold">Notice</td><td class="fw-semibold">5,016</td></tr>
-                        <tr><td>Right to Know</td><td>555</td></tr>
-                        <tr><td>Right to Opt Out</td><td>408</td></tr>
-                        <tr><td>Right to Delete</td><td>248</td></tr>
-                        <tr><td>Right to Correct</td><td>167</td></tr>
-                        <tr><td>Right to Limit</td><td>96</td></tr>
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <h4 class="h6 fw-semibold mb-1 mt-3">What happened</h4>
+                  <h4 class="h6 fw-semibold mb-1">What happened</h4>
                   <div class="table-responsive">
                     <table class="table table-sm table-bordered small mb-2 why-table">
                       <thead class="table-light">
@@ -359,29 +291,9 @@
                       </tbody>
                     </table>
                   </div>
-                  <p class="small mb-0">Both parts of H3 hold for all three models.</p>
+                  <p class="small mb-2">Both parts of H3 hold for all three models. More data did not explain everything: Right to Know had 555 training passages but scored only 0.65 to 0.69.</p>
 
-                  <h4 class="h6 fw-semibold mb-1 mt-3">Data didn't explain everything</h4>
-                  <ul class="small mb-2 ps-3">
-                    <li class="mb-1">Right to Know had 555 training passages but scored only 0.65 to 0.69. Its passages describe the types of personal information a company collects, which can look a lot like Notice passages, so the models sometimes confused the two.</li>
-                    <li class="mb-1">Right to Correct had only 167 training passages but scored 0.76 to 0.88.</li>
-                    <li>Right to Limit scored lowest (0.40 to 0.45), but it had only 16 test passages, so its score is the least reliable.</li>
-                  </ul>
-                  <p class="small mb-0">So more data helps, but how distinct a right's wording is also matters. Right to Know and Right to Limit would benefit most from human review.</p>
-
-                  <div class="extra-exp">
-                    <div class="extra-exp-label">Additional experiment</div>
-                    <p class="small mb-0">A preliminary run with more companies and less Notice in training reached about 0.84 to 0.85 macro F1, but it changed two things at once and isn't directly comparable. See 'A preliminary experiment' under the label chart.</p>
-                  </div>
-
-                  <h4 class="h6 fw-semibold mb-1 mt-3">What it means</h4>
-                  <p class="small mb-0">The models are most dependable on Notice and the clearly worded rights, like Right to Delete and Right to Opt Out. The imbalance in the data is real, not a flaw in the dataset, because it reflects how privacy policies are actually written. In practice, a compliance reviewer should check Right to Know and Right to Limit most closely.</p>
-
-                  <div class="plain-words">
-                    <div class="plain-words-label">In plain words</div>
-                    <p class="small mb-0">Notice is most of what a privacy policy says, so it has the most training data, and the models scored highest on it, 0.96 to 0.97, well above the 0.88 'what if' bar. But more data didn't explain everything: Right to Know looks a lot like Notice and scored lower. I also tried a preliminary run with more companies and less Notice, which scored about 0.84 to 0.85, but it changed two things at once, so it's future work, not a result.</p>
-                  </div>
-
+                  <p class="small mb-0"><a href="#data">See the full label counts in How common each label is.</a></p>
                 </div>
               </div>
             </div>
@@ -390,7 +302,6 @@
         </div></div>
       </div>
     </div>
-    <p class="small text-muted mt-3 mb-0">Each hypothesis is judged on one run on the test set.</p>
   </section>
 
   <section id="models" class="mb-5">
@@ -483,6 +394,11 @@
 
         </div></div>
       </div>
+
+    <div class="why-not mb-3">
+      <div class="why-not-label">Why not ChatGPT?</div>
+      <p class="small mb-0">Chatbots like ChatGPT can answer in any words and often make up legal facts when simply asked: one study found they hallucinate on legal questions 58&ndash;88% of the time (Dahl et al., 2024). GPT can also be fine-tuned, but it is a closed model: it can't be downloaded or inspected, and its versions can change over time. This study used open models that could be fully controlled, explained, and rerun. It also tested a model that writes its answers, Flan-T5-base, in an open version. Fine-tuning a frontier model like GPT is future work.</p>
+    </div>
     </div>
 
     <p class="small text-muted section-lead mb-3">All three models were trained on the same data, with the same split and the same seed, and all tuning was done on the validation set. They differ in size, design, and settings, so this study compares how they perform, not why one scores higher.</p>
