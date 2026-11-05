@@ -237,8 +237,20 @@
               </h3>
               <div id="h2-why-body" class="accordion-collapse collapse" aria-labelledby="h2-why-head">
                 <div class="accordion-body">
-                  <h4 class="h6 fw-semibold mb-1">Why expected</h4>
-                  <p class="small mb-2">In the LexGLUE legal benchmark, RoBERTa-large was competitive with LegalBERT and could surpass it (Chalkidis et al., 2022). RoBERTa-large is about 3.2 times larger. Flan-T5-base is a different design, trained on over 1,800 instruction tasks.</p>
+                  <h4 class="h6 fw-semibold mb-1">Why macro F1</h4>
+                  <p class="small mb-2">Notice makes up most of the data. Macro F1 gives each of the six rights an equal share, so a model can't win just by finding Notice. It gives one fair score to compare the three models.</p>
+
+                  <h4 class="h6 fw-semibold mb-1">Why these three models</h4>
+                  <div class="table-responsive mb-2">
+                    <table class="table table-sm table-bordered small">
+                      <thead class="committee-header"><tr><th>Model</th><th>Role in the study</th><th>Why it was chosen</th></tr></thead>
+                      <tbody>
+                        <tr><td class="fw-semibold">LegalBERT</td><td>Legal baseline</td><td>Pretrained on legal text; tests the belief that legal training is needed for legal tasks.</td></tr>
+                        <tr><td class="fw-semibold">RoBERTa-large</td><td>General, larger</td><td>In the LexGLUE legal benchmark, it was competitive with LegalBERT and could surpass it (Chalkidis et al., 2022). About 3.2 times larger.</td></tr>
+                        <tr><td class="fw-semibold">Flan-T5-base</td><td>General, different design</td><td>It generates text instead of giving scores, and was trained on over 1,800 instruction tasks. It is an open alternative to GPT-style models, limited here to the six CPRA labels.</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
 
                   <h4 class="h6 fw-semibold mb-1">What happened</h4>
                   <div class="table-responsive">
