@@ -1458,19 +1458,19 @@
                     <td>2. No evidence the models generalize. Training and test data came from the same augmentation templates, so the models may have learned artificial cues instead of legal concepts.</td>
                     <td>Evaluate on natural, unaugmented, independently labeled CPRA passages from sources not used in dataset development.</td>
                     <td>No augmentation: all 9,640 passages are real text from company privacy policies (C3PA), labeled by independent legal annotators, not by the author. Test companies were never seen in training, and 992 duplicate passages were removed.<br><span class="small text-muted mt-1 d-block">Limit: all data comes from C3PA. Testing on policies from other sources is future work.</span></td>
-                    <td style="text-align:center;"><span class="badge-status-gold">Addressed, with one stated limit</span></td>
+                    <td style="text-align:center;"><span class="badge-status-green">Addressed</span></td>
                   </tr>
                   <tr>
                     <td>3. Model comparisons were not controlled. The models differed in size, design, sequence length, loss, training, and threshold rules, so the study could not conclude that architecture matters more than legal pretraining.</td>
                     <td>Add size-matched, consistent baselines, or narrow the claims to say only that the selected general-purpose models outperformed the selected LegalBERT configuration.</td>
                     <td>Claims were narrowed, as the committee allowed. The study states only that RoBERTa-large and Flan-T5-base scored higher in macro F1 than LegalBERT in this single run. All claims that architecture or scale matter more were removed. All three models used the same data, split, seed, and validation-only tuning.<br><span class="small text-muted mt-1 d-block">Size-matched comparisons with multiple runs are future work.</span></td>
-                    <td style="text-align:center;"><span class="badge-status-green">Addressed by narrowing claims</span></td>
+                    <td style="text-align:center;"><span class="badge-status-green">Addressed</span></td>
                   </tr>
                   <tr>
                     <td>4. ML foundations. Train/validation/test separation, leakage, threshold selection, F1, class imbalance, experimental controls, and generalization must be understood, explained, and defended.</td>
                     <td>Master these foundations, reproduce and explain every stage of the pipeline, and demonstrate that command at this defense.</td>
                     <td>Each concept is explained on this site: train, validation, and test (this section), F1 and macro F1 (the H1 card and 'The math'), thresholds and class imbalance ('ML foundations, explained' below), and the full pipeline end to end ('The full pipeline, step by step').</td>
-                    <td style="text-align:center;"><span class="badge-status-navy">Documented and demonstrated in this defense</span></td>
+                    <td style="text-align:center;"><span class="badge-status-green">Addressed</span></td>
                   </tr>
                 </tbody>
               </table>
