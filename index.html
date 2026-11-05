@@ -1446,34 +1446,127 @@
 
             <div class="table-responsive mb-4">
               <table class="table table-sm table-bordered small">
-                <thead class="committee-header"><tr><th>Committee concern (first defense)</th><th>What they asked for</th><th>What changed in this study</th><th>Status</th></tr></thead>
+                <thead class="committee-header"><tr><th>Concern (first defense)</th><th>What the committee asked for</th><th>What changed</th><th style="width:14%; text-align:center;">Status</th></tr></thead>
                 <tbody>
                   <tr>
                     <td>1. Thresholds were tuned on the test set. The test set was used to choose cutoffs and then reused for the final score, which may inflate the F1 scores.</td>
                     <td>Make all threshold and model-selection decisions on the validation set only, then evaluate once on an untouched test set.</td>
                     <td>Every cutoff, setting, and best saved version was chosen on the validation set (23 companies). The test set (25 companies) was used once, at the end, and nothing changed afterward.</td>
-                    <td><span class="badge-status-green">Addressed</span></td>
+                    <td style="text-align:center;"><span class="badge-status-green">Addressed</span></td>
                   </tr>
                   <tr>
                     <td>2. No evidence the models generalize. Training and test data came from the same augmentation templates, so the models may have learned artificial cues instead of legal concepts.</td>
                     <td>Evaluate on natural, unaugmented, independently labeled CPRA passages from sources not used in dataset development.</td>
                     <td>No augmentation: all 9,640 passages are real text from company privacy policies (C3PA), labeled by independent legal annotators, not by the author. Test companies were never seen in training, and 992 duplicate passages were removed.<br><span class="small text-muted mt-1 d-block">Limit: all data comes from C3PA. Testing on policies from other sources is future work.</span></td>
-                    <td><span class="badge-status-gold">Addressed, with one stated limit</span></td>
+                    <td style="text-align:center;"><span class="badge-status-gold">Addressed, with one stated limit</span></td>
                   </tr>
                   <tr>
                     <td>3. Model comparisons were not controlled. The models differed in size, design, sequence length, loss, training, and threshold rules, so the study could not conclude that architecture matters more than legal pretraining.</td>
                     <td>Add size-matched, consistent baselines, or narrow the claims to say only that the selected general-purpose models outperformed the selected LegalBERT configuration.</td>
                     <td>Claims were narrowed, as the committee allowed. The study states only that RoBERTa-large and Flan-T5-base scored higher in macro F1 than LegalBERT in this single run. All claims that architecture or scale matter more were removed. All three models used the same data, split, seed, and validation-only tuning.<br><span class="small text-muted mt-1 d-block">Size-matched comparisons with multiple runs are future work.</span></td>
-                    <td><span class="badge-status-green">Addressed by narrowing claims</span></td>
+                    <td style="text-align:center;"><span class="badge-status-green">Addressed by narrowing claims</span></td>
                   </tr>
                   <tr>
                     <td>4. ML foundations. Train/validation/test separation, leakage, threshold selection, F1, class imbalance, experimental controls, and generalization must be understood, explained, and defended.</td>
                     <td>Master these foundations, reproduce and explain every stage of the pipeline, and demonstrate that command at this defense.</td>
                     <td>Each concept is explained on this site: train, validation, and test (this section), F1 and macro F1 (the H1 card and 'The math'), thresholds and class imbalance ('ML foundations, explained' below), and the full pipeline end to end ('The full pipeline, step by step').</td>
-                    <td><span class="badge-status-navy">Documented and demonstrated in this defense</span></td>
+                    <td style="text-align:center;"><span class="badge-status-navy">Documented and demonstrated in this defense</span></td>
                   </tr>
                 </tbody>
               </table>
+            </div>
+
+            <h4 class="h6 fw-semibold mb-2 mt-3">Follow-up questions, by concern</h4>
+            <div class="accordion mb-3" id="followup-accordion">
+
+              <div class="accordion-item">
+                <div class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#followup-1-body" aria-expanded="false">Concern 1 — Thresholds and the test set</button>
+                </div>
+                <div id="followup-1-body" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <p class="small mb-1"><strong>Q: How do you know the test set wasn't used for any decision?</strong></p>
+                    <p class="small mb-2">Every cutoff, setting, candidate configuration, and best saved version was chosen by its validation score. The test set was scored once, after every choice was locked, and nothing was changed afterward.</p>
+                    <hr class="my-2">
+                    <p class="small mb-1"><strong>Q: Doesn't tuning cutoffs on validation just move the problem to validation?</strong></p>
+                    <p class="small mb-2">No. Validation is a separate group of 23 companies used only for choosing. That's why validation scores come out slightly higher than test. The reported score is from the test set, which never informed a decision (Section 4.3).</p>
+                    <hr class="my-2">
+                    <p class="small mb-1"><strong>Q: How were the cutoffs chosen?</strong></p>
+                    <p class="small mb-2">For LegalBERT and RoBERTa-large, each right's cutoff was searched from 0.10 to 0.825 in steps of 0.025, and the one with the highest validation F1 was kept. Flan-T5-base writes out label names instead of giving scores, so its answer is already a yes or no and there is nothing to cut off (Section 3.1.4).</p>
+                    <hr class="my-2">
+                    <p class="small mb-1"><strong>Q: Is it fair to compare models with cutoffs to one without?</strong></p>
+                    <p class="small mb-2">Yes. All three were trained on the same data, scored on the same test set, and graded with the same precision, recall, and F1 against the same correct labels. If anything, the cutoffs helped LegalBERT and RoBERTa-large, because each was tuned on validation for the best F1. Flan-T5-base had no such tuning and still scored highest. Scoring how likely each label name is and tuning cutoffs for Flan-T5-base is possible, and is a reasonable future experiment.</p>
+                    <hr class="my-2">
+                    <p class="small mb-1"><strong>Q: Why include a model that works so differently?</strong></p>
+                    <p class="small mb-0">That is the point of including it. RQ2 compares a legal-domain model with general-purpose ones, and Flan-T5-base adds a different design: an encoder-decoder model that generates text. It is an open alternative to models like GPT. It can be run in-house and inspected, and it was limited to the six CPRA label names, so it could not invent labels (Section 3.1.3).</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item mt-2">
+                <div class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#followup-2-body" aria-expanded="false">Concern 2 — Generalization</button>
+                </div>
+                <div id="followup-2-body" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <p class="small mb-1"><strong>Q: How does C3PA meet the committee's requirement?</strong></p>
+                    <p class="small mb-2">The committee asked for natural, unaugmented, independently labeled passages from sources not used in dataset development. C3PA is real company privacy policy text, labeled by independent legal annotators from another research team, and it was not created or modified in this study. The augmented data from the first defense was replaced entirely.</p>
+                    <hr class="my-2">
+                    <p class="small mb-1"><strong>Q: How do you know the models didn't learn artificial cues this time?</strong></p>
+                    <p class="small mb-2">There are no augmentation templates, prefixes, synonym rules, or keyword anchors in the data. Exact duplicates across companies were removed, and the models were tested on companies they never saw. The explainability results also show decisions driven by legal wording, such as 'delete' and 'no longer be shared.'</p>
+                    <hr class="my-2">
+                    <p class="small mb-1"><strong>Q: Isn't C3PA still just one source?</strong></p>
+                    <p class="small mb-2">Yes. It meets the requirement for independent, natural text, but it is one dataset. That is why this is marked 'with one stated limit.' Testing on full policies from outside C3PA is future work (Section 5.4).</p>
+                    <hr class="my-2">
+                    <p class="small mb-1"><strong>Q: Could near-duplicate passages still affect the results?</strong></p>
+                    <p class="small mb-0">Exact duplicates were removed, but some near-identical passages remain, differing only in formatting such as line breaks. The paper notes this as a limitation (Section 1.8). The company split reduces the risk, because each company's passages stay in one group.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item mt-2">
+                <div class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#followup-3-body" aria-expanded="false">Concern 3 — Controlled comparisons</button>
+                </div>
+                <div id="followup-3-body" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <p class="small mb-1"><strong>Q: Why didn't you add size-matched baselines?</strong></p>
+                    <p class="small mb-2">The committee gave two options: add matched baselines, or narrow the claims. This study narrowed the claims. It states only that the selected general-purpose models scored higher than the selected LegalBERT configuration in this run. Matched comparisons with multiple seeds are listed as future work.</p>
+                    <hr class="my-2">
+                    <p class="small mb-1"><strong>Q: What was kept the same across models?</strong></p>
+                    <p class="small mb-2">The same training data (6,328 passages), the same company splits, the same seed, the same validation-only tuning, one test evaluation, and the same computing environment.</p>
+                    <hr class="my-2">
+                    <p class="small mb-1"><strong>Q: What was different?</strong></p>
+                    <p class="small mb-0">Model size, design (encoder vs. encoder-decoder), loss (focal loss for LegalBERT and RoBERTa-large, standard cross-entropy for Flan-T5-base), sequence length, and training settings such as epochs. Because these weren't tested separately, the study does not say which one caused the gaps.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item mt-2">
+                <div class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#followup-4-body" aria-expanded="false">Concern 4 — ML foundations</button>
+                </div>
+                <div id="followup-4-body" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <div class="table-responsive">
+                      <table class="table table-sm table-bordered small">
+                        <thead class="committee-header"><tr><th>Foundation</th><th>In one line</th><th>Where on this site</th></tr></thead>
+                        <tbody>
+                          <tr><td class="fw-semibold">Train / validation / test</td><td>Split by company, 111 / 23 / 25; learn, choose, then score once</td><td>The data split section</td></tr>
+                          <tr><td class="fw-semibold">Leakage</td><td>No company or identical passage in two splits, confirmed by code checks</td><td>"Leakage checks in detail" below</td></tr>
+                          <tr><td class="fw-semibold">Threshold selection</td><td>One cutoff per right, chosen on validation only</td><td>Concern 1 above</td></tr>
+                          <tr><td class="fw-semibold">F1 interpretation</td><td>Macro F1 primary; per-right precision, recall, and F1 also reported</td><td>Results and "Show the math"</td></tr>
+                          <tr><td class="fw-semibold">Class imbalance</td><td>Class weights, focal loss, per-right cutoffs, and macro F1</td><td>"How the imbalance was handled"</td></tr>
+                          <tr><td class="fw-semibold">Experimental controls</td><td>Same data, splits, seed, and tuning process; differences stated</td><td>Concern 3 above</td></tr>
+                          <tr><td class="fw-semibold">Generalization</td><td>Real text, scored on unseen companies; one-source limit stated</td><td>Concern 2 above</td></tr>
+                          <tr><td class="fw-semibold">Reproducibility</td><td>The full pipeline in code, from 45,121 rows to the split, seed 42</td><td>"The full pipeline, step by step"</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
 
             <h4 class="h6 text-uppercase text-muted mb-2 mt-3">Leakage checks in detail</h4>
@@ -1500,6 +1593,11 @@
                     <td class="fw-semibold">Randomness</td>
                     <td>A different random draw would produce a different split.</td>
                     <td>Every random draw uses seed 42, so the data splits are reproduced exactly.</td>
+                  </tr>
+                  <tr>
+                    <td class="fw-semibold">Near-duplicates</td>
+                    <td>Passages that differ only in formatting, such as line breaks, could look alike across groups.</td>
+                    <td>Exact duplicates were removed; some near-identical passages remain and are noted as a limitation (Section 1.8). The company split limits this risk.</td>
                   </tr>
                 </tbody>
               </table>
