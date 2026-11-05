@@ -943,11 +943,6 @@
         </div>
       </div>
     </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="accordion mb-2">
       <div class="accordion-item">
         <div class="accordion-header">
@@ -960,12 +955,34 @@
               <div class="math-formula mb-2">Precision = TP / (TP + FP)</div>
               <p class="small mb-1">Of everything the model flagged, how much was right.</p>
               <p class="small text-muted mb-0">TP = correct flags, FP = wrong flags, FN = missed ones.</p>
+              <div class="table-responsive mt-2 mb-2">
+                <table class="table table-sm table-bordered small">
+                  <thead class="committee-header"><tr><th>Model</th><th>Precision</th><th>In plain words</th></tr></thead>
+                  <tbody>
+                    <tr><td>LegalBERT</td><td>0.7738</td><td>About 77 of every 100 labels it assigned were correct</td></tr>
+                    <tr><td>RoBERTa-large</td><td>0.7835</td><td>About 78 of every 100 were correct</td></tr>
+                    <tr><td>Flan-T5-base</td><td>0.8722</td><td>About 87 of every 100 were correct</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="small mb-0"><strong>What it means:</strong> Flan-T5-base makes the fewest false alarms. When it flags a right, it is usually correct. (Averaged across the six rights.)</p>
             </div>
 
             <div class="math-item">
               <div class="fw-semibold small mb-1">2. Recall</div>
               <div class="math-formula mb-2">Recall = TP / (TP + FN)</div>
               <p class="small mb-0">Of everything that was really there, how much the model found.</p>
+              <div class="table-responsive mt-2 mb-2">
+                <table class="table table-sm table-bordered small">
+                  <thead class="committee-header"><tr><th>Model</th><th>Recall</th><th>In plain words</th></tr></thead>
+                  <tbody>
+                    <tr><td>LegalBERT</td><td>0.7559</td><td>Found about 76 of every 100 real labels</td></tr>
+                    <tr><td>RoBERTa-large</td><td>0.7662</td><td>Found about 77 of every 100</td></tr>
+                    <tr><td>Flan-T5-base</td><td>0.7518</td><td>Found about 75 of every 100</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="small mb-0"><strong>What it means:</strong> recall is close for all three. RoBERTa-large found slightly the most; Flan-T5-base missed slightly the most. (Averaged across the six rights.)</p>
             </div>
 
             <div class="math-item">
@@ -973,6 +990,18 @@
               <div class="math-formula mb-2">F1 = 2 &times; Precision &times; Recall / (Precision + Recall)</div>
               <p class="small mb-1">One score that balances the two. It's low if either one is low.</p>
               <p class="small text-muted mb-0">Example: LegalBERT on Right to Delete had precision 0.82 and recall 0.91. F1 = 2 &times; 0.82 &times; 0.91 / (0.82 + 0.91) = 0.86.</p>
+              <p class="small mb-1 mt-2">Example across models, Limit (the hardest right):</p>
+              <div class="table-responsive mb-2">
+                <table class="table table-sm table-bordered small">
+                  <thead class="committee-header"><tr><th>Model</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead>
+                  <tbody>
+                    <tr><td>LegalBERT</td><td>0.43</td><td>0.38</td><td>0.40</td></tr>
+                    <tr><td>RoBERTa-large</td><td>0.47</td><td>0.44</td><td>0.45</td></tr>
+                    <tr><td>Flan-T5-base</td><td>0.71</td><td>0.31</td><td>0.43</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="small mb-0"><strong>What it means:</strong> F1 is high only when both are high. Flan-T5-base had the best precision on Limit but missed most real passages, so its F1 (0.43) is pulled down. A plain average of its precision and recall would be 0.51 and hide that.</p>
             </div>
 
             <div class="math-item">
@@ -980,6 +1009,17 @@
               <div class="math-formula mb-2">Macro F1 = the average of the six F1 scores</div>
               <p class="small mb-1">Every right counts the same, so a model can't score well just by getting Notice right.</p>
               <p class="small text-muted mb-0">Example: Flan-T5-base's six F1s (0.97, 0.69, 0.90, 0.88, 0.89, 0.43) average to about 0.79.</p>
+              <div class="table-responsive mt-2 mb-2">
+                <table class="table table-sm table-bordered small">
+                  <thead class="committee-header"><tr><th>Model</th><th>Macro F1</th><th>vs. simple rule (0.1473)</th></tr></thead>
+                  <tbody>
+                    <tr><td>LegalBERT</td><td>0.7562</td><td>about 5 times higher</td></tr>
+                    <tr><td>RoBERTa-large</td><td>0.7734</td><td>about 5 times higher</td></tr>
+                    <tr><td>Flan-T5-base</td><td>0.7949</td><td>about 5 times higher</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="small mb-0"><strong>What it means:</strong> all three learned the rare rights, not just Notice. The gaps between models are small (1.7 and 3.9 points) and come from one run.</p>
             </div>
 
             <div class="math-item">
@@ -1008,13 +1048,7 @@
               <p class="small text-muted mb-0">Example: if the model is 90% sure and correct, that example counts only 0.1 as much (1 &minus; 0.9). If it's only 30% sure, it counts 0.7.</p>
             </div>
 
-            <div class="math-item">
-              <div class="fw-semibold small mb-1">9. Score to label (cutoffs)</div>
-              <div class="math-formula mb-2">Score = sigmoid(output), from 0 to 1</div>
-              <p class="small mb-1">The model turns each right into a score from 0 to 1. If the score is above that right's cutoff, the passage gets the label.</p>
-              <p class="small text-muted mb-1">Example: LegalBERT gave a Right to Delete passage a score of 0.963. Its cutoff is 0.725, so it was labeled Right to Delete.</p>
-              <p class="small text-muted mb-0">Cutoffs were tested from 0.10 to 0.825 in steps of 0.025 on the validation set, one per right. The one with the best validation macro F1 was kept.</p>
-            </div>
+
           </div>
         </div>
       </div>
