@@ -42,6 +42,13 @@
     .pipeline-card { border-left: 3px solid #1b4d89; background: #fff; border-radius: .35rem; padding: .75rem .9rem; margin-bottom: .25rem; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
     .pipeline-step-num { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; background: #1b4d89; color: #fff; border-radius: 50%; font-size: .75rem; font-weight: 700; flex-shrink: 0; }
     .pipeline-arrow-v { text-align: center; color: #1b4d89; font-size: .9rem; line-height: 1; margin: .1rem 0; opacity: .5; }
+    .committee-header { background: #1b4d89 !important; color: #fff; }
+    .committee-header th { color: #fff !important; }
+    .badge-status-green { background: #198754; color: #fff; font-size: .75rem; padding: .25rem .5rem; border-radius: .25rem; }
+    .badge-status-gold { background: #d4a017; color: #fff; font-size: .75rem; padding: .25rem .5rem; border-radius: .25rem; }
+    .badge-status-navy { background: #1b4d89; color: #fff; font-size: .75rem; padding: .25rem .5rem; border-radius: .25rem; }
+    .committee-navy-box { background: #1b4d89; color: #fff; border-radius: .35rem; padding: .75rem .85rem; margin-top: 1rem; }
+    .committee-navy-box p { color: #fff; }
     .accordion-sm .accordion-button { font-size: .85rem; padding: .5rem .75rem; }
     .accordion-sm .accordion-body { padding: .75rem; }
     .extra-exp { background: #eef4fb; border-left: 4px solid #1b4d89; border-radius: .35rem; padding: .75rem .85rem; margin-top: 1rem; }
@@ -1215,11 +1222,46 @@
     <div class="accordion mt-4" id="committee-concerns-accordion">
       <div class="accordion-item">
         <div class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#committee-concerns-body" aria-expanded="false">Committee concerns and how leakage was prevented</button>
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#committee-concerns-body" aria-expanded="false">The committee's four concerns, and what changed</button>
         </div>
         <div id="committee-concerns-body" class="accordion-collapse collapse">
           <div class="accordion-body">
-            <div class="table-responsive">
+            <p class="small mb-3">At the first defense, the committee raised four concerns. Each one is listed below with what they asked for, what changed in this study, and an honest status.</p>
+
+            <div class="table-responsive mb-4">
+              <table class="table table-sm table-bordered small">
+                <thead class="committee-header"><tr><th>Committee concern (first defense)</th><th>What they asked for</th><th>What changed in this study</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td>1. Thresholds were tuned on the test set. The test set was used to choose cutoffs and then reused for the final score, which may inflate the F1 scores.</td>
+                    <td>Make all threshold and model-selection decisions on the validation set only, then evaluate once on an untouched test set.</td>
+                    <td>Every cutoff, setting, and best saved version was chosen on the validation set (23 companies). The test set (25 companies) was used once, at the end, and nothing changed afterward.</td>
+                    <td><span class="badge-status-green">Addressed</span></td>
+                  </tr>
+                  <tr>
+                    <td>2. No evidence the models generalize. Training and test data came from the same augmentation templates, so the models may have learned artificial cues instead of legal concepts.</td>
+                    <td>Evaluate on natural, unaugmented, independently labeled CPRA passages from sources not used in dataset development.</td>
+                    <td>No augmentation: all 9,640 passages are real text from company privacy policies (C3PA), labeled by independent legal annotators, not by the author. Test companies were never seen in training, and 992 duplicate passages were removed.<br><span class="small text-muted mt-1 d-block">Limit: all data comes from C3PA. Testing on policies from other sources is future work.</span></td>
+                    <td><span class="badge-status-gold">Addressed, with one stated limit</span></td>
+                  </tr>
+                  <tr>
+                    <td>3. Model comparisons were not controlled. The models differed in size, design, sequence length, loss, training, and threshold rules, so the study could not conclude that architecture matters more than legal pretraining.</td>
+                    <td>Add size-matched, consistent baselines, or narrow the claims to say only that the selected general-purpose models outperformed the selected LegalBERT configuration.</td>
+                    <td>Claims were narrowed, as the committee allowed. The study states only that RoBERTa-large and Flan-T5-base scored higher in macro F1 than LegalBERT in this single run. All claims that architecture or scale matter more were removed. All three models used the same data, split, seed, and validation-only tuning.<br><span class="small text-muted mt-1 d-block">Size-matched comparisons with multiple runs are future work.</span></td>
+                    <td><span class="badge-status-green">Addressed by narrowing claims</span></td>
+                  </tr>
+                  <tr>
+                    <td>4. ML foundations. Train/validation/test separation, leakage, threshold selection, F1, class imbalance, experimental controls, and generalization must be understood, explained, and defended.</td>
+                    <td>Master these foundations, reproduce and explain every stage of the pipeline, and demonstrate that command at this defense.</td>
+                    <td>Each concept is explained on this site: train, validation, and test (this section), F1 and macro F1 (the H1 card and 'The math'), thresholds and class imbalance ('ML foundations, explained' below), and the full pipeline end to end ('The full pipeline, step by step').</td>
+                    <td><span class="badge-status-navy">Documented and demonstrated in this defense</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 class="h6 text-uppercase text-muted mb-2 mt-3">Leakage checks in detail</h4>
+            <div class="table-responsive mb-3">
               <table class="table table-sm table-bordered small">
                 <thead class="table-light"><tr><th>Concern</th><th>Before</th><th>After</th></tr></thead>
                 <tbody>
@@ -1245,6 +1287,10 @@
                   </tr>
                 </tbody>
               </table>
+            </div>
+
+            <div class="committee-navy-box">
+              <p class="small mb-0">Since the first defense, the study was rebuilt from the ground up: a new real-world dataset replacing the augmented one, a new data pipeline with leakage checks, and all three models retrained, re-tuned on validation, and re-evaluated on unseen companies.</p>
             </div>
           </div>
         </div>
