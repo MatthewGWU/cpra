@@ -171,7 +171,7 @@
           <p class="small text-muted mb-2">RQ1: Can supervised NLP be used to automatically classify CPRA Consumer Rights from Company's privacy policies?</p>
           <p class="small mb-2">Supervised NLP can be used by leveraging CPRA Privacy Policies to achieve a macro F1 score above <strong>0.15</strong> on the test data, which is the score of a simple rule that labels every passage as Notice Requirement.</p>
           <p class="small text-muted mb-1"><strong>Result:</strong> All three models scored 0.7562 to 0.7949.</p>
-          <p class="small text-muted mb-0">Compare like with like: the models' average (0.76 to 0.79) vs. the rule's average (0.15).</p>
+          <p class="small text-muted mb-0">0.15 is the rule's average across all six rights; the models averaged 0.76 to 0.79.</p>
 
           <div class="accordion mt-3" id="h1-why-accordion">
             <div class="accordion-item">
@@ -180,35 +180,46 @@
               </h3>
               <div id="h1-why-body" class="accordion-collapse collapse" aria-labelledby="h1-why-head">
                 <div class="accordion-body">
-                  <p class="small mb-2"><strong>Why this rule:</strong> Notice is the most common label, so always answering 'Notice' is the easiest way to score without learning. It's a standard starting point in machine learning, called a majority-class baseline.</p>
+                  <h4 class="h6 fw-semibold mb-1">Why use this rule</h4>
+                  <p class="small mb-2">Notice is the most common label, so always answering 'Notice' is the easiest way to score without learning. Comparing against it:</p>
+                  <ul class="small mb-3 ps-3">
+                    <li class="mb-1">proves the models learned, not just guessed the common label</li>
+                    <li class="mb-1">gives a clear bar anyone can recalculate from the test set</li>
+                    <li>is a standard approach for imbalanced data (a 'majority-class baseline')</li>
+                  </ul>
 
                   <h4 class="h6 fw-semibold mb-1">How the rule scores</h4>
                   <div class="table-responsive mb-2">
                     <table class="table table-sm table-bordered small">
-                      <thead class="committee-header"><tr><th>Right</th><th>Simple rule F1</th></tr></thead>
+                      <thead class="committee-header"><tr><th>Right</th><th>Simple rule's score</th></tr></thead>
                       <tbody>
-                        <tr><td class="fw-semibold">Notice</td><td>0.88 (catches every Notice passage, but mislabels the rest)</td></tr>
+                        <tr><td class="fw-semibold">Notice</td><td class="fw-semibold">0.88 (catches every Notice passage, but mislabels the rest)</td></tr>
                         <tr><td class="fw-semibold">The other five rights</td><td>0 each (it never predicts them)</td></tr>
-                        <tr><td class="fw-semibold">Average of all six (macro F1)</td><td>0.88 &divide; 6 = 0.15</td></tr>
+                        <tr><td class="fw-semibold">Average of all six (macro F1)</td><td class="fw-semibold">0.88 &divide; 6 = 0.15</td></tr>
                       </tbody>
                     </table>
                   </div>
+                  <p class="small mb-3">0.88 is its grade on one right (Notice, used in H3). 0.15 is its overall average (used in H1).</p>
 
-                  <h4 class="h6 fw-semibold mb-1">Rule vs. models: compare like with like</h4>
+                  <h4 class="h6 fw-semibold mb-1">Rule vs. models</h4>
                   <div class="table-responsive mb-2">
                     <table class="table table-sm table-bordered small">
                       <thead class="committee-header"><tr><th>Score</th><th>Simple rule</th><th>Models</th><th>Hypothesis</th></tr></thead>
                       <tbody>
                         <tr><td class="fw-semibold">Average of all six rights (macro F1)</td><td>0.15</td><td>0.76 to 0.79</td><td>H1</td></tr>
                         <tr><td class="fw-semibold">Notice only</td><td>0.88</td><td>0.96 to 0.97</td><td>H3</td></tr>
+                        <tr><td class="fw-semibold">Average of the five non-Notice rights</td><td>0</td><td>0.71 to 0.76</td><td>&mdash;</td></tr>
                       </tbody>
                     </table>
                   </div>
-                  <p class="small text-muted mb-2">The models beat the rule on both.</p>
+                  <p class="small text-muted mb-3">The models beat the rule on all three. The last row is calculated from the per-right scores in Table 4.5.</p>
+
+                  <h4 class="h6 fw-semibold mb-1">Doesn't Notice inflate the 0.76 to 0.79?</h4>
+                  <p class="small mb-3">No. Macro F1 gives each right one-sixth of the score, so Notice can't carry it. Even with Notice removed, the models average 0.71 to 0.76 on the other five rights, where the rule scores 0. Two checks keep Notice from dominating: class weights and focal loss during training (mistakes on rare rights cost more), and macro F1 during scoring (every right counts equally).</p>
 
                   <div class="plain-words">
                     <div class="plain-words-label">In plain words</div>
-                    <p class="small mb-2">A rule that only says 'Notice' averages 0.15 across the six rights. The models averaged 0.76 to 0.79, so they learned all six rights, not just Notice.</p>
+                    <p class="small mb-2">A rule that only says 'Notice' averages 0.15. The models averaged 0.76 to 0.79, and still about 0.71 to 0.76 without Notice, so they learned all six rights.</p>
                   </div>
 
                   <p class="small mt-2 mb-0"><a href="#per-label-body">See every right's score in Per-label results.</a></p>
