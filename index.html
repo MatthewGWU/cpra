@@ -1584,7 +1584,7 @@
                     <p class="small mb-2">Yes. It meets the requirement for independent, natural text, but it is one dataset. That is why this is marked 'with one stated limit.' Testing on full policies from outside C3PA is future work (Section 5.4).</p>
                     <hr class="my-2">
                     <p class="small mb-1"><strong>Q: Could near-duplicate passages still affect the results?</strong></p>
-                    <p class="small mb-0">Exact duplicates were removed, but some near-identical passages remain, differing only in formatting such as line breaks. The paper notes this as a limitation (Section 1.8). The company split reduces the risk, because each company's passages stay in one group.</p>
+                    <p class="small mb-0">Exact duplicates were removed, but some near-identical passages remain, differing only in formatting such as line breaks; the paper notes this as a limitation (Section 1.8). This is a small residual overlap: the same boilerplate sentence appearing at two different companies, with one copy in training and one in test. A follow-up check measured it: after ignoring capitalization, punctuation, and line breaks, only 9 of the 1,720 test passages (0.5%) also appear in training. Most are short boilerplate such as section headings ('Personal information we collect'), and none are in Limit, Correct, or Delete. This is too small to change the results, and it is not the test-set tuning or template leakage raised at the first defense, which is fully fixed. Removing near-duplicates before splitting would close it completely and is a simple future step.</p>
                   </div>
                 </div>
               </div>
@@ -1662,7 +1662,7 @@
                   <tr>
                     <td class="fw-semibold">Near-duplicates</td>
                     <td>Passages that differ only in formatting, such as line breaks, could look alike across groups.</td>
-                    <td>Exact duplicates were removed; some near-identical passages remain and are noted as a limitation (Section 1.8). The company split limits this risk.</td>
+                    <td>Exact duplicates were removed. A follow-up check found a small residual overlap: 9 of 1,720 test passages (0.5%) match a training passage after ignoring capitalization, punctuation, and line breaks. Mostly short headings; none in Limit, Correct, or Delete. Noted as a limitation (Section 1.8).</td>
                   </tr>
                 </tbody>
               </table>
